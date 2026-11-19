@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CS-102: Linear Vector Traversal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #09090b;
+    }
+    .title-block p {
+      font-size: 0.72rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 8px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 70px;
+    }
+    .metric-label {
+      font-size: 0.6rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: #18181b;
+      color: #fafafa;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover { background: #27272a; }
+    .speed-select {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: #18181b;
+      cursor: pointer;
+    }
+    .canvas-container {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+    canvas {
+      display: block;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(250, 250, 250, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overlay h2 { font-size: 1.2rem; font-weight: 700; }
+    .overlay p { font-size: 0.8rem; color: #52525b; text-align: center; max-width: 240px; }
+    .mobile-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .pad-btn {
+      width: 44px;
+      height: 44px;
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>CS-102: Vector Traversal</h1>
+      <p>Dynamic Memory Node Expansion</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Nodes Retained</div>
+        <div class="metric-val" id="score">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Dean's Index</div>
+        <div class="metric-val" id="highScore">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-strip">
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span style="font-size:0.72rem; color:#71717a;">Sampling Velocity:</span>
+      <select class="speed-select" id="speedSelect">
+        <option value="120">Standard (8 Hz)</option>
+        <option value="90">Accelerated (11 Hz)</option>
+        <option value="60">Maximum (16 Hz)</option>
+      </select>
+    </div>
+    <button class="btn" id="restartBtn">Reinitialize</button>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="overlay" id="overlay">
+      <h2>Pointer Fault Encountered</h2>
+      <p id="overlayDesc">Memory allocation hit bounded parameter.</p>
+      <button class="btn" id="overlayRestartBtn">Begin New Allocation</button>
+    </div>
+  </div>
+
+  <div class="mobile-pad">
+    <div></div>
+    <button class="pad-btn" id="btnUp">▲</button>
+    <div></div>
+    <button class="pad-btn" id="btnLeft">◀</button>
+    <button class="pad-btn" id="btnDown">▼</button>
+    <button class="pad-btn" id="btnRight">▶</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const GRID = 20;
+    const COUNT = canvas.width / GRID;
+
+    let snake = [];
+    let dir = { x: 1, y: 0 };
+    let nextDir = { x: 1, y: 0 };
+    let food = { x: 5, y: 5 };
+    let score = 0;
+    let gameLoop = null;
+    let isGameOver = false;
+
+    let speed = parseInt(document.getElementById('speedSelect').value, 10);
+    let highScore = parseInt(localStorage.getItem('scholastica_snake_record') || '0', 10);
+    document.getElementById('highScore').textContent = highScore;
+
+    function init() {
+      snake = [
+        { x: 10, y: 10 },
+        { x: 9, y: 10 },
+        { x: 8, y: 10 }
+      ];
+      dir = { x: 1, y: 0 };
+      nextDir = { x: 1, y: 0 };
+      score = 0;
+      isGameOver = false;
+      document.getElementById('score').textContent = '0';
+      document.getElementById('overlay').classList.remove('active');
+      spawnFood();
+
+      if (gameLoop) clearInterval(gameLoop);
+      gameLoop = setInterval(step, speed);
+      draw();
+    }
+
+    function spawnFood() {
+      let valid = false;
+      while (!valid) {
+        food = {
+          x: Math.floor(Math.random() * COUNT),
+          y: Math.floor(Math.random() * COUNT)
+        };
+        valid = !snake.some(segment => segment.x === food.x && segment.y === food.y);
+      }
+    }
+
+    function step() {
+      if (isGameOver) return;
+      dir = nextDir;
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+      // Perimeter constraint check
+      if (head.x < 0 || head.x >= COUNT || head.y < 0 || head.y >= COUNT) {
+        endGame("Coordinate vector crossed perimeter boundary.");
+        return;
+      }
+
+      // Self-intersection check
+      if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+        endGame("Pointer self-intersection detected in node sequence.");
+        return;
+      }
+
+      snake.unshift(head);
+
+      // Check food absorption
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById('score').textContent = score;
+        if (score > highScore) {
+          highScore = score;
+          document.getElementById('highScore').textContent = highScore;
+          localStorage.setItem('scholastica_snake_record', highScore.toString());
+        }
+        spawnFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function endGame(msg) {
+      isGameOver = true;
+      clearInterval(gameLoop);
+      document.getElementById('overlayDesc').textContent = msg;
+      document.getElementById('overlay').classList.add('active');
+    }
+
+    function draw() {
+      // Clear background
+      ctx.fillStyle = '#fafafa';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Grid dots
+      ctx.fillStyle = '#e4e4e7';
+      for (let x = 0; x < COUNT; x++) {
+        for (let y = 0; y < COUNT; y++) {
+          ctx.fillRect(x * GRID + GRID / 2, y * GRID + GRID / 2, 1.5, 1.5);
+        }
+      }
+
+      // Target node (food)
+      ctx.fillStyle = '#2563eb';
+      ctx.beginPath();
+      ctx.arc(food.x * GRID + GRID / 2, food.y * GRID + GRID / 2, GRID / 2.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Node sequence (snake)
+      snake.forEach((seg, i) => {
+        ctx.fillStyle = i === 0 ? '#18181b' : '#52525b';
+        ctx.beginPath();
+        const radius = i === 0 ? 5 : 3;
+        ctx.roundRect(seg.x * GRID + 1, seg.y * GRID + 1, GRID - 2, GRID - 2, radius);
+        ctx.fill();
+      });
+    }
+
+    function setDirection(dx, dy) {
+      if (dir.x + dx === 0 && dir.y + dy === 0) return; // Prevent reversing
+      nextDir = { x: dx, y: dy };
+    }
+
+    window.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowUp': case 'w': case 'W': setDirection(0, -1); e.preventDefault(); break;
+        case 'ArrowDown': case 's': case 'S': setDirection(0, 1); e.preventDefault(); break;
+        case 'ArrowLeft': case 'a': case 'A': setDirection(-1, 0); e.preventDefault(); break;
+        case 'ArrowRight': case 'd': case 'D': setDirection(1, 0); e.preventDefault(); break;
+      }
+    });
+
+    document.getElementById('speedSelect').addEventListener('change', (e) => {
+      speed = parseInt(e.target.value, 10);
+      if (!isGameOver) {
+        clearInterval(gameLoop);
+        gameLoop = setInterval(step, speed);
+      }
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', init);
+    document.getElementById('overlayRestartBtn').addEventListener('click', init);
+
+    document.getElementById('btnUp').addEventListener('click', () => setDirection(0, -1));
+    document.getElementById('btnDown').addEventListener('click', () => setDirection(0, 1));
+    document.getElementById('btnLeft').addEventListener('click', () => setDirection(-1, 0));
+    document.getElementById('btnRight').addEventListener('click', () => setDirection(1, 0));
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>NEUR-220: Synaptic Recall</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #09090b;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 8px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 65px;
+    }
+    .metric-label {
+      font-size: 0.6rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .btn {
+      background: #18181b;
+      color: #fafafa;
+      border: none;
+      padding: 5px 14px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+    .card {
+      aspect-ratio: 1 / 1;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .card.hidden-specimen {
+      background: #f4f4f5;
+      color: transparent;
+      border-color: #d4d4d8;
+    }
+    .card.hidden-specimen::after {
+      content: "§";
+      color: #a1a1aa;
+      font-size: 1rem;
+      font-family: serif;
+    }
+    .card.matched {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      cursor: default;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(250, 250, 250, 0.94);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overlay h2 { font-size: 1.15rem; font-weight: 700; }
+    .overlay p { font-size: 0.78rem; color: #52525b; text-align: center; max-width: 220px; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>NEUR-220: Synaptic Recall</h1>
+      <p>Working Memory Matrix Association</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Associations</div>
+        <div class="metric-val" id="matchedCount">0/8</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Inquiries</div>
+        <div class="metric-val" id="trials">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Latency</div>
+        <div class="metric-val" id="timer">0s</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-strip">
+    <div style="font-size:0.72rem; color:#71717a;">Directives: Invert pairs to identify matching taxonomy glyphs</div>
+    <button class="btn" id="restartBtn">Reinitialize</button>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="overlay" id="overlay">
+      <h2>Matrix Fully Encoded!</h2>
+      <p id="overlayDesc">Synaptic association test completed.</p>
+      <button class="btn" id="overlayRestartBtn">Begin New Trial</button>
+    </div>
+  </div>
+
+  <script>
+    const SYMBOLS = ['Ω', 'λ', 'π', '∑', '∫', '∆', 'µ', '∞'];
+    let cards = [];
+    let flipped = [];
+    let matchedCount = 0;
+    let trials = 0;
+    let timer = 0;
+    let timerId = null;
+    let started = false;
+
+    const gridEl = document.getElementById('grid');
+    const matchedEl = document.getElementById('matchedCount');
+    const trialsEl = document.getElementById('trials');
+    const timerEl = document.getElementById('timer');
+    const overlay = document.getElementById('overlay');
+    const overlayDesc = document.getElementById('overlayDesc');
+
+    function init() {
+      matchedCount = 0;
+      trials = 0;
+      timer = 0;
+      started = false;
+      flipped = [];
+      clearInterval(timerId);
+
+      matchedEl.textContent = "0/8";
+      trialsEl.textContent = "0";
+      timerEl.textContent = "0s";
+      overlay.classList.remove('active');
+
+      const deck = [...SYMBOLS, ...SYMBOLS];
+      // Fisher-Yates shuffle
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+
+      // Remove existing card DOM except overlay
+      const currentCards = gridEl.querySelectorAll('.card');
+      currentCards.forEach(c => c.remove());
+
+      cards = deck.map((symbol, idx) => {
+        const el = document.createElement('div');
+        el.className = 'card hidden-specimen';
+        el.textContent = symbol;
+        gridEl.appendChild(el);
+
+        const cardObj = {
+          idx,
+          symbol,
+          el,
+          isMatched: false
+        };
+
+        el.addEventListener('click', () => handleCardClick(cardObj));
+        return cardObj;
+      });
+    }
+
+    function handleCardClick(card) {
+      if (card.isMatched || flipped.includes(card) || flipped.length >= 2) return;
+
+      if (!started) {
+        started = true;
+        timerId = setInterval(() => {
+          timer++;
+          timerEl.textContent = `${timer}s`;
+        }, 1000);
+      }
+
+      card.el.classList.remove('hidden-specimen');
+      flipped.push(card);
+
+      if (flipped.length === 2) {
+        trials++;
+        trialsEl.textContent = trials;
+        const [c1, c2] = flipped;
+
+        if (c1.symbol === c2.symbol) {
+          c1.isMatched = true;
+          c2.isMatched = true;
+          c1.el.classList.add('matched');
+          c2.el.classList.add('matched');
+          matchedCount++;
+          matchedEl.textContent = `${matchedCount}/8`;
+          flipped = [];
+
+          if (matchedCount === 8) {
+            clearInterval(timerId);
+            overlayDesc.textContent = `Completed in ${trials} inquiries across ${timer} seconds.`;
+            overlay.classList.add('active');
+          }
+        } else {
+          setTimeout(() => {
+            c1.el.classList.add('hidden-specimen');
+            c2.el.classList.add('hidden-specimen');
+            flipped = [];
+          }, 800);
+        }
+      }
+    }
+
+    document.getElementById('restartBtn').addEventListener('click', init);
+    document.getElementById('overlayRestartBtn').addEventListener('click', init);
+
+    init();
+  </script>
+</body>
+</html>

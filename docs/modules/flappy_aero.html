@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AERO-110: Bernoulli Trajectory</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #09090b;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 8px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 65px;
+    }
+    .metric-label {
+      font-size: 0.6rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: #18181b;
+      color: #fafafa;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .canvas-container {
+      position: relative;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+    }
+    canvas {
+      display: block;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(250, 250, 250, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overlay h2 { font-size: 1.15rem; font-weight: 700; }
+    .overlay p { font-size: 0.78rem; color: #52525b; text-align: center; max-width: 200px; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>AERO-110: Lift Dynamics</h1>
+      <p>Bernoulli Fluid Stream Aperture</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Apertures</div>
+        <div class="metric-val" id="score">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Dean's Record</div>
+        <div class="metric-val" id="highScore">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-strip">
+    <div style="font-size:0.72rem; color:#71717a;">Directives: Spacebar or Tap for kinetic pulse</div>
+    <button class="btn" id="restartBtn">Reinitialize</button>
+  </div>
+
+  <div class="canvas-container" id="container">
+    <canvas id="gameCanvas" width="340" height="460"></canvas>
+    <div class="overlay" id="overlay">
+      <h2>Laminar Flow Disrupted</h2>
+      <p id="overlayDesc">Specimen collided with conduit perimeter.</p>
+      <button class="btn" id="overlayRestartBtn">Begin New Flight Path</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const GRAVITY = 0.28;
+    const JUMP_IMPULSE = -5.4;
+    const PIPE_SPEED = 2.0;
+    const PIPE_GAP = 110;
+    const PIPE_WIDTH = 48;
+
+    let birdY = 200;
+    let birdVelocity = 0;
+    let pipes = [];
+    let score = 0;
+    let isGameOver = false;
+    let animId = null;
+
+    let highScore = parseInt(localStorage.getItem('scholastica_flappy_record') || '0', 10);
+    document.getElementById('highScore').textContent = highScore;
+
+    function init() {
+      birdY = 200;
+      birdVelocity = 0;
+      pipes = [];
+      score = 0;
+      isGameOver = false;
+      document.getElementById('score').textContent = '0';
+      document.getElementById('overlay').classList.remove('active');
+
+      spawnPipe(canvas.width + 100);
+      spawnPipe(canvas.width + 260);
+
+      if (animId) cancelAnimationFrame(animId);
+      loop();
+    }
+
+    function spawnPipe(xPos) {
+      const minTop = 60;
+      const maxTop = canvas.height - PIPE_GAP - 60;
+      const topHeight = Math.floor(Math.random() * (maxTop - minTop)) + minTop;
+      pipes.push({
+        x: xPos,
+        top: topHeight,
+        bottom: topHeight + PIPE_GAP,
+        passed: false
+      });
+    }
+
+    function jump() {
+      if (isGameOver) return;
+      birdVelocity = JUMP_IMPULSE;
+    }
+
+    function loop() {
+      update();
+      draw();
+      if (!isGameOver) {
+        animId = requestAnimationFrame(loop);
+      }
+    }
+
+    function update() {
+      birdVelocity += GRAVITY;
+      birdY += birdVelocity;
+
+      // Floor / ceiling boundary checks
+      if (birdY - 10 <= 0 || birdY + 10 >= canvas.height) {
+        endGame("Vertical altitude envelope exceeded.");
+        return;
+      }
+
+      // Move pipes
+      for (let i = 0; i < pipes.length; i++) {
+        const p = pipes[i];
+        p.x -= PIPE_SPEED;
+
+        // Collision check (bird circle radius 10 at x=70)
+        const birdX = 70;
+        if (birdX + 10 > p.x && birdX - 10 < p.x + PIPE_WIDTH) {
+          if (birdY - 10 < p.top || birdY + 10 > p.bottom) {
+            endGame("Aperture barrier impact detected.");
+            return;
+          }
+        }
+
+        // Score update
+        if (!p.passed && p.x + PIPE_WIDTH < birdX) {
+          p.passed = true;
+          score++;
+          document.getElementById('score').textContent = score;
+          if (score > highScore) {
+            highScore = score;
+            document.getElementById('highScore').textContent = highScore;
+            localStorage.setItem('scholastica_flappy_record', highScore.toString());
+          }
+        }
+      }
+
+      // Remove off-screen pipes and spawn next
+      if (pipes.length > 0 && pipes[0].x + PIPE_WIDTH < 0) {
+        pipes.shift();
+        spawnPipe(pipes[pipes.length - 1].x + 160);
+      }
+    }
+
+    function endGame(msg) {
+      isGameOver = true;
+      document.getElementById('overlayDesc').textContent = msg;
+      document.getElementById('overlay').classList.add('active');
+    }
+
+    function draw() {
+      // Sky canvas
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Atmospheric streamlines (decorative subtle flow lines)
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      for (let y = 40; y < canvas.height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      // Vertical restrictor conduits (pipes)
+      pipes.forEach(p => {
+        ctx.fillStyle = '#cbd5e1';
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.5;
+
+        // Top conduit
+        ctx.fillRect(p.x, 0, PIPE_WIDTH, p.top);
+        ctx.strokeRect(p.x, 0, PIPE_WIDTH, p.top);
+
+        // Bottom conduit
+        ctx.fillRect(p.x, p.bottom, PIPE_WIDTH, canvas.height - p.bottom);
+        ctx.strokeRect(p.x, p.bottom, PIPE_WIDTH, canvas.height - p.bottom);
+      });
+
+      // Aerodynamic Specimen (Bird)
+      ctx.save();
+      ctx.translate(70, birdY);
+      const angle = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, birdVelocity * 0.08));
+      ctx.rotate(angle);
+
+      // Body
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.arc(0, 0, 11, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Wing vector
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.ellipse(-4, 0, 6, 3, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Directional tip
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(8, -3);
+      ctx.lineTo(14, 0);
+      ctx.lineTo(8, 3);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.key === ' ' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        jump();
+      }
+    });
+
+    document.getElementById('container').addEventListener('mousedown', jump);
+    document.getElementById('container').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      jump();
+    }, { passive: false });
+
+    document.getElementById('restartBtn').addEventListener('click', init);
+    document.getElementById('overlayRestartBtn').addEventListener('click', init);
+
+    init();
+  </script>
+</body>
+</html>

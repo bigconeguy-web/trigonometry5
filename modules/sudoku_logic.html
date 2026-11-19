@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MATH-330: Discrete Constraint Satisfaction</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #09090b;
+      letter-spacing: -0.02em;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.58rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #09090b;
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 0.75rem;
+    }
+    .select-input {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #27272a;
+      outline: none;
+    }
+    .btn {
+      background: #18181b;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #27272a; }
+    .btn-secondary {
+      background: #f4f4f5;
+      color: #18181b;
+      border: 1px solid #e4e4e7;
+    }
+    .btn-secondary:hover { background: #e4e4e7; }
+    .grid-container {
+      background: #09090b;
+      padding: 3px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 44px);
+      grid-template-rows: repeat(9, 44px);
+      background: #d4d4d8;
+      gap: 1px;
+    }
+    .cell {
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-variant-numeric: tabular-nums;
+      position: relative;
+    }
+    .cell.fixed {
+      background: #f8fafc;
+      color: #0f172a;
+      font-weight: 800;
+    }
+    .cell.user {
+      color: #2563eb;
+    }
+    .cell.selected {
+      background: #e0e7ff;
+    }
+    .cell.highlight {
+      background: #f1f5f9;
+    }
+    .cell.error {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    /* 3x3 subgrid borders */
+    .cell:nth-child(3n) {
+      margin-right: 2px;
+    }
+    .cell:nth-child(9n) {
+      margin-right: 0;
+    }
+    .grid > div:nth-child(n+19):nth-child(-n+27),
+    .grid > div:nth-child(n+46):nth-child(-n+54) {
+      margin-bottom: 2px;
+    }
+    .keypad {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      gap: 6px;
+      margin-top: 14px;
+      justify-content: center;
+    }
+    .num-btn {
+      flex: 1;
+      height: 42px;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: all 0.1s;
+    }
+    .num-btn:active {
+      transform: scale(0.95);
+      background: #f1f5f9;
+    }
+    .num-btn.erase {
+      background: #f4f4f5;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>MATH-330: Discrete Constraint Satisfaction</h1>
+      <p>Applied Mathematics · Nonary Tensor Matrix Reduction</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Timer</div>
+        <div class="metric-val" id="timerVal">00:00</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Discrepancies</div>
+        <div class="metric-val" id="mistakesVal">0 / 3</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-strip">
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <select id="difficulty" class="select-input">
+        <option value="easy">Foundational (Easy)</option>
+        <option value="medium" selected>Undergraduate (Medium)</option>
+        <option value="hard">Honors Colloquium (Hard)</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <button class="btn btn-secondary" id="checkBtn">Verify Logic</button>
+      <button class="btn" id="newGridBtn">New Matrix</button>
+    </div>
+  </div>
+
+  <div class="grid-container">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="keypad">
+    <button class="num-btn" data-val="1">1</button>
+    <button class="num-btn" data-val="2">2</button>
+    <button class="num-btn" data-val="3">3</button>
+    <button class="num-btn" data-val="4">4</button>
+    <button class="num-btn" data-val="5">5</button>
+    <button class="num-btn" data-val="6">6</button>
+    <button class="num-btn" data-val="7">7</button>
+    <button class="num-btn" data-val="8">8</button>
+    <button class="num-btn" data-val="9">9</button>
+    <button class="num-btn erase" id="eraseBtn">Clear</button>
+  </div>
+
+  <script>
+    // Audio Context
+    let audioCtx = null;
+    function playBeep(freq, type='sine', dur=0.08) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    const gridEl = document.getElementById('grid');
+    const timerVal = document.getElementById('timerVal');
+    const mistakesVal = document.getElementById('mistakesVal');
+    const difficultySelect = document.getElementById('difficulty');
+    const newGridBtn = document.getElementById('newGridBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const eraseBtn = document.getElementById('eraseBtn');
+
+    let solution = [];
+    let initialPuzzle = [];
+    let currentGrid = [];
+    let selectedRow = -1;
+    let selectedCol = -1;
+    let mistakes = 0;
+    let timerSeconds = 0;
+    let timerInterval = null;
+
+    // Classic curated verified Sudoku boards with distinct valid completions
+    const RAW_BOARDS = {
+      easy: [
+        "530070000600195000098000060800060003400803001700020006060000280000419005000080079",
+        "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
+      ],
+      medium: [
+        "000000680000073005301009000040050008016000290700080010000900701800410000067000000",
+        "020608000580009700000040000370000500600000004008000013000020000009800036000306090"
+      ],
+      hard: [
+        "000000000000003085001020000000507000004000100090000000500000073002010000000040009",
+        "000000000000003085001020000000507000004000100090000000500000073002010000000040009"
+      ]
+    };
+
+    function parseBoardString(str) {
+      const board = [];
+      for (let r = 0; r < 9; r++) {
+        board[r] = [];
+        for (let c = 0; c < 9; c++) {
+          board[r][c] = parseInt(str[r * 9 + c], 10);
+        }
+      }
+      return board;
+    }
+
+    // Backtracking solver to get accurate solution
+    function solveSudoku(board) {
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (board[r][c] === 0) {
+            for (let num = 1; num <= 9; num++) {
+              if (isValid(board, r, c, num)) {
+                board[r][c] = num;
+                if (solveSudoku(board)) return true;
+                board[r][c] = 0;
+              }
+            }
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function isValid(board, row, col, num) {
+      for (let i = 0; i < 9; i++) {
+        if (board[row][i] === num) return false;
+        if (board[i][col] === num) return false;
+      }
+      const boxR = Math.floor(row / 3) * 3;
+      const boxC = Math.floor(col / 3) * 3;
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          if (board[boxR + r][boxC + c] === num) return false;
+        }
+      }
+      return true;
+    }
+
+    function initGame() {
+      const diff = difficultySelect.value;
+      const boards = RAW_BOARDS[diff] || RAW_BOARDS.medium;
+      const raw = boards[Math.floor(Math.random() * boards.length)];
+
+      initialPuzzle = parseBoardString(raw);
+      currentGrid = initialPuzzle.map(row => [...row]);
+
+      // Compute solution copy
+      const solCopy = initialPuzzle.map(row => [...row]);
+      solveSudoku(solCopy);
+      solution = solCopy;
+
+      mistakes = 0;
+      mistakesVal.textContent = '0 / 3';
+      selectedRow = -1;
+      selectedCol = -1;
+
+      timerSeconds = 0;
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+        const s = (timerSeconds % 60).toString().padStart(2, '0');
+        timerVal.textContent = `${m}:${s}`;
+      }, 1000);
+
+      render();
+    }
+
+    function render() {
+      gridEl.innerHTML = '';
+      const selectedNum = (selectedRow >= 0 && selectedCol >= 0) ? currentGrid[selectedRow][selectedCol] : null;
+
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          const val = currentGrid[r][c];
+          const isFixed = initialPuzzle[r][c] !== 0;
+          const isSelected = r === selectedRow && c === selectedCol;
+          const isPeer = (r === selectedRow || c === selectedCol || (Math.floor(r/3) === Math.floor(selectedRow/3) && Math.floor(c/3) === Math.floor(selectedCol/3)));
+          const isSameNum = val !== 0 && val === selectedNum;
+
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          if (isFixed) cell.classList.add('fixed');
+          else if (val !== 0) cell.classList.add('user');
+
+          if (isSelected) cell.classList.add('selected');
+          else if (isSameNum) cell.classList.add('selected');
+          else if (isPeer) cell.classList.add('highlight');
+
+          cell.textContent = val !== 0 ? val : '';
+
+          cell.addEventListener('click', () => {
+            selectedRow = r;
+            selectedCol = c;
+            playBeep(400, 'sine', 0.04);
+            render();
+          });
+
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function inputNumber(num) {
+      if (selectedRow < 0 || selectedCol < 0) return;
+      if (initialPuzzle[selectedRow][selectedCol] !== 0) return;
+
+      currentGrid[selectedRow][selectedCol] = num;
+      if (num !== 0 && solution[selectedRow][selectedCol] !== num) {
+        mistakes++;
+        mistakesVal.textContent = `${mistakes} / 3`;
+        playBeep(180, 'sawtooth', 0.15);
+        if (mistakes >= 3) {
+          alert('Curriculum Matrix Failure: Exceeded maximum permissible constraint discrepancies.');
+          initGame();
+          return;
+        }
+      } else {
+        playBeep(300 + num * 30, 'sine', 0.06);
+      }
+
+      checkComplete();
+      render();
+    }
+
+    function checkComplete() {
+      let isDone = true;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (currentGrid[r][c] !== solution[r][c]) {
+            isDone = false;
+            break;
+          }
+        }
+      }
+      if (isDone) {
+        clearInterval(timerInterval);
+        playBeep(523, 'sine', 0.2);
+        setTimeout(() => playBeep(659, 'sine', 0.3), 150);
+        setTimeout(() => {
+          alert(`Commendation! Nonary constraint satisfaction solved in ${timerVal.textContent}.`);
+        }, 300);
+      }
+    }
+
+    // Keyboard navigation & inputs
+    window.addEventListener('keydown', (e) => {
+      if (e.key >= '1' && e.key <= '9') {
+        inputNumber(parseInt(e.key, 10));
+      } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+        inputNumber(0);
+      } else if (e.key === 'ArrowUp') {
+        selectedRow = Math.max(0, selectedRow - 1);
+        render();
+      } else if (e.key === 'ArrowDown') {
+        selectedRow = Math.min(8, selectedRow + 1);
+        render();
+      } else if (e.key === 'ArrowLeft') {
+        selectedCol = Math.max(0, selectedCol - 1);
+        render();
+      } else if (e.key === 'ArrowRight') {
+        selectedCol = Math.min(8, selectedCol + 1);
+        render();
+      }
+    });
+
+    // Keypad clicks
+    document.querySelectorAll('.num-btn[data-val]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        inputNumber(parseInt(btn.dataset.val, 10));
+      });
+    });
+    eraseBtn.addEventListener('click', () => inputNumber(0));
+
+    newGridBtn.addEventListener('click', initGame);
+    difficultySelect.addEventListener('change', initGame);
+    checkBtn.addEventListener('click', () => {
+      let count = 0;
+      for (let r = 0; r < 9; r++) {
+        for (let c = 0; c < 9; c++) {
+          if (currentGrid[r][c] !== 0 && currentGrid[r][c] === solution[r][c]) {
+            count++;
+          }
+        }
+      }
+      alert(`Constraint Verification: ${count} of 81 coordinates mathematically sound.`);
+    });
+
+    initGame();
+  </script>
+</body>
+</html>

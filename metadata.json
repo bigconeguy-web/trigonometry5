@@ -1,0 +1,6 @@
+{
+  "name": "Scholastica - Open Academic Modules & Interactive Curriculum",
+  "description": "Minimalist study portal for open academic simulations, cognitive practicums, and interactive research modules.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

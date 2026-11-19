@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PHYS-180: Directed Particle Defense</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fafafa;
+      letter-spacing: -0.02em;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #a1a1aa;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.58rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #38bdf8;
+      font-variant-numeric: tabular-nums;
+    }
+    .canvas-container {
+      position: relative;
+      background: #0b0c10;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    canvas {
+      display: block;
+      background: #07080c;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 9, 11, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.hidden { display: none; }
+    .overlay h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #fafafa;
+    }
+    .overlay p {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      max-width: 340px;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .btn {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .instructions {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #71717a;
+      text-align: center;
+      max-width: 520px;
+    }
+    .instructions kbd {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      color: #e4e4e7;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>PHYS-180: Directed Particle Defense</h1>
+      <p>Quantum Ballistics · Periodic Lattice Interception</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Yield</div>
+        <div class="metric-val" id="scoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">High Honor</div>
+        <div class="metric-val" id="highScoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Calipers</div>
+        <div class="metric-val" id="livesVal">3</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="500" height="420"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">Lattice Interceptor Ready</h2>
+      <p id="overlayDesc">Coordinate directed electron discharge to neutralize descending periodic radiation nodes before planetary perimeter breach.</p>
+      <button class="btn" id="startBtn">Engage Caliper Interceptor</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    Translate caliper with <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> or Mouse / Touch Drag. Fire particle pulse with <kbd>Space</kbd>.
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayDesc = document.getElementById('overlayDesc');
+    const startBtn = document.getElementById('startBtn');
+    const scoreVal = document.getElementById('scoreVal');
+    const highScoreVal = document.getElementById('highScoreVal');
+    const livesVal = document.getElementById('livesVal');
+
+    let audioCtx = null;
+    function playBeep(freq, type='square', dur=0.06) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    let highScore = parseInt(localStorage.getItem('scholastica_phys180_high') || '0', 10);
+    highScoreVal.textContent = highScore;
+
+    let state = 'IDLE';
+    let score = 0;
+    let lives = 3;
+
+    const cannon = {
+      w: 32,
+      h: 16,
+      x: canvas.width / 2 - 16,
+      y: canvas.height - 30,
+      speed: 5
+    };
+
+    let playerBullets = [];
+    let enemyBullets = [];
+    let invaders = [];
+    let shields = [];
+    let invaderDirection = 1;
+    let invaderSpeed = 0.8;
+    let invaderDrop = false;
+    let invaderStepTimer = 0;
+
+    const keys = {};
+
+    function initInvaders() {
+      invaders = [];
+      const rows = 4;
+      const cols = 8;
+      const startX = 50;
+      const startY = 50;
+      const gapX = 46;
+      const gapY = 32;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          invaders.push({
+            x: startX + c * gapX,
+            y: startY + r * gapY,
+            w: 26,
+            h: 18,
+            alive: true,
+            pts: (4 - r) * 20,
+            color: r === 0 ? '#f43f5e' : r === 1 ? '#fb923c' : r === 2 ? '#38bdf8' : '#10b981'
+          });
+        }
+      }
+      invaderDirection = 1;
+      invaderSpeed = 0.8;
+    }
+
+    function initShields() {
+      shields = [];
+      const shieldCount = 3;
+      const shieldWidth = 60;
+      const shieldHeight = 36;
+      const gap = (canvas.width - shieldCount * shieldWidth) / (shieldCount + 1);
+
+      for (let s = 0; s < shieldCount; s++) {
+        const sx = gap + s * (shieldWidth + gap);
+        const sy = canvas.height - 90;
+        // 6x4 blocks
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 6; c++) {
+            shields.push({
+              x: sx + c * 10,
+              y: sy + r * 9,
+              w: 10,
+              h: 9,
+              health: 2
+            });
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      keys[e.key] = true;
+      if (e.key === ' ' || e.key === 'Spacebar') {
+        if (state === 'RUNNING' && playerBullets.length < 2) {
+          playerBullets.push({
+            x: cannon.x + cannon.w / 2,
+            y: cannon.y,
+            dy: -7
+          });
+          playBeep(640, 'triangle', 0.05);
+        }
+      }
+    });
+    window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (state !== 'RUNNING') return;
+      const rect = canvas.getBoundingClientRect();
+      cannon.x = Math.max(10, Math.min(canvas.width - cannon.w - 10, e.clientX - rect.left - cannon.w / 2));
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (state !== 'RUNNING') return;
+      const rect = canvas.getBoundingClientRect();
+      cannon.x = Math.max(10, Math.min(canvas.width - cannon.w - 10, e.touches[0].clientX - rect.left - cannon.w / 2));
+    }, { passive: false });
+    canvas.addEventListener('touchstart', (e) => {
+      if (state === 'RUNNING' && playerBullets.length < 2) {
+        playerBullets.push({
+          x: cannon.x + cannon.w / 2,
+          y: cannon.y,
+          dy: -7
+        });
+        playBeep(640, 'triangle', 0.05);
+      }
+    });
+
+    startBtn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      score = 0;
+      lives = 3;
+      scoreVal.textContent = score;
+      livesVal.textContent = lives;
+      playerBullets = [];
+      enemyBullets = [];
+      initInvaders();
+      initShields();
+      state = 'RUNNING';
+    });
+
+    function update() {
+      if (state !== 'RUNNING') return;
+
+      // Cannon move
+      if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+        cannon.x = Math.max(10, cannon.x - cannon.speed);
+      }
+      if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+        cannon.x = Math.min(canvas.width - cannon.w - 10, cannon.x + cannon.speed);
+      }
+
+      // Player bullets
+      for (let i = playerBullets.length - 1; i >= 0; i--) {
+        const b = playerBullets[i];
+        b.y += b.dy;
+        if (b.y < 0) {
+          playerBullets.splice(i, 1);
+          continue;
+        }
+
+        // Hit invaders
+        let bulletHit = false;
+        for (const inv of invaders) {
+          if (inv.alive && b.x > inv.x && b.x < inv.x + inv.w && b.y > inv.y && b.y < inv.y + inv.h) {
+            inv.alive = false;
+            bulletHit = true;
+            score += inv.pts;
+            scoreVal.textContent = score;
+            if (score > highScore) {
+              highScore = score;
+              highScoreVal.textContent = highScore;
+              localStorage.setItem('scholastica_phys180_high', highScore.toString());
+            }
+            playBeep(350 + inv.pts * 4, 'square', 0.08);
+            break;
+          }
+        }
+
+        // Hit shields
+        if (!bulletHit) {
+          for (let s = shields.length - 1; s >= 0; s--) {
+            const sh = shields[s];
+            if (b.x > sh.x && b.x < sh.x + sh.w && b.y > sh.y && b.y < sh.y + sh.h) {
+              sh.health--;
+              if (sh.health <= 0) shields.splice(s, 1);
+              bulletHit = true;
+              break;
+            }
+          }
+        }
+
+        if (bulletHit) {
+          playerBullets.splice(i, 1);
+        }
+      }
+
+      // Enemy bullets
+      for (let i = enemyBullets.length - 1; i >= 0; i--) {
+        const b = enemyBullets[i];
+        b.y += b.dy;
+
+        // Hit player
+        if (b.x > cannon.x && b.x < cannon.x + cannon.w && b.y > cannon.y && b.y < cannon.y + cannon.h) {
+          enemyBullets.splice(i, 1);
+          lives--;
+          livesVal.textContent = lives;
+          playBeep(140, 'sawtooth', 0.2);
+          if (lives <= 0) {
+            state = 'GAMEOVER';
+            overlayTitle.textContent = 'Defense Perimeter Breached';
+            overlayDesc.textContent = `Electron barrage exhausted. Final academic tally: ${score} energy units.`;
+            startBtn.textContent = 'Reinitiate Defense';
+            overlay.classList.remove('hidden');
+          }
+          continue;
+        }
+
+        // Hit shields
+        let shieldHit = false;
+        for (let s = shields.length - 1; s >= 0; s--) {
+          const sh = shields[s];
+          if (b.x > sh.x && b.x < sh.x + sh.w && b.y > sh.y && b.y < sh.y + sh.h) {
+            sh.health--;
+            if (sh.health <= 0) shields.splice(s, 1);
+            shieldHit = true;
+            break;
+          }
+        }
+        if (shieldHit || b.y > canvas.height) {
+          enemyBullets.splice(i, 1);
+        }
+      }
+
+      // Move invaders
+      let minX = Infinity, maxX = -Infinity;
+      let livingCount = 0;
+      for (const inv of invaders) {
+        if (inv.alive) {
+          livingCount++;
+          minX = Math.min(minX, inv.x);
+          maxX = Math.max(maxX, inv.x + inv.w);
+        }
+      }
+
+      if (livingCount === 0) {
+        // Next wave!
+        initInvaders();
+        invaderSpeed += 0.3;
+        return;
+      }
+
+      let hitWall = false;
+      if (maxX + invaderDirection * invaderSpeed > canvas.width - 12 || minX + invaderDirection * invaderSpeed < 12) {
+        invaderDirection *= -1;
+        hitWall = true;
+      }
+
+      for (const inv of invaders) {
+        if (inv.alive) {
+          inv.x += invaderDirection * invaderSpeed;
+          if (hitWall) inv.y += 14;
+
+          // Check if reached cannon
+          if (inv.y + inv.h >= cannon.y) {
+            state = 'GAMEOVER';
+            overlayTitle.textContent = 'Periodic Lattice Ground Incursion';
+            overlayDesc.textContent = `Radiation wave overran baseline array. Yield: ${score} units.`;
+            startBtn.textContent = 'Reinitiate';
+            overlay.classList.remove('hidden');
+          }
+        }
+      }
+
+      // Random enemy firing
+      if (Math.random() < 0.03 && livingCount > 0) {
+        const liveInvaders = invaders.filter(i => i.alive);
+        const shooter = liveInvaders[Math.floor(Math.random() * liveInvaders.length)];
+        enemyBullets.push({
+          x: shooter.x + shooter.w / 2,
+          y: shooter.y + shooter.h,
+          dy: 3.2
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Starfield dots
+      ctx.fillStyle = '#1e1e2d';
+      for (let i = 0; i < 30; i++) {
+        ctx.fillRect((i * 137) % canvas.width, (i * 249) % canvas.height, 1.5, 1.5);
+      }
+
+      // Draw Invaders
+      for (const inv of invaders) {
+        if (inv.alive) {
+          ctx.fillStyle = inv.color;
+          ctx.beginPath();
+          ctx.roundRect(inv.x, inv.y, inv.w, inv.h, 4);
+          ctx.fill();
+
+          // Core node eye
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(inv.x + 6, inv.y + 5, 4, 4);
+          ctx.fillRect(inv.x + inv.w - 10, inv.y + 5, 4, 4);
+        }
+      }
+
+      // Draw Shields
+      for (const sh of shields) {
+        ctx.fillStyle = sh.health === 2 ? '#10b981' : '#059669';
+        ctx.fillRect(sh.x, sh.y, sh.w - 1, sh.h - 1);
+      }
+
+      // Draw Player Bullets
+      ctx.fillStyle = '#38bdf8';
+      for (const b of playerBullets) {
+        ctx.fillRect(b.x - 1.5, b.y, 3, 10);
+      }
+
+      // Draw Enemy Bullets
+      ctx.fillStyle = '#f43f5e';
+      for (const b of enemyBullets) {
+        ctx.fillRect(b.x - 1.5, b.y, 3, 8);
+      }
+
+      // Draw Cannon
+      ctx.fillStyle = '#fafafa';
+      ctx.beginPath();
+      ctx.roundRect(cannon.x, cannon.y + 6, cannon.w, cannon.h - 6, 4);
+      ctx.fill();
+      // Barrel
+      ctx.fillRect(cannon.x + cannon.w / 2 - 3, cannon.y, 6, 8);
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    initInvaders();
+    initShields();
+    loop();
+  </script>
+</body>
+</html>

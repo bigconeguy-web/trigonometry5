@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ECON-101: Incremental Capital Synthesis & Compounding Dynamics</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 650px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .hud h1 { font-size: 1rem; color: #cbd5e1; }
+    .hud p { font-size: 0.72rem; color: #94a3b8; font-family: monospace; }
+    .stats { text-align: right; font-family: monospace; }
+    .stats-val { font-size: 1.25rem; font-weight: bold; color: #38bdf8; }
+    .stats-rate { font-size: 0.75rem; color: #4ade80; }
+    .container {
+      width: 100%;
+      max-width: 650px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 580px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    .click-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .cookie-btn {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f59e0b 20%, #d97706 80%);
+      border: 6px solid #b45309;
+      box-shadow: 0 10px 25px rgba(217, 119, 6, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      transition: transform 0.08s ease;
+      outline: none;
+    }
+    .cookie-btn:active { transform: scale(0.92); }
+    .click-info { margin-top: 14px; font-size: 0.8rem; color: #94a3b8; font-family: monospace; text-align: center; }
+    .upgrades {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .upgrades h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a855f7; margin-bottom: 4px; font-family: monospace; }
+    .upgrade-btn {
+      background: #334155;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+    .upgrade-btn:hover:not(:disabled) { background: #475569; border-color: #38bdf8; }
+    .upgrade-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .upgrade-title { font-weight: 600; font-size: 0.8rem; }
+    .upgrade-sub { font-size: 0.7rem; color: #94a3b8; font-family: monospace; }
+    .upgrade-cost { font-size: 0.8rem; font-weight: bold; color: #facc15; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div>
+      <h1>ECON-101: Compounding Capital Growth</h1>
+      <p>Discrete Exponential Asset Multiplier</p>
+    </div>
+    <div class="stats">
+      <div id="cookiesCount" class="stats-val">0</div>
+      <div id="cookiesRate" class="stats-rate">+0.0 /sec</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="click-card">
+      <button id="clicker" class="cookie-btn" aria-label="Synthesize Capital">🍪</button>
+      <div class="click-info">Click to generate base units<br><span id="cpcLabel">+1 per synthesis</span></div>
+    </div>
+
+    <div class="upgrades">
+      <h2>Yield Upgrades</h2>
+      <button class="upgrade-btn" onclick="buyUpgrade(0)" id="upg0">
+        <div>
+          <div class="upgrade-title">Algorithmic Cursor</div>
+          <div class="upgrade-sub">+0.5 /sec</div>
+        </div>
+        <div class="upgrade-cost" id="cost0">15 units</div>
+      </button>
+
+      <button class="upgrade-btn" onclick="buyUpgrade(1)" id="upg1">
+        <div>
+          <div class="upgrade-title">Automated Server Node</div>
+          <div class="upgrade-sub">+4.0 /sec</div>
+        </div>
+        <div class="upgrade-cost" id="cost1">100 units</div>
+      </button>
+
+      <button class="upgrade-btn" onclick="buyUpgrade(2)" id="upg2">
+        <div>
+          <div class="upgrade-title">Compound Yield Fund</div>
+          <div class="upgrade-sub">+18.0 /sec</div>
+        </div>
+        <div class="upgrade-cost" id="cost2">500 units</div>
+      </button>
+
+      <button class="upgrade-btn" onclick="buyUpgrade(3)" id="upg3">
+        <div>
+          <div class="upgrade-title">Quantum Processing Core</div>
+          <div class="upgrade-sub">+75.0 /sec</div>
+        </div>
+        <div class="upgrade-cost" id="cost3">2,000 units</div>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let cookies = 0;
+    let clickPower = 1;
+    let cps = 0;
+
+    const upgrades = [
+      { name: "Cursor", baseCost: 15, cost: 15, cps: 0.5, count: 0 },
+      { name: "Server", baseCost: 100, cost: 100, cps: 4.0, count: 0 },
+      { name: "Fund", baseCost: 500, cost: 500, cps: 18.0, count: 0 },
+      { name: "Core", baseCost: 2000, cost: 2000, cps: 75.0, count: 0 }
+    ];
+
+    const clicker = document.getElementById('clicker');
+    const countEl = document.getElementById('cookiesCount');
+    const rateEl = document.getElementById('cookiesRate');
+
+    clicker.addEventListener('click', () => {
+      cookies += clickPower;
+      updateUI();
+    });
+
+    function buyUpgrade(idx) {
+      const upg = upgrades[idx];
+      if (cookies >= upg.cost) {
+        cookies -= upg.cost;
+        upg.count++;
+        cps += upg.cps;
+        upg.cost = Math.floor(upg.baseCost * Math.pow(1.15, upg.count));
+        updateUI();
+      }
+    }
+
+    function updateUI() {
+      countEl.textContent = Math.floor(cookies).toLocaleString();
+      rateEl.textContent = `+${cps.toFixed(1)} /sec`;
+      upgrades.forEach((upg, idx) => {
+        document.getElementById(`cost${idx}`).textContent = `${upg.cost.toLocaleString()} units (${upg.count})`;
+        document.getElementById(`upg${idx}`).disabled = cookies < upg.cost;
+      });
+    }
+
+    setInterval(() => {
+      cookies += cps / 10;
+      updateUI();
+    }, 100);
+
+    updateUI();
+  </script>
+</body>
+</html>

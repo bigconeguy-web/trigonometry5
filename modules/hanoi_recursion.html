@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CS-210: Recursive Inductive Stacks (Hanoi)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #09090b;
+      letter-spacing: -0.02em;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.58rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #09090b;
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+    }
+    .select-input {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #27272a;
+      outline: none;
+    }
+    .btn {
+      background: #18181b;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: #27272a; }
+    .btn-secondary {
+      background: #f4f4f5;
+      color: #18181b;
+      border: 1px solid #e4e4e7;
+    }
+    .btn-secondary:hover { background: #e4e4e7; }
+    .stage {
+      width: 100%;
+      max-width: 520px;
+      height: 280px;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      padding: 20px 10px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .peg-container {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      padding-bottom: 8px;
+    }
+    .peg-container:hover .peg-label {
+      color: #2563eb;
+    }
+    .peg-container.selected .peg-rod {
+      background: #3b82f6;
+    }
+    .peg-base {
+      position: absolute;
+      bottom: 8px;
+      width: 85%;
+      height: 8px;
+      background: #e4e4e7;
+      border-radius: 4px;
+      z-index: 1;
+    }
+    .peg-rod {
+      position: absolute;
+      bottom: 12px;
+      width: 8px;
+      height: 180px;
+      background: #cbd5e1;
+      border-radius: 4px;
+      z-index: 1;
+      transition: background 0.2s;
+    }
+    .peg-label {
+      position: absolute;
+      top: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #64748b;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .disc {
+      height: 22px;
+      border-radius: 6px;
+      z-index: 2;
+      margin-bottom: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.15s, opacity 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .disc.lifted {
+      transform: translateY(-40px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.25);
+    }
+    .status-bar {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: #64748b;
+      text-align: center;
+      max-width: 520px;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>CS-210: Recursive Inductive Stacks</h1>
+      <p>Theoretical Computer Science · Invariant Permutation Trees</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Moves</div>
+        <div class="metric-val" id="moveVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Optimal (2ⁿ-1)</div>
+        <div class="metric-val" id="optimalVal">7</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-strip">
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <label for="diskCount" style="color: #71717a;">Strata Depth:</label>
+      <select id="diskCount" class="select-input">
+        <option value="3" selected>n = 3 (7 moves)</option>
+        <option value="4">n = 4 (15 moves)</option>
+        <option value="5">n = 5 (31 moves)</option>
+        <option value="6">n = 6 (63 moves)</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <button class="btn btn-secondary" id="solveBtn">Inductive Proof (Solve)</button>
+      <button class="btn" id="resetBtn">Reset Stacks</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="peg-container" id="peg0" data-peg="0">
+      <div class="peg-label">Rod α (Origin)</div>
+      <div class="peg-rod"></div>
+      <div class="peg-base"></div>
+    </div>
+    <div class="peg-container" id="peg1" data-peg="1">
+      <div class="peg-label">Rod β (Auxiliary)</div>
+      <div class="peg-rod"></div>
+      <div class="peg-base"></div>
+    </div>
+    <div class="peg-container" id="peg2" data-peg="2">
+      <div class="peg-label">Rod γ (Target)</div>
+      <div class="peg-rod"></div>
+      <div class="peg-base"></div>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    Click a rod to select the top disk, then click a target rod to transfer. Larger strata cannot rest atop smaller strata.
+  </div>
+
+  <script>
+    let audioCtx = null;
+    function playBeep(freq, type='sine', dur=0.08) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    const DISC_COLORS = ['#38bdf8', '#818cf8', '#c084fc', '#f43f5e', '#fb923c', '#eab308'];
+
+    const moveVal = document.getElementById('moveVal');
+    const optimalVal = document.getElementById('optimalVal');
+    const diskCountSelect = document.getElementById('diskCount');
+    const resetBtn = document.getElementById('resetBtn');
+    const solveBtn = document.getElementById('solveBtn');
+    const statusBar = document.getElementById('statusBar');
+
+    let numDiscs = 3;
+    let pegs = [[], [], []];
+    let selectedPeg = null;
+    let moves = 0;
+    let isSolving = false;
+
+    function initGame() {
+      numDiscs = parseInt(diskCountSelect.value, 10);
+      pegs = [[], [], []];
+      for (let i = numDiscs; i >= 1; i--) {
+        pegs[0].push(i);
+      }
+      moves = 0;
+      moveVal.textContent = '0';
+      optimalVal.textContent = Math.pow(2, numDiscs) - 1;
+      selectedPeg = null;
+      isSolving = false;
+      statusBar.textContent = 'Select Rod α to pick top stratum. Reconstruct complete inductive stack on Rod γ.';
+      render();
+    }
+
+    function render() {
+      for (let p = 0; p < 3; p++) {
+        const container = document.getElementById(`peg${p}`);
+        // remove existing discs
+        container.querySelectorAll('.disc').forEach(el => el.remove());
+
+        if (selectedPeg === p) {
+          container.classList.add('selected');
+        } else {
+          container.classList.remove('selected');
+        }
+
+        const stack = pegs[p];
+        stack.forEach((discSize, idx) => {
+          const disc = document.createElement('div');
+          disc.className = 'disc';
+          // Width based on disc size: min 40px, max 130px
+          const width = 36 + (discSize / 6) * 94;
+          disc.style.width = `${width}px`;
+          disc.style.background = DISC_COLORS[discSize - 1] || '#3b82f6';
+          disc.textContent = discSize;
+
+          if (selectedPeg === p && idx === stack.length - 1) {
+            disc.classList.add('lifted');
+          }
+
+          container.appendChild(disc);
+        });
+      }
+    }
+
+    function handlePegClick(pegIndex) {
+      if (isSolving) return;
+
+      if (selectedPeg === null) {
+        if (pegs[pegIndex].length === 0) return;
+        selectedPeg = pegIndex;
+        playBeep(440, 'triangle', 0.05);
+        statusBar.textContent = `Selected stratum ${pegs[pegIndex][pegs[pegIndex].length - 1]} from Rod ${pegName(pegIndex)}. Choose target rod.`;
+        render();
+      } else {
+        if (selectedPeg === pegIndex) {
+          // Deselect
+          selectedPeg = null;
+          statusBar.textContent = 'Transfer canceled. Select a rod.';
+          render();
+          return;
+        }
+
+        const sourceStack = pegs[selectedPeg];
+        const targetStack = pegs[pegIndex];
+        const movingDisc = sourceStack[sourceStack.length - 1];
+        const targetTopDisc = targetStack.length > 0 ? targetStack[targetStack.length - 1] : Infinity;
+
+        if (movingDisc > targetTopDisc) {
+          playBeep(180, 'sawtooth', 0.15);
+          statusBar.textContent = `Constraint Violation! Stratum ${movingDisc} cannot be placed atop smaller stratum ${targetTopDisc}.`;
+          return;
+        }
+
+        // Perform move
+        sourceStack.pop();
+        targetStack.push(movingDisc);
+        moves++;
+        moveVal.textContent = moves;
+        playBeep(260 + movingDisc * 40, 'sine', 0.08);
+
+        selectedPeg = null;
+        render();
+
+        // Check victory
+        if (pegs[2].length === numDiscs) {
+          playBeep(523, 'sine', 0.2);
+          setTimeout(() => playBeep(659, 'sine', 0.3), 150);
+          statusBar.textContent = `Academic Demonstration Complete! Completed in ${moves} moves (Optimal: ${Math.pow(2, numDiscs) - 1}).`;
+        } else {
+          statusBar.textContent = `Stratum placed on Rod ${pegName(pegIndex)}. Select next stratum.`;
+        }
+      }
+    }
+
+    function pegName(i) {
+      return i === 0 ? 'α' : i === 1 ? 'β' : 'γ';
+    }
+
+    // Algorithmic recursive solve demonstration
+    async function solveHanoi() {
+      if (isSolving) return;
+      initGame();
+      isSolving = true;
+      statusBar.textContent = 'Executing recursive induction demonstration...';
+
+      const movesList = [];
+      function hanoiRecursive(n, from, to, aux) {
+        if (n === 1) {
+          movesList.push([from, to]);
+          return;
+        }
+        hanoiRecursive(n - 1, from, aux, to);
+        movesList.push([from, to]);
+        hanoiRecursive(n - 1, aux, to, from);
+      }
+
+      hanoiRecursive(numDiscs, 0, 2, 1);
+
+      for (const [from, to] of movesList) {
+        if (!isSolving) break;
+        await new Promise(r => setTimeout(r, Math.max(120, 600 - numDiscs * 70)));
+        const disc = pegs[from].pop();
+        pegs[to].push(disc);
+        moves++;
+        moveVal.textContent = moves;
+        playBeep(280 + disc * 40, 'sine', 0.05);
+        render();
+      }
+
+      isSolving = false;
+      statusBar.textContent = `Inductive proof executed in ${moves} optimal steps.`;
+    }
+
+    document.querySelectorAll('.peg-container').forEach(el => {
+      el.addEventListener('click', () => {
+        handlePegClick(parseInt(el.dataset.peg, 10));
+      });
+    });
+
+    diskCountSelect.addEventListener('change', initGame);
+    resetBtn.addEventListener('click', initGame);
+    solveBtn.addEventListener('click', solveHanoi);
+
+    initGame();
+  </script>
+</body>
+</html>

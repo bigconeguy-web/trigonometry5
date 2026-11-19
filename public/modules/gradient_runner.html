@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>CALC-340: Multivariable Gradient Descent</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fafafa;
+      letter-spacing: -0.02em;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #a1a1aa;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.58rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #10b981;
+      font-variant-numeric: tabular-nums;
+    }
+    .canvas-container {
+      position: relative;
+      background: #090a10;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    canvas {
+      display: block;
+      background: #05060a;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 9, 11, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.hidden { display: none; }
+    .overlay h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #fafafa;
+    }
+    .overlay p {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      max-width: 340px;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .btn {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .instructions {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #71717a;
+      text-align: center;
+      max-width: 520px;
+    }
+    .instructions kbd {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      color: #e4e4e7;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>CALC-340: Multivariable Gradient Descent</h1>
+      <p>Optimization Theory · Continuous Manifold Slope Traversal</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Meters (Z)</div>
+        <div class="metric-val" id="scoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Peak Record</div>
+        <div class="metric-val" id="highScoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Velocity</div>
+        <div class="metric-val" id="speedVal">1.0x</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="500" height="420"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">Gradient Manifold Ready</h2>
+      <p id="overlayDesc">Navigate the steep optimization descent plane. Avoid orthogonal singularity barriers as descent velocity escalates.</p>
+      <button class="btn" id="startBtn">Commence Gradient Descent</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    Steer trajectory with <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> or Mouse / Touch. Don't fall off the slope boundary!
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayDesc = document.getElementById('overlayDesc');
+    const startBtn = document.getElementById('startBtn');
+    const scoreVal = document.getElementById('scoreVal');
+    const highScoreVal = document.getElementById('highScoreVal');
+    const speedVal = document.getElementById('speedVal');
+
+    let audioCtx = null;
+    function playBeep(freq, type='sine', dur=0.08) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    let highScore = parseInt(localStorage.getItem('scholastica_calc340_high') || '0', 10);
+    highScoreVal.textContent = highScore;
+
+    let state = 'IDLE';
+    let distance = 0;
+    let speed = 4;
+    let ballX = 0; // -1 to 1 across track
+    let ballVx = 0;
+    const trackWidth = 280;
+
+    let obstacles = [];
+    let segments = [];
+    const keys = {};
+
+    function initGame() {
+      distance = 0;
+      speed = 4.2;
+      ballX = 0;
+      ballVx = 0;
+      obstacles = [];
+      segments = [];
+      for (let z = 100; z < 2500; z += 50) {
+        segments.push({ z });
+      }
+      for (let z = 400; z < 2500; z += 180) {
+        spawnObstacle(z);
+      }
+    }
+
+    function spawnObstacle(z) {
+      // 1 to 2 obstacle blocks per row
+      const lane = (Math.random() - 0.5) * 1.4; // -0.7 to 0.7
+      obstacles.push({
+        x: lane,
+        z: z,
+        width: 0.35,
+        height: 0.35
+      });
+    }
+
+    window.addEventListener('keydown', (e) => { keys[e.key] = true; });
+    window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+    let isPointerDown = false;
+    canvas.addEventListener('mousemove', (e) => {
+      if (state !== 'RUNNING') return;
+      const rect = canvas.getBoundingClientRect();
+      const norm = ((e.clientX - rect.left) / canvas.width - 0.5) * 2;
+      ballX = Math.max(-1.1, Math.min(1.1, norm));
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (state !== 'RUNNING') return;
+      const rect = canvas.getBoundingClientRect();
+      const norm = ((e.touches[0].clientX - rect.left) / canvas.width - 0.5) * 2;
+      ballX = Math.max(-1.1, Math.min(1.1, norm));
+    }, { passive: false });
+
+    startBtn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      initGame();
+      state = 'RUNNING';
+    });
+
+    function project(x, y, z) {
+      const fov = 280;
+      const scale = fov / (z + fov);
+      const projX = canvas.width / 2 + x * trackWidth * scale;
+      const projY = canvas.height * 0.78 - y * trackWidth * scale;
+      return { x: projX, y: projY, scale };
+    }
+
+    function update() {
+      if (state !== 'RUNNING') return;
+
+      // Handle keyboard steering
+      if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+        ballVx -= 0.007;
+      } else if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+        ballVx += 0.007;
+      } else {
+        ballVx *= 0.85;
+      }
+      ballVx = Math.max(-0.04, Math.min(0.04, ballVx));
+      ballX += ballVx;
+
+      // Check boundary fall
+      if (Math.abs(ballX) > 1.05) {
+        gameOver('Manifold Boundary Divergence (Off Track)');
+        return;
+      }
+
+      // Speed progression
+      speed += 0.0015;
+      distance += Math.floor(speed);
+      scoreVal.textContent = distance;
+      speedVal.textContent = (speed / 4.2).toFixed(1) + 'x';
+
+      if (distance > highScore) {
+        highScore = distance;
+        highScoreVal.textContent = highScore;
+        localStorage.setItem('scholastica_calc340_high', highScore.toString());
+      }
+
+      // Advance obstacles towards camera
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        obs.z -= speed;
+
+        // Collision check when obstacle crosses ball plane (z ≈ 50-80)
+        if (obs.z > 40 && obs.z < 95) {
+          if (Math.abs(ballX - obs.x) < (obs.width + 0.12) / 2) {
+            playBeep(120, 'sawtooth', 0.25);
+            gameOver('Orthogonal Singularity Barrier Impact');
+            return;
+          }
+        }
+
+        // Recycle passed obstacles
+        if (obs.z < 10) {
+          obstacles.splice(i, 1);
+          spawnObstacle(2400 + Math.random() * 200);
+        }
+      }
+
+      // Advance segments
+      for (const seg of segments) {
+        seg.z -= speed;
+        if (seg.z < 20) seg.z += 2400;
+      }
+    }
+
+    function gameOver(reason) {
+      state = 'GAMEOVER';
+      overlayTitle.textContent = 'Optimization Terminated';
+      overlayDesc.textContent = `${reason}. Reached a descent depth of ${distance} meters.`;
+      startBtn.textContent = 'Recalibrate Gradient';
+      overlay.classList.remove('hidden');
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Distant horizon gradient
+      const horizonGrad = ctx.createLinearGradient(0, 0, 0, canvas.height * 0.5);
+      horizonGrad.addColorStop(0, '#030712');
+      horizonGrad.addColorStop(1, '#0f172a');
+      ctx.fillStyle = horizonGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height * 0.5);
+
+      // Draw perspective track surface
+      const pNearL = project(-1, 0, 40);
+      const pNearR = project(1, 0, 40);
+      const pFarL = project(-1, 0, 2400);
+      const pFarR = project(1, 0, 2400);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.moveTo(pNearL.x, pNearL.y);
+      ctx.lineTo(pFarL.x, pFarL.y);
+      ctx.lineTo(pFarR.x, pFarR.y);
+      ctx.lineTo(pNearR.x, pNearR.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // Track edge lines
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(pNearL.x, pNearL.y);
+      ctx.lineTo(pFarL.x, pFarL.y);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(pNearR.x, pNearR.y);
+      ctx.lineTo(pFarR.x, pFarR.y);
+      ctx.stroke();
+
+      // Transverse grid stripes
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (const seg of segments) {
+        const p1 = project(-1, 0, seg.z);
+        const p2 = project(1, 0, seg.z);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      // Draw obstacles (sorted far to near)
+      const sortedObs = [...obstacles].sort((a, b) => b.z - a.z);
+      for (const obs of sortedObs) {
+        if (obs.z < 20 || obs.z > 2200) continue;
+        const pBase = project(obs.x, 0, obs.z);
+        const pTop = project(obs.x, obs.height * 1.5, obs.z);
+        const w = (obs.width * trackWidth * pBase.scale);
+        const h = pBase.y - pTop.y;
+
+        // Draw 3D block
+        ctx.fillStyle = '#ef4444';
+        ctx.beginPath();
+        ctx.rect(pBase.x - w / 2, pTop.y, w, h);
+        ctx.fill();
+
+        ctx.strokeStyle = '#f87171';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(pBase.x - w / 2, pTop.y, w, h);
+      }
+
+      // Draw Player Sphere
+      const pBall = project(ballX, 0.15, 65);
+      const ballRadius = 14 * pBall.scale;
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.beginPath();
+      ctx.ellipse(pBall.x, pBall.y + ballRadius * 0.8, ballRadius * 1.2, ballRadius * 0.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sphere gradient
+      const ballGrad = ctx.createRadialGradient(
+        pBall.x - ballRadius * 0.3,
+        pBall.y - ballRadius * 0.3,
+        ballRadius * 0.1,
+        pBall.x,
+        pBall.y,
+        ballRadius
+      );
+      ballGrad.addColorStop(0, '#6ee7b7');
+      ballGrad.addColorStop(0.7, '#10b981');
+      ballGrad.addColorStop(1, '#047857');
+
+      ctx.fillStyle = ballGrad;
+      ctx.shadowColor = '#10b981';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(pBall.x, pBall.y, ballRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    initGame();
+    loop();
+  </script>
+</body>
+</html>

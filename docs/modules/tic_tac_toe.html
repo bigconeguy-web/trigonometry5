@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MATH-204: Minimax Adversarial Game Theory Matrix</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 10px;
+      background: #1e293b;
+      padding: 12px;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .cell {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: monospace;
+      transition: all 0.15s ease;
+    }
+    .cell:hover:empty { background: #1e293b; border-color: #6366f1; }
+    .cell.x { color: #38bdf8; }
+    .cell.o { color: #ec4899; }
+    .status {
+      margin-top: 16px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #94a3b8;
+    }
+    .reset-btn {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <span>MATH-204: Minimax Heuristics</span>
+    <span id="score">Wins: 0 &middot; Ties: 0</span>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="cell" onclick="makeMove(0)"></div>
+    <div class="cell" onclick="makeMove(1)"></div>
+    <div class="cell" onclick="makeMove(2)"></div>
+    <div class="cell" onclick="makeMove(3)"></div>
+    <div class="cell" onclick="makeMove(4)"></div>
+    <div class="cell" onclick="makeMove(5)"></div>
+    <div class="cell" onclick="makeMove(6)"></div>
+    <div class="cell" onclick="makeMove(7)"></div>
+    <div class="cell" onclick="makeMove(8)"></div>
+  </div>
+
+  <div class="status" id="status">Turn: Player (X)</div>
+  <button class="reset-btn" onclick="resetGame()">Reset Matrix</button>
+
+  <script>
+    let board = Array(9).fill('');
+    let playerWins = 0, ties = 0;
+    let gameOver = false;
+    const cells = document.querySelectorAll('.cell');
+    const statusEl = document.getElementById('status');
+    const scoreEl = document.getElementById('score');
+
+    function makeMove(idx) {
+      if (board[idx] !== '' || gameOver) return;
+      board[idx] = 'X';
+      render();
+      if (checkWinner('X')) {
+        playerWins++;
+        updateScore();
+        statusEl.textContent = 'Player (X) Wins!';
+        gameOver = true;
+        return;
+      }
+      if (board.every(c => c !== '')) {
+        ties++;
+        updateScore();
+        statusEl.textContent = 'Game Drawn &mdash; Zero Sum';
+        gameOver = true;
+        return;
+      }
+
+      statusEl.textContent = 'Calculating Minimax...';
+      setTimeout(aiMove, 200);
+    }
+
+    function aiMove() {
+      if (gameOver) return;
+      // Best move via minimax or simple defensive check
+      let bestMove = findBestMove();
+      board[bestMove] = 'O';
+      render();
+      if (checkWinner('O')) {
+        statusEl.textContent = 'Minimax Node (O) Wins!';
+        gameOver = true;
+        return;
+      }
+      if (board.every(c => c !== '')) {
+        ties++;
+        updateScore();
+        statusEl.textContent = 'Game Drawn &mdash; Zero Sum';
+        gameOver = true;
+        return;
+      }
+      statusEl.textContent = 'Turn: Player (X)';
+    }
+
+    function findBestMove() {
+      // 1. Can AI win now?
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === '') {
+          board[i] = 'O';
+          if (checkWinner('O')) { board[i] = ''; return i; }
+          board[i] = '';
+        }
+      }
+      // 2. Can player win now? Block
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === '') {
+          board[i] = 'X';
+          if (checkWinner('X')) { board[i] = ''; return i; }
+          board[i] = '';
+        }
+      }
+      // 3. Take center
+      if (board[4] === '') return 4;
+      // 4. Random available
+      const empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+      return empty[Math.floor(Math.random() * empty.length)];
+    }
+
+    function checkWinner(p) {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return wins.some(([a,b,c]) => board[a] === p && board[b] === p && board[c] === p);
+    }
+
+    function render() {
+      cells.forEach((cell, i) => {
+        cell.textContent = board[i];
+        cell.className = `cell ${board[i].toLowerCase()}`;
+      });
+    }
+
+    function updateScore() {
+      scoreEl.textContent = `Wins: ${playerWins} · Ties: ${ties}`;
+    }
+
+    function resetGame() {
+      board = Array(9).fill('');
+      gameOver = false;
+      statusEl.textContent = 'Turn: Player (X)';
+      render();
+    }
+  </script>
+</body>
+</html>

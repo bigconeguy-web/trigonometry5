@@ -1,0 +1,363 @@
+[
+  {
+    "id": "matrix-2048",
+    "courseCode": "MATH-2048",
+    "title": "Binary Matrix Reduction",
+    "department": "Applied Mathematics",
+    "level": "Undergraduate Practicum",
+    "estimatedDuration": "15 min session",
+    "description": "An algebraic exercise in orthogonal vector combination and exponential base-2 summation on a 4x4 coordinate plane.",
+    "academicObjective": "Consolidate discrete matrix cells to synthesize a scalar product value of 2,048 without boundary exhaustion.",
+    "instrumentDirectives": "Arrow Keys or WASD to translate numeric tensor fields in 4 orthogonal directions.",
+    "learningOutcomes": [
+      "Mathematical sequence planning and spatial packing heuristics",
+      "Dynamic allocation of vacant grid coordinates",
+      "Exponential growth trajectory monitoring"
+    ],
+    "defaultHonorsIndex": 2048,
+    "iframeSrc": "./modules/matrix_2048.html",
+    "tags": ["Applied Math", "Exponents", "Logic Trees"]
+  },
+  {
+    "id": "tessellation-tetris",
+    "courseCode": "GEOM-101",
+    "title": "Orthogonal Polyomino Tessellation",
+    "department": "Spatial Geometry",
+    "level": "Introductory Seminar",
+    "estimatedDuration": "10 min drill",
+    "description": "Geometric spatial organization laboratory focusing on rotational symmetry and continuous planar strata density.",
+    "academicObjective": "Rotate and maneuver 4-segment polyominoes to eliminate completed horizontal strata without vertical overflow.",
+    "instrumentDirectives": "Left/Right: Transverse translation; Up: 90° rotational transformation; Down: Accelerated descent; Spacebar: Instantaneous drop; C: Hold specimen in buffer.",
+    "learningOutcomes": [
+      "Planar space optimization and void reduction",
+      "Rapid rotational coordinate transformation",
+      "Predictive specimen sequence queuing"
+    ],
+    "defaultHonorsIndex": 12500,
+    "iframeSrc": "./modules/tessellation_tetris.html",
+    "tags": ["Geometry", "Tessellation", "Spatial Planning"]
+  },
+  {
+    "id": "snake-traversal",
+    "courseCode": "CS-102",
+    "title": "Linear Vector Traversal & Memory Growth",
+    "department": "Algorithmic Logic",
+    "level": "Foundational Drill",
+    "estimatedDuration": "10 min practicum",
+    "description": "Simulation of a continuous dynamically expanding singly-linked node chain traversing bounded discrete coordinates.",
+    "academicObjective": "Absorb dispersed coordinate data points while avoiding structural self-intersection and perimeter boundary collisions.",
+    "instrumentDirectives": "Arrow Keys / WASD: Steer leading pointer heading at discrete 90-degree vector angles.",
+    "learningOutcomes": [
+      "Spatially constrained search and routing algorithms",
+      "Dynamic memory footprint trajectory management",
+      "Reflex latency calibration under scalar velocity"
+    ],
+    "defaultHonorsIndex": 42,
+    "iframeSrc": "./modules/snake_traversal.html",
+    "tags": ["Algorithms", "Pathfinding", "Constraint Logic"]
+  },
+  {
+    "id": "pong-kinetics",
+    "courseCode": "PHYS-201",
+    "title": "Classical Kinematic Reflection & Impulses",
+    "department": "Classical Mechanics",
+    "level": "Laboratory Exercise",
+    "estimatedDuration": "8 min simulation",
+    "description": "Kinematic physics laboratory modeling elastic collisions, angular momentum transfer, and velocity acceleration between planar barriers.",
+    "academicObjective": "Manipulate opposing boundary calipers to maintain harmonic oscillatory trajectory across the experimental field.",
+    "instrumentDirectives": "W/S Keys (or Arrow Up/Down): Translate barrier along Y-axis; 1/2 Player toggle available.",
+    "learningOutcomes": [
+      "Angle of incidence and reflection equality verification",
+      "Tangential momentum transfer during dynamic surface contact",
+      "Predictive intercept trajectory calculation"
+    ],
+    "defaultHonorsIndex": 11,
+    "iframeSrc": "./modules/pong_kinetics.html",
+    "tags": ["Physics", "Elastic Collisions", "Kinematics"]
+  },
+  {
+    "id": "minesweeper-probability",
+    "courseCode": "STAT-305",
+    "title": "Probabilistic Risk Field Deduction",
+    "department": "Probability & Statistics",
+    "level": "Advanced Seminar",
+    "estimatedDuration": "12 min analysis",
+    "description": "Combinatorial discrete analysis exercise deducing latent high-hazard coordinates from localized adjacency numbers.",
+    "academicObjective": "Flag all covert anomaly coordinates and expose all benign matrix sectors without triggering stochastic detonation.",
+    "instrumentDirectives": "Left Click: Sample coordinate sector; Right Click (or Space + Click): Flag sector as confirmed risk node.",
+    "learningOutcomes": [
+      "Bayesian conditional probability in constrained grids",
+      "Iterative deductive logic and hazard mitigation",
+      "Pattern recognition in neighbor matrix kernels"
+    ],
+    "defaultHonorsIndex": 850,
+    "iframeSrc": "./modules/minesweeper_prob.html",
+    "tags": ["Statistics", "Bayesian Logic", "Combinatorics"]
+  },
+  {
+    "id": "aerodynamics-flappy",
+    "courseCode": "AERO-110",
+    "title": "Gravitational Impulse & Bernoulli Trajectory",
+    "department": "Fluid Kinematics",
+    "level": "Introductory Practicum",
+    "estimatedDuration": "5 min drill",
+    "description": "Fluid dynamics and discrete thrust impulse simulation navigating laminar fluid channels with periodic vertical gate orifices.",
+    "academicObjective": "Apply precise aerodynamic lift pulses to calibrate altitude through alternating vertical constriction conduits.",
+    "instrumentDirectives": "Spacebar or Click: Deliver discrete upward kinetic thrust impulse.",
+    "learningOutcomes": [
+      "Parabolic acceleration under uniform gravitational field",
+      "Harmonic oscillation timing through constrained apertures",
+      "Impulse frequency regulation and velocity dampening"
+    ],
+    "defaultHonorsIndex": 35,
+    "iframeSrc": "./modules/flappy_aero.html",
+    "tags": ["Aerodynamics", "Gravity Vectors", "Harmonic Timing"]
+  },
+  {
+    "id": "lexical-typing",
+    "courseCode": "LING-105",
+    "title": "Lexical Transcription Cadence & Syntax",
+    "department": "Lexical Linguistics",
+    "level": "Foundational Drill",
+    "estimatedDuration": "5 min evaluation",
+    "description": "Neuromuscular language transcription practicum assessing keystroke accuracy, syntactic processing velocity, and error correction.",
+    "academicObjective": "Transcribe scholarly academic excerpts with minimal typographical discrepancy and optimal lexical cadence.",
+    "instrumentDirectives": "Keyboard: Transcribe displayed philosophical and scientific prose in real-time.",
+    "learningOutcomes": [
+      "Neuromuscular keyboard transcription dexterity",
+      "Visual-linguistic syntactic buffer processing",
+      "Typographical error detection and correction flow"
+    ],
+    "defaultHonorsIndex": 78,
+    "iframeSrc": "./modules/typing_cadence.html",
+    "tags": ["Linguistics", "Transcription", "Cognitive Cadence"]
+  },
+  {
+    "id": "neuro-memory",
+    "courseCode": "NEUR-220",
+    "title": "Synaptic Recall & Matrix Recognition",
+    "department": "Cognitive Neuroscience",
+    "level": "Laboratory Exercise",
+    "estimatedDuration": "8 min drill",
+    "description": "Working memory retention experiment testing visual-spatial paired association retrieval and cognitive recall latency.",
+    "academicObjective": "Reveal and match symmetrical scientific icon pairs across an inverted 16-node sensory coordinate array.",
+    "instrumentDirectives": "Mouse Click: Invert coordinate card specimen to expose hidden academic taxonomy glyph.",
+    "learningOutcomes": [
+      "Short-term visual-spatial working memory capacity",
+      "Spatial coordinate encoding and index retrieval",
+      "Cognitive load management under trial-and-error constraints"
+    ],
+    "defaultHonorsIndex": 16,
+    "iframeSrc": "./modules/memory_synapse.html",
+    "tags": ["Neuroscience", "Spatial Recall", "Pattern Recognition"]
+  },
+  {
+    "id": "elastic-breakout",
+    "courseCode": "PHYS-310",
+    "title": "Harmonic Lattice Degradation & Elastic Impulse",
+    "department": "Condensed Matter Physics",
+    "level": "Advanced Laboratory",
+    "estimatedDuration": "10 min practicum",
+    "description": "Solid-state physics practicum modeling atomic lattice cleavage through high-frequency kinetic boundary deflections.",
+    "academicObjective": "Sustain projectile momentum trajectory to dislodge crystalline strata blocks without baseline containment failure.",
+    "instrumentDirectives": "Arrow Keys / Mouse Drag: Translate boundary deflector. Spacebar: Release kinetic probe.",
+    "learningOutcomes": [
+      "Dynamic restitution coefficients in crystalline arrays",
+      "Angular dispersion calculation from parabolic boundary edges",
+      "Energy cascade maintenance under multi-tier degradation"
+    ],
+    "defaultHonorsIndex": 1840,
+    "iframeSrc": "./modules/elastic_breakout.html",
+    "tags": ["Condensed Matter", "Lattice Physics", "Elastic Impulse"]
+  },
+  {
+    "id": "orbital-asteroids",
+    "courseCode": "ASTRO-240",
+    "title": "Orbital Momentum & Inertial Navigation",
+    "department": "Astrophysics & Celestial Mechanics",
+    "level": "Observational Practicum",
+    "estimatedDuration": "12 min simulation",
+    "description": "Newtonian celestial mechanics simulation testing heading rotation, inertial drift damping, and particulate interception in microgravity.",
+    "academicObjective": "Calibrate rotational vectors and fire directed electron pulses to disintegrate cosmic debris fields on closed toroidal coordinates.",
+    "instrumentDirectives": "A/D or Left/Right: Heading rotation; W or Up: Newtonian thruster; Spacebar: Directed electron pulse.",
+    "learningOutcomes": [
+      "Conservation of angular momentum in frictionless vacuum",
+      "Toroidal coordinate wrap-around vector arithmetic",
+      "Inertial trajectory correction under zero damping"
+    ],
+    "defaultHonorsIndex": 4200,
+    "iframeSrc": "./modules/orbital_asteroids.html",
+    "tags": ["Astrophysics", "Newtonian Kinematics", "Inertial Drift"]
+  },
+  {
+    "id": "connect-four",
+    "courseCode": "LOGIC-215",
+    "title": "Combinatorial Game Theory & Binary Vertical Matrix",
+    "department": "Algorithmic Logic",
+    "level": "Undergraduate Colloquium",
+    "estimatedDuration": "8 min debate",
+    "description": "Discrete game theory seminar exploring alpha-beta minimax heuristics, gravity drop constraints, and 4-tensor collinearity.",
+    "academicObjective": "Deploy gravitational tokens into a 7x6 matrix to achieve orthogonal or diagonal 4-element alignment prior to adversary completion.",
+    "instrumentDirectives": "Click any column sector to release gravitational token. Select Minimax AI or Peer Mode in header.",
+    "learningOutcomes": [
+      "Minimax search trees with alpha-beta heuristic pruning",
+      "Combinatorial state evaluation in bounded bipartite matrices",
+      "Adversarial foresight and defensive horizon planning"
+    ],
+    "defaultHonorsIndex": 12,
+    "iframeSrc": "./modules/connect_four.html",
+    "tags": ["Game Theory", "Minimax AI", "Combinatorics"]
+  },
+  {
+    "id": "sudoku-logic",
+    "courseCode": "MATH-330",
+    "title": "Discrete Constraint Satisfaction & Nonary Grids",
+    "department": "Applied Mathematics",
+    "level": "Analytical Seminar",
+    "estimatedDuration": "15 min analysis",
+    "description": "Formal combinatorial matrix reduction requiring exact single-instance representation of digits 1 through 9 across rows, columns, and 3x3 blocks.",
+    "academicObjective": "Satisfy all 81 nonary matrix constraints without duplicate coordinate conflicts or inductive contradictions.",
+    "instrumentDirectives": "Click coordinate cell, then select 1-9 on keypad or physical keyboard. Use Clear to remove candidate.",
+    "learningOutcomes": [
+      "Constraint satisfaction problem (CSP) exact deduction",
+      "Naked single and hidden subset logical heuristics",
+      "Nonary permutation validation across dual orthogonal axes"
+    ],
+    "defaultHonorsIndex": 900,
+    "iframeSrc": "./modules/sudoku_logic.html",
+    "tags": ["Applied Math", "Constraint Logic", "Permutations"]
+  },
+  {
+    "id": "gradient-runner",
+    "courseCode": "CALC-340",
+    "title": "Multivariable Gradient Descent & Slope Navigation",
+    "department": "Applied Mathematics",
+    "level": "Computational Drill",
+    "estimatedDuration": "6 min exercise",
+    "description": "High-velocity 3D simulation of a gradient descent optimizer navigating a steep continuous loss surface around mathematical singularities.",
+    "academicObjective": "Steer state vector along descending gradient surface, evading orthogonal barrier monoliths while descent velocity escalates.",
+    "instrumentDirectives": "Arrow Keys / A-D / Mouse Drag: Shift optimization vector lateral position.",
+    "learningOutcomes": [
+      "Continuous optimization pathfinding in multivariable domains",
+      "Singularity and barrier obstacle avoidance at high velocities",
+      "Momentum parameter tuning and lateral inertia damping"
+    ],
+    "defaultHonorsIndex": 3500,
+    "iframeSrc": "./modules/gradient_runner.html",
+    "tags": ["Applied Math", "Gradient Descent", "Loss Manifolds"]
+  },
+  {
+    "id": "hanoi-recursion",
+    "courseCode": "CS-210",
+    "title": "Recursive Disjoint Permutations & Inductive Stacks",
+    "department": "Algorithmic Logic",
+    "level": "Foundational Seminar",
+    "estimatedDuration": "10 min practicum",
+    "description": "Mathematical induction experiment exploring minimum recursive transfer steps (2ⁿ - 1) on stratified disjoint stacks.",
+    "academicObjective": "Reconstruct initial strata pyramid on target Rod γ without ever resting a larger stratum atop a smaller stratum.",
+    "instrumentDirectives": "Click source rod to lift top stratum, click target rod to deposit. Click 'Inductive Proof' for algorithmic demonstration.",
+    "learningOutcomes": [
+      "Mathematical induction and recursive recurrence relations",
+      "Stack data structure push/pop invariants",
+      "Divide-and-conquer asymptotic complexity (O(2ⁿ))"
+    ],
+    "defaultHonorsIndex": 63,
+    "iframeSrc": "./modules/hanoi_recursion.html",
+    "tags": ["Recursion", "Algorithms", "Stack Invariants"]
+  },
+  {
+    "id": "simon-frequencies",
+    "courseCode": "NEUR-315",
+    "title": "Neuro-Acoustic Resonance & Working Sequence Buffer",
+    "department": "Cognitive Neuroscience",
+    "level": "Experimental Drill",
+    "estimatedDuration": "7 min drill",
+    "description": "Sensory cognitive drill assessing auditory pitch discrimination, phonological loop buffer capacity, and immediate serial recall.",
+    "academicObjective": "Accurately replicate an incrementally expanding sequence of chromatic frequency tones (261Hz to 523Hz).",
+    "instrumentDirectives": "Listen to acoustic harmonic frequency sequence and click matching resonant quadrant pads in identical chronological order.",
+    "learningOutcomes": [
+      "Phonological loop and echoic working memory capacity",
+      "Pitch-spatial paired association and neural mapping",
+      "Attention focus stability under progressive sequence expansion"
+    ],
+    "defaultHonorsIndex": 18,
+    "iframeSrc": "./modules/simon_frequencies.html",
+    "tags": ["Neuroscience", "Acoustics", "Working Memory"]
+  },
+  {
+    "id": "orbital-defense",
+    "courseCode": "PHYS-180",
+    "title": "Directed Particle Defense & Periodic Lattice Interception",
+    "department": "Classical Mechanics",
+    "level": "Laboratory Drill",
+    "estimatedDuration": "10 min simulation",
+    "description": "Retro quantum ballistics laboratory requiring timed electromagnetic pulse projection to neutralize descending periodic radiation lattices.",
+    "academicObjective": "Eliminate descending oscillating anomaly nodes and maintain crystalline bunker integrity before surface threshold breach.",
+    "instrumentDirectives": "Arrow Keys / Mouse Drag: Translate interceptor caliper. Spacebar: Emit directed electron pulse.",
+    "learningOutcomes": [
+      "Periodic wave grid frequency calculation",
+      "Projectile lead time and relative velocity interception",
+      "Protective material degradation analysis under continuous bombardment"
+    ],
+    "defaultHonorsIndex": 2400,
+    "iframeSrc": "./modules/orbital_defense.html",
+    "tags": ["Physics", "Wave Grids", "Quantum Ballistics"]
+  },
+  {
+    "id": "compounding-capital-cookie",
+    "courseCode": "ECON-101",
+    "title": "Incremental Capital Synthesis & Compounding Dynamics",
+    "department": "Applied Mathematics",
+    "level": "Introductory Practicum",
+    "estimatedDuration": "10 min lab",
+    "description": "Discrete exponential growth model examining automated compounding rate multipliers, marginal upgrade cost scaling (1.15ⁿ), and throughput optimization.",
+    "academicObjective": "Maximize base asset synthesis per second by allocating generated capital into increasingly efficient automated yield nodes.",
+    "instrumentDirectives": "Click primary synthesis node to generate base units; purchase exponential yield upgrades as capital thresholds unlock.",
+    "learningOutcomes": [
+      "Exponential cost-to-yield ratio analysis",
+      "Compound growth curves under continuous reinvestment",
+      "Marginal efficiency optimization across capital tiers"
+    ],
+    "defaultHonorsIndex": 2500,
+    "iframeSrc": "./modules/cookie_clicker.html",
+    "tags": ["Applied Math", "Economics", "Exponential Growth"]
+  },
+  {
+    "id": "discrete-path-traversal",
+    "courseCode": "TRAF-201",
+    "title": "Discrete Spatial Path Traversal & Obstacle Avoidance",
+    "department": "Algorithmic Logic",
+    "level": "Undergraduate Practicum",
+    "estimatedDuration": "8 min practicum",
+    "description": "Discrete coordinate grid pathfinding simulation navigating multi-lane dynamic traffic vectors and river crossing intervals.",
+    "academicObjective": "Advance across dynamic orthogonal hazard lanes to reach upper boundary checkpoints without vehicular collision.",
+    "instrumentDirectives": "Arrow Keys or WASD: Step one grid cell laterally or forward/backward; Click canvas to advance.",
+    "learningOutcomes": [
+      "Discrete spatiotemporal timing & collision avoidance",
+      "Dynamic obstacle velocity prediction",
+      "Grid-based state-space traversal"
+    ],
+    "defaultHonorsIndex": 250,
+    "iframeSrc": "./modules/crossy_frog.html",
+    "tags": ["Algorithms", "Grid Traversal", "Timing"]
+  },
+  {
+    "id": "minimax-matrix",
+    "courseCode": "MATH-204",
+    "title": "Minimax Adversarial Game Theory Matrix",
+    "department": "Algorithmic Logic",
+    "level": "Foundational Seminar",
+    "estimatedDuration": "5 min exercise",
+    "description": "Zero-sum 3x3 combinatorial strategy experiment against an immediate win/block heuristic opponent.",
+    "academicObjective": "Achieve orthogonal or diagonal collinearity across the 3x3 matrix or force a Nash equilibrium zero-sum draw.",
+    "instrumentDirectives": "Mouse Click: Place token X in any unoccupied matrix coordinate.",
+    "learningOutcomes": [
+      "Zero-sum symmetric game theory equilibria",
+      "Heuristic threat detection and defensive blocking",
+      "Combinatorial matrix symmetry analysis"
+    ],
+    "defaultHonorsIndex": 10,
+    "iframeSrc": "./modules/tic_tac_toe.html",
+    "tags": ["Game Theory", "Minimax", "Zero-Sum"]
+  }
+]

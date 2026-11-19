@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>NEUR-315: Neuro-Acoustic Resonance</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #09090b;
+      letter-spacing: -0.02em;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.58rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #4f46e5;
+      font-variant-numeric: tabular-nums;
+    }
+    .board-container {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      background: #18181b;
+      border-radius: 50%;
+      padding: 16px;
+      box-shadow: 0 10px 30px -5px rgba(0,0,0,0.25);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+    }
+    .pad {
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      opacity: 0.65;
+      transition: opacity 0.1s, transform 0.05s, filter 0.1s;
+      outline: none;
+    }
+    .pad:active {
+      transform: scale(0.96);
+    }
+    .pad.lit {
+      opacity: 1;
+      filter: brightness(1.4) drop-shadow(0 0 16px currentColor);
+      transform: scale(1.02);
+    }
+    .pad-green {
+      background: #10b981;
+      border-top-left-radius: 140px;
+      color: #10b981;
+    }
+    .pad-red {
+      background: #ef4444;
+      border-top-right-radius: 140px;
+      color: #ef4444;
+    }
+    .pad-yellow {
+      background: #f59e0b;
+      border-bottom-left-radius: 140px;
+      color: #f59e0b;
+    }
+    .pad-blue {
+      background: #3b82f6;
+      border-bottom-right-radius: 140px;
+      color: #3b82f6;
+    }
+    .center-hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px;
+      height: 120px;
+      background: #fafafa;
+      border: 6px solid #18181b;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+    .center-hub span {
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #71717a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .center-hub button {
+      margin-top: 4px;
+      background: #18181b;
+      color: #ffffff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .status-msg {
+      margin-top: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #475569;
+      text-align: center;
+      max-width: 460px;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>NEUR-315: Neuro-Acoustic Resonance</h1>
+      <p>Cognitive Neuroscience · Sensory Working Sequence Buffer</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Buffer Depth</div>
+        <div class="metric-val" id="scoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Max Retention</div>
+        <div class="metric-val" id="highScoreVal">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="board-container">
+    <button class="pad pad-green" data-pad="0" aria-label="Frequency C4"></button>
+    <button class="pad pad-red" data-pad="1" aria-label="Frequency E4"></button>
+    <button class="pad pad-yellow" data-pad="2" aria-label="Frequency G4"></button>
+    <button class="pad pad-blue" data-pad="3" aria-label="Frequency C5"></button>
+
+    <div class="center-hub">
+      <span>Harmonic Hub</span>
+      <button id="startBtn">Begin Sequence</button>
+    </div>
+  </div>
+
+  <div class="status-msg" id="statusMsg">
+    Press "Begin Sequence" to generate acoustic memory stimuli. Replicate harmonic pulse sequence accurately.
+  </div>
+
+  <script>
+    const FREQS = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+    let audioCtx = null;
+
+    function playTone(freq, dur = 0.25) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    const scoreVal = document.getElementById('scoreVal');
+    const highScoreVal = document.getElementById('highScoreVal');
+    const startBtn = document.getElementById('startBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    const pads = document.querySelectorAll('.pad');
+
+    let sequence = [];
+    let playerIndex = 0;
+    let isPlayingSequence = false;
+    let isGameActive = false;
+
+    let highScore = parseInt(localStorage.getItem('scholastica_neur315_high') || '0', 10);
+    highScoreVal.textContent = highScore;
+
+    function flashPad(padIdx, dur = 300) {
+      const pad = pads[padIdx];
+      pad.classList.add('lit');
+      playTone(FREQS[padIdx], dur / 1000);
+      setTimeout(() => {
+        pad.classList.remove('lit');
+      }, dur);
+    }
+
+    async function playSequence() {
+      isPlayingSequence = true;
+      statusMsg.textContent = 'Observing Neuro-Acoustic Sequence...';
+      startBtn.disabled = true;
+
+      await new Promise(r => setTimeout(r, 600));
+
+      for (let i = 0; i < sequence.length; i++) {
+        flashPad(sequence[i], 320);
+        await new Promise(r => setTimeout(r, 480));
+      }
+
+      isPlayingSequence = false;
+      playerIndex = 0;
+      statusMsg.textContent = `Your Turn: Replicate ${sequence.length} acoustic pulses.`;
+    }
+
+    function addStep() {
+      sequence.push(Math.floor(Math.random() * 4));
+      scoreVal.textContent = sequence.length;
+      if (sequence.length > highScore) {
+        highScore = sequence.length;
+        highScoreVal.textContent = highScore;
+        localStorage.setItem('scholastica_neur315_high', highScore.toString());
+      }
+      playSequence();
+    }
+
+    function handlePadClick(idx) {
+      if (!isGameActive || isPlayingSequence) return;
+
+      flashPad(idx, 200);
+
+      if (idx === sequence[playerIndex]) {
+        playerIndex++;
+        if (playerIndex === sequence.length) {
+          // Completed current sequence
+          statusMsg.textContent = 'Sequence Replicated! Incrementing buffer length...';
+          setTimeout(addStep, 800);
+        }
+      } else {
+        // Discrepancy / Game Over
+        playTone(130, 0.4);
+        statusMsg.textContent = `Memory Buffer Exhaustion. Reached sequence length of ${sequence.length}.`;
+        isGameActive = false;
+        startBtn.textContent = 'Reinitiate';
+        startBtn.disabled = false;
+      }
+    }
+
+    pads.forEach((pad, idx) => {
+      pad.addEventListener('click', () => handlePadClick(idx));
+    });
+
+    startBtn.addEventListener('click', () => {
+      sequence = [];
+      playerIndex = 0;
+      isGameActive = true;
+      startBtn.textContent = 'Active...';
+      addStep();
+    });
+  </script>
+</body>
+</html>

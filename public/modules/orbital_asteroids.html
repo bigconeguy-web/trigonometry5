@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ASTRO-240: Orbital Momentum & Inertial Navigation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #09090b;
+      color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fafafa;
+      letter-spacing: -0.02em;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #a1a1aa;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.58rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #a855f7;
+      font-variant-numeric: tabular-nums;
+    }
+    .canvas-container {
+      position: relative;
+      background: #0d0d12;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    canvas {
+      display: block;
+      background: #07070b;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 9, 11, 0.88);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.hidden { display: none; }
+    .overlay h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: #fafafa;
+    }
+    .overlay p {
+      font-size: 0.8rem;
+      color: #a1a1aa;
+      max-width: 340px;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .btn {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .instructions {
+      margin-top: 10px;
+      font-size: 0.7rem;
+      color: #71717a;
+      text-align: center;
+      max-width: 520px;
+    }
+    .instructions kbd {
+      background: #27272a;
+      border: 1px solid #3f3f46;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      color: #e4e4e7;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>ASTRO-240: Orbital Inertia & Vector Drift</h1>
+      <p>Astrophysics & Celestial Mechanics · Newton-Euler Kinematics</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Yield (AU)</div>
+        <div class="metric-val" id="scoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">High Honor</div>
+        <div class="metric-val" id="highScoreVal">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Hulls</div>
+        <div class="metric-val" id="livesVal">3</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="500" height="420"></canvas>
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">Celestial Trajectory Ready</h2>
+      <p id="overlayDesc">Calibrate rotational heading, apply Newtonian thrust pulses, and neutralize orbital particulate clusters.</p>
+      <button class="btn" id="startBtn">Engage Navigational Thruster</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    Rotate heading with <kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd>. Thrust with <kbd>↑</kbd> or <kbd>W</kbd>. Pulse particle cannon with <kbd>Space</kbd>.
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayDesc = document.getElementById('overlayDesc');
+    const startBtn = document.getElementById('startBtn');
+    const scoreVal = document.getElementById('scoreVal');
+    const highScoreVal = document.getElementById('highScoreVal');
+    const livesVal = document.getElementById('livesVal');
+
+    let audioCtx = null;
+    function playBeep(freq, type='square', dur=0.08) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    let highScore = parseInt(localStorage.getItem('scholastica_astro240_high') || '0', 10);
+    highScoreVal.textContent = highScore;
+
+    let state = 'IDLE';
+    let score = 0;
+    let lives = 3;
+    let invulnerableTimer = 0;
+
+    const ship = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      vx: 0,
+      vy: 0,
+      angle: -Math.PI / 2,
+      rotationSpeed: 0.08,
+      thrustPower: 0.14,
+      friction: 0.985,
+      radius: 9,
+      isThrusting: false
+    };
+
+    let bullets = [];
+    let asteroids = [];
+    let particles = [];
+    const keys = {};
+
+    function spawnAsteroid(x, y, radius, level) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = (4 - level) * 0.6 + Math.random() * 0.5;
+      const vertCount = 8 + Math.floor(Math.random() * 4);
+      const offsets = [];
+      for (let i = 0; i < vertCount; i++) {
+        offsets.push(0.75 + Math.random() * 0.5);
+      }
+
+      asteroids.push({
+        x: x !== undefined ? x : (Math.random() > 0.5 ? 0 : canvas.width),
+        y: y !== undefined ? y : Math.random() * canvas.height,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: radius || 32,
+        level: level || 3, // 3 = large, 2 = medium, 1 = small
+        vertCount: vertCount,
+        offsets: offsets,
+        angle: 0,
+        rotSpeed: (Math.random() - 0.5) * 0.03
+      });
+    }
+
+    function initLevel(count = 4) {
+      asteroids = [];
+      for (let i = 0; i < count; i++) {
+        let x, y;
+        do {
+          x = Math.random() * canvas.width;
+          y = Math.random() * canvas.height;
+        } while (Math.hypot(x - ship.x, y - ship.y) < 120);
+        spawnAsteroid(x, y, 32, 3);
+      }
+    }
+
+    function createExplosion(x, y, count = 12, color = '#c084fc') {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const spd = Math.random() * 3 + 0.5;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * spd,
+          vy: Math.sin(angle) * spd,
+          alpha: 1,
+          size: Math.random() * 2.5 + 1,
+          color: color
+        });
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      keys[e.key] = true;
+      if (e.key === ' ' || e.key === 'Spacebar') {
+        if (state === 'RUNNING') {
+          fireBullet();
+        }
+      }
+    });
+    window.addEventListener('keyup', (e) => {
+      keys[e.key] = false;
+    });
+
+    function fireBullet() {
+      if (bullets.length >= 5) return;
+      bullets.push({
+        x: ship.x + Math.cos(ship.angle) * ship.radius * 1.5,
+        y: ship.y + Math.sin(ship.angle) * ship.radius * 1.5,
+        vx: ship.vx + Math.cos(ship.angle) * 7.5,
+        vy: ship.vy + Math.sin(ship.angle) * 7.5,
+        life: 55
+      });
+      playBeep(880, 'sine', 0.05);
+    }
+
+    startBtn.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      score = 0;
+      lives = 3;
+      scoreVal.textContent = score;
+      livesVal.textContent = lives;
+      ship.x = canvas.width / 2;
+      ship.y = canvas.height / 2;
+      ship.vx = 0;
+      ship.vy = 0;
+      ship.angle = -Math.PI / 2;
+      invulnerableTimer = 60;
+      initLevel(4);
+      state = 'RUNNING';
+    });
+
+    function wrap(obj, margin = 10) {
+      if (obj.x < -margin) obj.x = canvas.width + margin;
+      else if (obj.x > canvas.width + margin) obj.x = -margin;
+      if (obj.y < -margin) obj.y = canvas.height + margin;
+      else if (obj.y > canvas.height + margin) obj.y = -margin;
+    }
+
+    function update() {
+      if (state !== 'RUNNING') return;
+
+      if (invulnerableTimer > 0) invulnerableTimer--;
+
+      // Ship controls
+      if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+        ship.angle -= ship.rotationSpeed;
+      }
+      if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+        ship.angle += ship.rotationSpeed;
+      }
+
+      ship.isThrusting = keys['ArrowUp'] || keys['w'] || keys['W'];
+      if (ship.isThrusting) {
+        ship.vx += Math.cos(ship.angle) * ship.thrustPower;
+        ship.vy += Math.sin(ship.angle) * ship.thrustPower;
+        if (Math.random() < 0.4) {
+          playBeep(90 + Math.random() * 40, 'sawtooth', 0.04);
+        }
+      }
+
+      ship.vx *= ship.friction;
+      ship.vy *= ship.friction;
+      ship.x += ship.vx;
+      ship.y += ship.vy;
+      wrap(ship, 12);
+
+      // Bullets
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        const b = bullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        wrap(b, 2);
+        b.life--;
+        if (b.life <= 0) {
+          bullets.splice(i, 1);
+        }
+      }
+
+      // Asteroids
+      for (let i = asteroids.length - 1; i >= 0; i--) {
+        const a = asteroids[i];
+        a.x += a.vx;
+        a.y += a.vy;
+        a.angle += a.rotSpeed;
+        wrap(a, a.radius);
+
+        // Check bullet collision
+        for (let j = bullets.length - 1; j >= 0; j--) {
+          const b = bullets[j];
+          if (Math.hypot(a.x - b.x, a.y - b.y) < a.radius) {
+            bullets.splice(j, 1);
+            createExplosion(a.x, a.y, a.level * 6);
+            playBeep(220 * a.level, 'square', 0.1);
+
+            const pts = (4 - a.level) * 50;
+            score += pts;
+            scoreVal.textContent = score;
+            if (score > highScore) {
+              highScore = score;
+              highScoreVal.textContent = highScore;
+              localStorage.setItem('scholastica_astro240_high', highScore.toString());
+            }
+
+            if (a.level > 1) {
+              spawnAsteroid(a.x, a.y, a.radius * 0.55, a.level - 1);
+              spawnAsteroid(a.x, a.y, a.radius * 0.55, a.level - 1);
+            }
+            asteroids.splice(i, 1);
+            break;
+          }
+        }
+      }
+
+      // Check ship collision with asteroid
+      if (invulnerableTimer <= 0) {
+        for (const a of asteroids) {
+          if (Math.hypot(a.x - ship.x, a.y - ship.y) < a.radius + ship.radius * 0.7) {
+            lives--;
+            livesVal.textContent = lives;
+            createExplosion(ship.x, ship.y, 20, '#ef4444');
+            playBeep(120, 'sawtooth', 0.3);
+
+            if (lives <= 0) {
+              state = 'GAMEOVER';
+              overlayTitle.textContent = 'Orbital Vessel Compromised';
+              overlayDesc.textContent = `Impact breached kinetic containment. Navigation log finalized with ${score} AU survey data.`;
+              startBtn.textContent = 'Relaunch Probe';
+              overlay.classList.remove('hidden');
+            } else {
+              ship.x = canvas.width / 2;
+              ship.y = canvas.height / 2;
+              ship.vx = 0;
+              ship.vy = 0;
+              ship.angle = -Math.PI / 2;
+              invulnerableTimer = 90;
+            }
+            break;
+          }
+        }
+      }
+
+      // Next wave check
+      if (asteroids.length === 0) {
+        initLevel(4 + Math.min(4, Math.floor(score / 500)));
+        invulnerableTimer = 60;
+      }
+
+      // Particles
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.03;
+        if (p.alpha <= 0) particles.splice(i, 1);
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Starfield dots
+      ctx.fillStyle = '#27273a';
+      for (let i = 0; i < 40; i++) {
+        const sx = ((i * 123) % canvas.width);
+        const sy = ((i * 321) % canvas.height);
+        ctx.fillRect(sx, sy, 1.5, 1.5);
+      }
+
+      // Draw asteroids
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 1.5;
+      for (const a of asteroids) {
+        ctx.save();
+        ctx.translate(a.x, a.y);
+        ctx.rotate(a.angle);
+        ctx.beginPath();
+        for (let i = 0; i < a.vertCount; i++) {
+          const theta = (i / a.vertCount) * Math.PI * 2;
+          const r = a.radius * a.offsets[i];
+          const px = Math.cos(theta) * r;
+          const py = Math.sin(theta) * r;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(192, 132, 252, 0.06)';
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw bullets
+      ctx.fillStyle = '#f43f5e';
+      ctx.shadowColor = '#f43f5e';
+      ctx.shadowBlur = 6;
+      for (const b of bullets) {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+      // Draw particles
+      for (const p of particles) {
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Draw ship
+      if (state === 'RUNNING' || state === 'IDLE') {
+        if (invulnerableTimer % 6 < 3) {
+          ctx.save();
+          ctx.translate(ship.x, ship.y);
+          ctx.rotate(ship.angle);
+
+          // Ship body
+          ctx.strokeStyle = '#fafafa';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(ship.radius * 1.5, 0);
+          ctx.lineTo(-ship.radius, -ship.radius * 0.85);
+          ctx.lineTo(-ship.radius * 0.5, 0);
+          ctx.lineTo(-ship.radius, ship.radius * 0.85);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+          ctx.fill();
+          ctx.stroke();
+
+          // Thruster flame
+          if (ship.isThrusting) {
+            ctx.fillStyle = '#fb923c';
+            ctx.beginPath();
+            ctx.moveTo(-ship.radius * 0.6, -ship.radius * 0.4);
+            ctx.lineTo(-ship.radius * 1.8 - Math.random() * 4, 0);
+            ctx.lineTo(-ship.radius * 0.6, ship.radius * 0.4);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+      }
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

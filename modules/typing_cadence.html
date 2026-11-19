@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LING-105: Lexical Transcription Cadence</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .title-block h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #09090b;
+    }
+    .title-block p {
+      font-size: 0.72rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 10px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      padding: 4px 12px;
+      text-align: center;
+      min-width: 75px;
+    }
+    .metric-label {
+      font-size: 0.6rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .passage-card {
+      width: 100%;
+      max-width: 540px;
+      background: #ffffff;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      line-height: 1.7;
+      font-size: 1.05rem;
+      font-family: "JetBrains Mono", monospace;
+      color: #71717a;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      min-height: 120px;
+    }
+    .char { position: relative; }
+    .char.correct { color: #16a34a; }
+    .char.incorrect { color: #dc2626; background: #fee2e2; border-radius: 2px; }
+    .char.current {
+      background: #e0e7ff;
+      border-bottom: 2px solid #4f46e5;
+      color: #1e1b4b;
+    }
+    .input-box {
+      width: 100%;
+      max-width: 540px;
+      padding: 12px 16px;
+      border: 1px solid #d4d4d8;
+      border-radius: 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+      background: #ffffff;
+    }
+    .input-box:focus {
+      border-color: #18181b;
+      box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.1);
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .btn {
+      background: #18181b;
+      color: #fafafa;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>LING-105: Transcription Cadence</h1>
+      <p>Syntactic Velocity & Fidelity Assessment</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Cadence (WPM)</div>
+        <div class="metric-val" id="wpm">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Fidelity</div>
+        <div class="metric-val" id="accuracy">100%</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Honor Index</div>
+        <div class="metric-val" id="highScore">0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="passage-card" id="passageDisplay"></div>
+
+  <input type="text" class="input-box" id="typingInput" placeholder="Begin keyboard transcription here..." autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+
+  <div class="controls-strip">
+    <span style="font-size:0.75rem; color:#71717a;" id="statusMsg">Transcribe the academic excerpt verbatim.</span>
+    <button class="btn" id="newPassageBtn">Next Syllabus Excerpt</button>
+  </div>
+
+  <script>
+    const EXCERPTS = [
+      "Scientific methodology demands empirical observation and reproducible hypotheses to isolate invariant physical principles.",
+      "Discrete mathematics investigates distinct algebraic structures, including graph vertices, propositional logic, and combinatorics.",
+      "Cellular respiration converts biochemical energy from nutrients into adenosine triphosphate, synthesizing essential organic molecules.",
+      "The laws of thermodynamics govern thermal equilibrium, thermodynamic entropy increase, and absolute zero asymptote behaviors.",
+      "Orthogonal coordinate projections map multidimensional vector spaces into lower dimensional geometric manifolds without volumetric loss."
+    ];
+
+    let currentText = "";
+    let startTime = null;
+    let timerId = null;
+    let totalErrors = 0;
+    let isComplete = false;
+
+    const displayEl = document.getElementById('passageDisplay');
+    const inputEl = document.getElementById('typingInput');
+    const wpmEl = document.getElementById('wpm');
+    const accEl = document.getElementById('accuracy');
+    const statusMsg = document.getElementById('statusMsg');
+
+    let highScore = parseInt(localStorage.getItem('scholastica_typing_record') || '0', 10);
+    document.getElementById('highScore').textContent = highScore;
+
+    function init() {
+      currentText = EXCERPTS[Math.floor(Math.random() * EXCERPTS.length)];
+      startTime = null;
+      clearInterval(timerId);
+      totalErrors = 0;
+      isComplete = false;
+      inputEl.value = "";
+      inputEl.disabled = false;
+      inputEl.focus();
+      wpmEl.textContent = "0";
+      accEl.textContent = "100%";
+      statusMsg.textContent = "Transcribe the academic excerpt verbatim.";
+
+      // Render character spans
+      displayEl.innerHTML = "";
+      for (let i = 0; i < currentText.length; i++) {
+        const span = document.createElement('span');
+        span.className = 'char' + (i === 0 ? ' current' : '');
+        span.textContent = currentText[i];
+        displayEl.appendChild(span);
+      }
+    }
+
+    inputEl.addEventListener('input', () => {
+      if (isComplete) return;
+      const val = inputEl.value;
+
+      if (!startTime && val.length > 0) {
+        startTime = performance.now();
+        timerId = setInterval(updateStats, 200);
+      }
+
+      const spans = displayEl.querySelectorAll('.char');
+      let currentErrors = 0;
+
+      for (let i = 0; i < spans.length; i++) {
+        spans[i].className = 'char';
+        if (i < val.length) {
+          if (val[i] === currentText[i]) {
+            spans[i].classList.add('correct');
+          } else {
+            spans[i].classList.add('incorrect');
+            currentErrors++;
+          }
+        } else if (i === val.length) {
+          spans[i].classList.add('current');
+        }
+      }
+
+      totalErrors = currentErrors;
+      updateStats();
+
+      // Check completion
+      if (val === currentText) {
+        isComplete = true;
+        clearInterval(timerId);
+        inputEl.disabled = true;
+        const finalWpm = parseInt(wpmEl.textContent, 10);
+        statusMsg.textContent = `Practicum successfully completed! Final Cadence: ${finalWpm} WPM.`;
+        if (finalWpm > highScore) {
+          highScore = finalWpm;
+          document.getElementById('highScore').textContent = highScore;
+          localStorage.setItem('scholastica_typing_record', highScore.toString());
+        }
+      }
+    });
+
+    function updateStats() {
+      if (!startTime) return;
+      const elapsedMins = (performance.now() - startTime) / 60000;
+      const wordsTyped = inputEl.value.length / 5;
+      const currentWpm = Math.round(wordsTyped / (elapsedMins || 0.001));
+      wpmEl.textContent = Math.max(0, currentWpm);
+
+      const totalTyped = inputEl.value.length;
+      if (totalTyped > 0) {
+        const correctTyped = totalTyped - totalErrors;
+        const accuracy = Math.round((correctTyped / totalTyped) * 100);
+        accEl.textContent = `${Math.max(0, accuracy)}%`;
+      }
+    }
+
+    document.getElementById('newPassageBtn').addEventListener('click', init);
+
+    init();
+  </script>
+</body>
+</html>

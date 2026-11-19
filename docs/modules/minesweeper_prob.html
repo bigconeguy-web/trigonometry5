@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>STAT-305: Probabilistic Risk Field Deduction</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background: #fafafa;
+      color: #18181b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .title-block h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #09090b;
+    }
+    .title-block p {
+      font-size: 0.7rem;
+      color: #71717a;
+    }
+    .metrics {
+      display: flex;
+      gap: 8px;
+    }
+    .metric-card {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      padding: 4px 8px;
+      text-align: center;
+      min-width: 65px;
+    }
+    .metric-label {
+      font-size: 0.6rem;
+      color: #71717a;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .metric-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .controls-strip {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: #18181b;
+      color: #fafafa;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-toggle {
+      background: #f4f4f5;
+      color: #18181b;
+      border: 1px solid #e4e4e7;
+    }
+    .btn-toggle.active {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      color: #1e40af;
+    }
+    .grid-container {
+      background: #e4e4e7;
+      padding: 6px;
+      border-radius: 10px;
+      display: inline-grid;
+      gap: 2px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+    .cell {
+      width: 34px;
+      height: 34px;
+      background: #f4f4f5;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-variant-numeric: tabular-nums;
+      transition: background-color 0.1s ease;
+    }
+    .cell:hover:not(.revealed) { background: #e4e4e7; }
+    .cell.revealed {
+      background: #ffffff;
+      cursor: default;
+    }
+    .cell.flagged { color: #dc2626; font-weight: 800; }
+    .cell.mine { background: #fee2e2; color: #b91c1c; }
+    .cell[data-num="1"] { color: #2563eb; }
+    .cell[data-num="2"] { color: #16a34a; }
+    .cell[data-num="3"] { color: #dc2626; }
+    .cell[data-num="4"] { color: #7c3aed; }
+    .cell[data-num="5"] { color: #b45309; }
+    .cell[data-num="6"] { color: #0891b2; }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(250, 250, 250, 0.94);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overlay h2 { font-size: 1.15rem; font-weight: 700; }
+    .overlay p { font-size: 0.78rem; color: #52525b; text-align: center; max-width: 220px; }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div class="title-block">
+      <h1>STAT-305: Risk Deduction</h1>
+      <p>Probabilistic Matrix Analysis</p>
+    </div>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Hypotheses Left</div>
+        <div class="metric-val" id="flagCount">10</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Analysis Time</div>
+        <div class="metric-val" id="timer">0s</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-strip">
+    <button class="btn btn-toggle" id="flagModeBtn">Flagging Mode: OFF</button>
+    <button class="btn" id="restartBtn">Reinitialize</button>
+  </div>
+
+  <div class="grid-container" id="grid">
+    <div class="overlay" id="overlay">
+      <h2 id="overlayTitle">Hypothesis Validated</h2>
+      <p id="overlayDesc">All risk anomalies cataloged without breach.</p>
+      <button class="btn" id="overlayRestartBtn">Begin New Survey</button>
+    </div>
+  </div>
+
+  <script>
+    const ROWS = 9, COLS = 9, MINES = 10;
+    let gridData = [];
+    let isGameOver = false;
+    let timer = 0;
+    let timerId = null;
+    let flagsLeft = MINES;
+    let firstClick = true;
+    let flagMode = false;
+
+    const gridEl = document.getElementById('grid');
+    const flagCountEl = document.getElementById('flagCount');
+    const timerEl = document.getElementById('timer');
+    const overlay = document.getElementById('overlay');
+    const overlayTitle = document.getElementById('overlayTitle');
+    const overlayDesc = document.getElementById('overlayDesc');
+    const flagModeBtn = document.getElementById('flagModeBtn');
+
+    gridEl.style.gridTemplateColumns = `repeat(${COLS}, 34px)`;
+
+    function init() {
+      gridData = [];
+      isGameOver = false;
+      firstClick = true;
+      flagsLeft = MINES;
+      timer = 0;
+      clearInterval(timerId);
+      timerEl.textContent = '0s';
+      flagCountEl.textContent = flagsLeft;
+      overlay.classList.remove('active');
+
+      // Clear existing cell DOM
+      const existingCells = gridEl.querySelectorAll('.cell');
+      existingCells.forEach(c => c.remove());
+
+      for (let r = 0; r < ROWS; r++) {
+        gridData[r] = [];
+        for (let c = 0; c < COLS; c++) {
+          const cellEl = document.createElement('div');
+          cellEl.className = 'cell';
+          cellEl.dataset.r = r;
+          cellEl.dataset.c = c;
+          gridEl.appendChild(cellEl);
+
+          gridData[r][c] = {
+            r, c,
+            isMine: false,
+            revealed: false,
+            flagged: false,
+            neighborCount: 0,
+            el: cellEl
+          };
+
+          cellEl.addEventListener('click', () => handleCellClick(r, c));
+          cellEl.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            toggleFlag(r, c);
+          });
+        }
+      }
+    }
+
+    function plantMines(safeR, safeC) {
+      let planted = 0;
+      while (planted < MINES) {
+        const r = Math.floor(Math.random() * ROWS);
+        const c = Math.floor(Math.random() * COLS);
+        // Do not place on or adjacent to safe cell
+        if (Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1) continue;
+        if (!gridData[r][c].isMine) {
+          gridData[r][c].isMine = true;
+          planted++;
+        }
+      }
+
+      // Calculate neighbor counts
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (gridData[r][c].isMine) continue;
+          let count = 0;
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && gridData[nr][nc].isMine) {
+                count++;
+              }
+            }
+          }
+          gridData[r][c].neighborCount = count;
+        }
+      }
+    }
+
+    function handleCellClick(r, c) {
+      if (isGameOver) return;
+      if (flagMode) {
+        toggleFlag(r, c);
+        return;
+      }
+      const cell = gridData[r][c];
+      if (cell.flagged || cell.revealed) return;
+
+      if (firstClick) {
+        firstClick = false;
+        plantMines(r, c);
+        timerId = setInterval(() => {
+          timer++;
+          timerEl.textContent = `${timer}s`;
+        }, 1000);
+      }
+
+      if (cell.isMine) {
+        revealAllMines();
+        isGameOver = true;
+        clearInterval(timerId);
+        overlayTitle.textContent = "Singularity Triggered";
+        overlayDesc.textContent = "Sampled high-hazard risk node. Empirical survey compromised.";
+        overlay.classList.add('active');
+        return;
+      }
+
+      revealCell(r, c);
+      checkWin();
+    }
+
+    function revealCell(r, c) {
+      const cell = gridData[r][c];
+      if (cell.revealed || cell.flagged) return;
+      cell.revealed = true;
+      cell.el.classList.add('revealed');
+
+      if (cell.neighborCount > 0) {
+        cell.el.textContent = cell.neighborCount;
+        cell.el.dataset.num = cell.neighborCount;
+      } else {
+        // Flood fill reveal
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {
+              revealCell(nr, nc);
+            }
+          }
+        }
+      }
+    }
+
+    function toggleFlag(r, c) {
+      if (isGameOver) return;
+      const cell = gridData[r][c];
+      if (cell.revealed) return;
+
+      cell.flagged = !cell.flagged;
+      cell.el.classList.toggle('flagged', cell.flagged);
+      cell.el.textContent = cell.flagged ? '▲' : '';
+      flagsLeft += cell.flagged ? -1 : 1;
+      flagCountEl.textContent = flagsLeft;
+    }
+
+    function revealAllMines() {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const cell = gridData[r][c];
+          if (cell.isMine) {
+            cell.el.classList.add('mine');
+            cell.el.textContent = '●';
+          }
+        }
+      }
+    }
+
+    function checkWin() {
+      let unrevealedSafe = 0;
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const cell = gridData[r][c];
+          if (!cell.isMine && !cell.revealed) {
+            unrevealedSafe++;
+          }
+        }
+      }
+      if (unrevealedSafe === 0) {
+        isGameOver = true;
+        clearInterval(timerId);
+        overlayTitle.textContent = "Risk Field Resolved!";
+        overlayDesc.textContent = `All benign sectors deduced accurately in ${timer} seconds.`;
+        overlay.classList.add('active');
+      }
+    }
+
+    flagModeBtn.addEventListener('click', () => {
+      flagMode = !flagMode;
+      flagModeBtn.classList.toggle('active', flagMode);
+      flagModeBtn.textContent = `Flagging Mode: ${flagMode ? 'ON' : 'OFF'}`;
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', init);
+    document.getElementById('overlayRestartBtn').addEventListener('click', init);
+
+    init();
+  </script>
+</body>
+</html>

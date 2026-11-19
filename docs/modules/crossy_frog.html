@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>TRAF-201: Discrete Spatial Path Traversal & Obstacle Avoidance</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+    .hud {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    canvas {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 12px;
+      display: block;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .controls {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      font-family: monospace;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <span>TRAF-201: Traversal</span>
+    <span>Score: <strong id="score" style="color:#38bdf8">0</strong></span>
+    <span>Top: <strong id="top" style="color:#4ade80">0</strong></span>
+  </div>
+
+  <canvas id="canvas" width="400" height="480"></canvas>
+  <div class="controls">Controls: Arrow Keys or WASD &middot; Tap to jump</div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const topEl = document.getElementById('top');
+
+    const GRID = 40;
+    const COLS = 10;
+    const ROWS = 12;
+
+    let player = { x: 4, y: 11 };
+    let score = 0;
+    let topScore = 0;
+    let highestRow = 11;
+
+    // Obstacle lanes
+    const lanes = [
+      { y: 1, speed: 2.2, type: 'car', color: '#ef4444', len: 1.5, items: [{x:0}, {x:5}] },
+      { y: 2, speed: -1.8, type: 'car', color: '#f59e0b', len: 1.8, items: [{x:2}, {x:7}] },
+      { y: 3, speed: 2.5, type: 'car', color: '#38bdf8', len: 1.2, items: [{x:1}, {x:6}] },
+      { y: 4, speed: -2.0, type: 'log', color: '#854d0e', len: 2.5, items: [{x:0}, {x:5}] },
+      { y: 5, speed: 1.5, type: 'log', color: '#854d0e', len: 2.0, items: [{x:3}, {x:7}] },
+      { y: 6, speed: -2.8, type: 'log', color: '#854d0e', len: 2.2, items: [{x:1}, {x:6}] },
+      { y: 7, speed: 2.0, type: 'car', color: '#ec4899', len: 1.4, items: [{x:0}, {x:5}] },
+      { y: 8, speed: -2.4, type: 'car', color: '#a855f7', len: 1.6, items: [{x:3}, {x:8}] },
+      { y: 9, speed: 1.7, type: 'car', color: '#10b981', len: 1.5, items: [{x:2}, {x:7}] },
+    ];
+
+    function reset() {
+      player = { x: 4, y: 11 };
+      highestRow = 11;
+      score = 0;
+      scoreEl.textContent = score;
+    }
+
+    function update() {
+      // Move obstacles
+      lanes.forEach(lane => {
+        lane.items.forEach(item => {
+          item.x += lane.speed * 0.03;
+          if (lane.speed > 0 && item.x > COLS) item.x = -lane.len;
+          if (lane.speed < 0 && item.x < -lane.len) item.x = COLS;
+        });
+      });
+
+      // Check collision
+      const currentLane = lanes.find(l => l.y === player.y);
+      if (currentLane) {
+        if (currentLane.type === 'car') {
+          currentLane.items.forEach(item => {
+            if (player.x + 0.7 > item.x && player.x + 0.3 < item.x + currentLane.len) {
+              reset();
+            }
+          });
+        }
+      }
+
+      // Check reaching top
+      if (player.y === 0) {
+        score += 50;
+        if (score > topScore) topScore = score;
+        scoreEl.textContent = score;
+        topEl.textContent = topScore;
+        player.y = 11;
+        highestRow = 11;
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw rows
+      for (let r = 0; r < ROWS; r++) {
+        if (r === 0 || r === 10 || r === 11) {
+          ctx.fillStyle = '#1e293b';
+        } else if (r >= 4 && r <= 6) {
+          ctx.fillStyle = '#0f172a'; // river
+        } else {
+          ctx.fillStyle = '#1e293b'; // road
+        }
+        ctx.fillRect(0, r * GRID, canvas.width, GRID);
+        ctx.strokeStyle = '#334155';
+        ctx.strokeRect(0, r * GRID, canvas.width, GRID);
+      }
+
+      // Draw obstacles
+      lanes.forEach(lane => {
+        lane.items.forEach(item => {
+          ctx.fillStyle = lane.color;
+          ctx.beginPath();
+          ctx.roundRect(item.x * GRID, lane.y * GRID + 5, lane.len * GRID, GRID - 10, 6);
+          ctx.fill();
+        });
+      });
+
+      // Draw player
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath();
+      ctx.arc((player.x + 0.5) * GRID, (player.y + 0.5) * GRID, GRID * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc((player.x + 0.35) * GRID, (player.y + 0.4) * GRID, 3, 0, Math.PI * 2);
+      ctx.arc((player.x + 0.65) * GRID, (player.y + 0.4) * GRID, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      let moved = false;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        if (player.y > 0) player.y--;
+        moved = true;
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        if (player.y < 11) player.y++;
+        moved = true;
+      } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        if (player.x > 0) player.x--;
+        moved = true;
+      } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        if (player.x < 9) player.x++;
+        moved = true;
+      }
+      if (moved) {
+        e.preventDefault();
+        if (player.y < highestRow) {
+          score += (highestRow - player.y) * 10;
+          highestRow = player.y;
+          if (score > topScore) topScore = score;
+          scoreEl.textContent = score;
+          topEl.textContent = topScore;
+        }
+      }
+    });
+
+    canvas.addEventListener('click', () => {
+      if (player.y > 0) player.y--;
+    });
+
+    loop();
+  </script>
+</body>
+</html>

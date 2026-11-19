@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:," />
+  <title>New Tab</title>
+  <style>html,body{cursor:default;background:#fff;width:100%;height:100%;margin:0;padding:0;overflow:hidden}</style>
+</head>
+<body>
+  <template id="portal-template">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      id="dynamic-favicon"
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1512'/%3E%3Cpath d='M20 42V22h8l4 8 4-8h8v20h-6V31l-4 7h-4l-4-7v11h-6z' fill='%2334d399'/%3E%3C/svg%3E"
+    />
+    <title>Dashboard</title>
+    <style>:root,html[data-theme=midnight]{--bg-canvas:#0b0f14;--bg-sidebar:#0e141c;--bg-elevated:#121821;--bg-card:#161e29;--bg-card-hover:#1c2635;--bg-input:#0f151e;--border:#232e3e;--border-hover:var(--accent);--text-primary:#f1f5f9;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#34d399;--accent-hover:#10b981;--accent-soft:#34d39924;--accent-contrast:#06281e;--shadow-card:0 4px 14px #00000040;--shadow-card-hover:0 14px 28px #0000006b;--font-ui:"Plus Jakarta Sans", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;--font-mono:"JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--ease-out:cubic-bezier(.16, 1, .3, 1)}html[data-theme=forest]{--bg-canvas:#08110c;--bg-sidebar:#0b1610;--bg-elevated:#0f1d15;--bg-card:#14261c;--bg-card-hover:#1a3225;--bg-input:#0c1711;--border:#20392b;--text-primary:#ecf7f0;--text-secondary:#9ac0aa;--text-muted:#668c76;--accent:#4ade80;--accent-hover:#22c55e;--accent-soft:#4ade8024;--accent-contrast:#052e16}html[data-theme=ocean]{--bg-canvas:#07101c;--bg-sidebar:#0a1525;--bg-elevated:#0d1a2c;--bg-card:#12233a;--bg-card-hover:#172e4c;--bg-input:#0a1627;--border:#1e3554;--text-primary:#eff6ff;--text-secondary:#93b4d8;--text-muted:#6082aa;--accent:#38bdf8;--accent-hover:#0ea5e9;--accent-soft:#38bdf826;--accent-contrast:#082f49}html[data-theme=light]{--bg-canvas:#f8fafc;--bg-sidebar:#fff;--bg-elevated:#fff;--bg-card:#fff;--bg-card-hover:#f1f5f9;--bg-input:#fff;--border:#e2e8f0;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#64748b;--accent:#059669;--accent-hover:#047857;--accent-soft:#0596691c;--accent-contrast:#fff;--shadow-card:0 1px 3px #0f172a14;--shadow-card-hover:0 12px 24px #0f172a1f}*,:before,:after{box-sizing:border-box}html,body{background:var(--bg-canvas);height:100%;color:var(--text-primary);font-family:var(--font-ui);-webkit-font-smoothing:antialiased;transition:background-color .2s var(--ease-out), color .2s var(--ease-out);margin:0;padding:0}.app-shell{min-height:100vh;display:flex}.sidebar{background:var(--bg-sidebar);border-right:1px solid var(--border);flex-direction:column;flex-shrink:0;gap:20px;width:224px;height:100vh;padding:18px 14px;display:flex;position:sticky;top:0}.sidebar-brand{align-items:center;gap:10px;min-width:0;padding:4px 8px;display:flex}.brand-mark{background:var(--accent-soft);width:28px;height:28px;color:var(--accent);border:1px solid var(--border);border-radius:7px;flex-shrink:0;justify-content:center;align-items:center;display:inline-flex}.brand-wordmark{letter-spacing:-.02em;color:var(--text-primary);white-space:nowrap;text-overflow:ellipsis;margin:0;font-size:16px;font-weight:700;overflow:hidden}.rail-nav{flex-direction:column;flex:1;gap:4px;display:flex}.rail-btn{appearance:none;border-radius:var(--radius-sm);width:100%;color:var(--text-secondary);cursor:pointer;text-align:left;white-space:nowrap;transition:background-color .16s var(--ease-out), color .16s var(--ease-out), border-color .16s var(--ease-out);background:0 0;border:1px solid #0000;align-items:center;gap:10px;padding:10px 12px;font-family:inherit;font-size:14px;font-weight:600;display:flex}.rail-btn svg{opacity:.85;flex-shrink:0}.rail-btn:hover{color:var(--text-primary);background:var(--bg-card)}.rail-btn.active{background:var(--accent-soft);color:var(--accent);border-color:var(--border)}.rail-btn.active svg{opacity:1}.rail-footer{border-top:1px solid var(--border);flex-direction:column;gap:6px;padding-top:12px;display:flex}.rail-timer-badge{border-radius:var(--radius-sm);background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;justify-content:space-between;align-items:center;padding:8px 10px;font-size:12px;font-weight:600;display:none}.rail-timer-badge.running{display:flex}.rail-timer-val{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--accent)}.main-area{flex-direction:column;flex:1;min-width:0;min-height:100vh;display:flex}.topbar{z-index:40;background:var(--bg-elevated);border-bottom:1px solid var(--border);position:sticky;top:0}.topbar-inner{justify-content:space-between;align-items:center;gap:20px;height:58px;padding:0 24px;display:flex}.topbar-title-group{align-items:baseline;gap:10px;min-width:0;display:flex}.topbar-heading{letter-spacing:-.015em;color:var(--text-primary);white-space:nowrap;margin:0;font-size:17px;font-weight:700}.topbar-sub{color:var(--text-muted);white-space:nowrap;text-overflow:ellipsis;font-size:13px;overflow:hidden}.topbar-actions{flex-shrink:0;align-items:center;gap:8px;display:flex}.icon-action{appearance:none;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);height:34px;color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:transform .16s var(--ease-out), color .16s var(--ease-out), border-color .16s var(--ease-out);justify-content:center;align-items:center;gap:6px;padding:0 11px;font-family:inherit;font-size:12px;font-weight:600;display:inline-flex}.icon-action:hover{color:var(--accent);border-color:var(--accent)}.icon-action.spinning svg{animation:spinOnce .55s var(--ease-out)}@keyframes spinOnce{0%{transform:rotate(0)}to{transform:rotate(360deg)}}.workspace{flex:1;width:100%;max-width:1240px;margin:0 auto;padding:22px 24px 48px}.app-panel{animation:panelFade .18s var(--ease-out)}@keyframes panelFade{0%{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}.subnav-row{flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;display:flex}.segmented-tabs{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);align-items:center;gap:4px;padding:4px;display:inline-flex}.seg-btn{appearance:none;color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:background-color .16s var(--ease-out), color .16s var(--ease-out);background:0 0;border:none;border-radius:6px;padding:7px 14px;font-family:inherit;font-size:13px;font-weight:600}.seg-btn:hover{color:var(--text-primary)}.seg-btn.active{background:var(--accent);color:var(--accent-contrast)}.meta-count{color:var(--text-muted);font-variant-numeric:tabular-nums;font-size:13px;font-weight:500}.filter-toolbar{flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:20px;display:flex}.search-wrap{flex:240px;position:relative}.search-icon{color:var(--text-muted);pointer-events:none;position:absolute;top:50%;left:12px;transform:translateY(-50%)}.field-input,.field-select,.field-textarea{border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-input);width:100%;color:var(--text-primary);transition:border-color .18s var(--ease-out), box-shadow .18s var(--ease-out);outline:none;padding:0 12px;font-family:inherit;font-size:14px}.field-input,.field-select{height:40px}.search-wrap .field-input{padding-left:36px}.field-input::placeholder,.field-textarea::placeholder{color:var(--text-muted)}.field-input:focus,.field-select:focus,.field-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}.field-select{cursor:pointer;width:auto;min-width:148px}.zone-grid{grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:14px;display:grid}.zone-grid.compact{grid-template-columns:repeat(auto-fill,minmax(142px,1fr));gap:10px}.zone-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;box-shadow:var(--shadow-card);opacity:0;animation:cardEnter .28s var(--ease-out) forwards;transition:transform .18s var(--ease-out), border-color .18s var(--ease-out), box-shadow .18s var(--ease-out), background-color .18s var(--ease-out);flex-direction:column;display:flex;position:relative;overflow:hidden;transform:translateY(8px)}@keyframes cardEnter{to{opacity:1;transform:translateY(0)}}.zone-card:hover{border-color:var(--border-hover);background:var(--bg-card-hover);box-shadow:var(--shadow-card-hover);transform:translateY(-4px)}.zone-card:focus-visible,.rail-btn:focus-visible,.btn-primary:focus-visible,.btn-secondary:focus-visible,.calc-key:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.zone-thumb-wrap{aspect-ratio:1;background:var(--bg-elevated);width:100%;position:relative;overflow:hidden}.zone-thumb{object-fit:cover;width:100%;height:100%;transition:transform .28s var(--ease-out);display:block}.zone-card:hover .zone-thumb{transform:scale(1.05)}.zone-thumb-fallback{text-align:center;width:100%;height:100%;color:var(--text-secondary);background:linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);justify-content:center;align-items:center;padding:12px;font-size:13px;font-weight:600;display:none}.zone-thumb-wrap.broken .zone-thumb{display:none}.zone-thumb-wrap.broken .zone-thumb-fallback{display:flex}.fav-toggle{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#e2e8f0;cursor:pointer;opacity:.85;width:28px;height:28px;transition:transform .16s var(--ease-out), background-color .16s var(--ease-out), color .16s var(--ease-out);background:#0b0f14b8;border:1px solid #ffffff29;border-radius:7px;justify-content:center;align-items:center;display:inline-flex;position:absolute;top:8px;right:8px}.fav-toggle:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.08)}.fav-toggle.active{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);opacity:1}.zone-card-body{flex-direction:column;flex:1;justify-content:center;gap:3px;padding:11px 12px;display:flex}.zone-card-title{color:var(--text-primary);-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:0;font-size:13.5px;font-weight:600;line-height:1.35;display:-webkit-box;overflow:hidden}.zone-card-meta{color:var(--text-muted);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.empty-panel{text-align:center;background:var(--bg-elevated);border:1px dashed var(--border);border-radius:var(--radius-md);color:var(--text-secondary);padding:44px 20px;font-size:14px}.calc-layout{grid-template-columns:minmax(0,1.35fr) minmax(240px,.85fr);align-items:start;gap:18px;display:grid}.panel-surface{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px}.calc-header{flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;display:flex}.calc-screen{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:right;flex-direction:column;justify-content:space-between;gap:6px;min-height:84px;margin-bottom:14px;padding:14px 16px;display:flex}.calc-expr{font-family:var(--font-mono);color:var(--text-muted);word-break:break-all;font-variant-numeric:tabular-nums;min-height:18px;font-size:13px}.calc-result{font-family:var(--font-mono);color:var(--text-primary);font-variant-numeric:tabular-nums;word-break:break-all;font-size:30px;font-weight:700;line-height:1.15}.calc-sci-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:10px;display:grid}.calc-std-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;display:grid}.calc-key{appearance:none;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);height:44px;color:var(--text-primary);font-size:15px;font-weight:600;font-family:var(--font-mono);font-variant-numeric:tabular-nums;cursor:pointer;transition:transform .1s var(--ease-out), background-color .14s var(--ease-out), border-color .14s var(--ease-out);justify-content:center;align-items:center;display:inline-flex}.calc-key:hover{background:var(--bg-card-hover);border-color:var(--accent)}.calc-key:active{transform:scale(.96)}.calc-key.sci{height:36px;color:var(--text-secondary);font-size:13px}.calc-key.op{color:var(--accent);background:var(--accent-soft)}.calc-key.eq{background:var(--accent);border-color:var(--accent);color:var(--accent-contrast);font-weight:700}.calc-history-list{flex-direction:column;gap:6px;max-height:360px;margin-top:12px;display:flex;overflow-y:auto}.calc-history-item{appearance:none;text-align:right;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);cursor:pointer;width:100%;font-family:var(--font-mono);font-variant-numeric:tabular-nums;transition:border-color .14s var(--ease-out), background-color .14s var(--ease-out);flex-direction:column;gap:3px;padding:10px 12px;display:flex}.calc-history-item:hover{border-color:var(--accent);background:var(--bg-card-hover)}.calc-history-expr{color:var(--text-muted);font-size:12px}.calc-history-val{color:var(--text-primary);font-size:15px;font-weight:700}.notepad-layout{grid-template-columns:230px minmax(0,1fr);gap:16px;min-height:460px;display:grid}.notes-sidebar{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);flex-direction:column;gap:10px;padding:14px;display:flex}.notes-list{flex-direction:column;gap:6px;max-height:380px;display:flex;overflow-y:auto}.note-item{appearance:none;border-radius:var(--radius-sm);background:var(--bg-card);text-align:left;cursor:pointer;width:100%;transition:border-color .14s var(--ease-out), background-color .14s var(--ease-out);border:1px solid #0000;flex-direction:column;gap:3px;padding:10px;font-family:inherit;display:flex}.note-item:hover{background:var(--bg-card-hover)}.note-item.active{border-color:var(--accent);background:var(--accent-soft)}.note-item-title{color:var(--text-primary);white-space:nowrap;text-overflow:ellipsis;font-size:13px;font-weight:600;overflow:hidden}.note-item-preview{color:var(--text-muted);white-space:nowrap;text-overflow:ellipsis;font-size:12px;overflow:hidden}.note-editor-pane{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);flex-direction:column;gap:12px;padding:16px;display:flex}.note-toolbar{flex-direction:column;gap:8px;display:flex}.note-title-input{width:100%;font-size:15px;font-weight:700}.field-textarea{resize:vertical;flex:1;min-height:320px;padding:14px;font-size:14.5px;line-height:1.65}.note-stats-bar{color:var(--text-muted);font-variant-numeric:tabular-nums;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;font-size:12.5px;display:flex}.timer-layout{grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);align-items:start;gap:18px;display:grid}.timer-face{text-align:center;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:26px 16px;display:flex}.timer-ring-wrap{justify-content:center;align-items:center;width:210px;height:210px;display:flex;position:relative}.timer-svg{width:100%;height:100%;position:absolute;inset:0;transform:rotate(-90deg)}.timer-ring-track{fill:none;stroke:var(--border);stroke-width:8px}.timer-ring-progress{fill:none;stroke:var(--accent);stroke-width:8px;stroke-linecap:round;transition:stroke-dashoffset .25s linear}.timer-readout{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--text-primary);letter-spacing:-.02em;font-size:42px;font-weight:700}.timer-mode-label{color:var(--text-secondary);margin-top:2px;font-size:13px;font-weight:600}.timer-inputs-grid{grid-template-columns:1fr 1fr;gap:10px;display:grid}.ai-shell{flex-direction:column;max-width:860px;height:calc(100vh - 156px);min-height:460px;margin:0 auto;padding:0;display:flex;overflow:hidden}.ai-toolbar{border-bottom:1px solid var(--border);background:var(--bg-elevated);flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;display:flex}.ai-toolbar-left,.ai-toolbar-right{flex-wrap:wrap;align-items:center;gap:8px;display:flex}.ai-note-toggle{appearance:none;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:border-color .16s var(--ease-out), background-color .16s var(--ease-out), color .16s var(--ease-out);align-items:center;gap:6px;padding:6px 11px;font-family:inherit;font-size:12.5px;font-weight:600;display:inline-flex}.ai-note-toggle:hover{border-color:var(--accent);color:var(--text-primary)}.ai-note-toggle.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.ai-messages{flex-direction:column;flex:1;gap:14px;padding:18px 18px 12px;display:flex;overflow-y:auto}.ai-empty{text-align:center;flex-direction:column;align-items:center;gap:12px;max-width:520px;margin:auto;padding:20px 10px;display:flex}.ai-empty-icon{border-radius:var(--radius-md);background:var(--accent-soft);width:42px;height:42px;color:var(--accent);border:1px solid var(--border);justify-content:center;align-items:center;display:inline-flex}.ai-empty h3{color:var(--text-primary);margin:0;font-size:16px;font-weight:700}.ai-empty p{color:var(--text-secondary);margin:0;font-size:13.5px;line-height:1.5}.ai-starters{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin-top:6px;display:grid}.ai-starter-btn{appearance:none;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);text-align:left;cursor:pointer;transition:border-color .16s var(--ease-out), background-color .16s var(--ease-out);padding:10px 12px;font-family:inherit;font-size:12.5px;font-weight:600}.ai-starter-btn:hover{border-color:var(--accent);background:var(--bg-card-hover)}.ai-msg{flex-direction:column;gap:6px;max-width:86%;display:flex}.ai-msg.user{align-self:flex-end;align-items:flex-end}.ai-msg.model{align-self:flex-start;align-items:flex-start}.ai-msg-role{color:var(--text-muted);font-size:11.5px;font-weight:600}.ai-msg-bubble{border-radius:var(--radius-md);border:1px solid var(--border);color:var(--text-primary);word-break:break-word;white-space:pre-wrap;padding:11px 14px;font-size:13.5px;line-height:1.58}.ai-msg.user .ai-msg-bubble{background:var(--accent-soft);border-color:var(--accent)}.ai-msg.model .ai-msg-bubble{background:var(--bg-card)}.ai-msg-bubble code{font-family:var(--font-mono);background:var(--bg-input);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:12.5px}.ai-msg-actions{align-items:center;gap:6px;display:flex}.ai-mini-btn{appearance:none;border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:border-color .14s var(--ease-out), color .14s var(--ease-out);border-radius:6px;padding:4px 9px;font-family:inherit;font-size:11.5px;font-weight:600}.ai-mini-btn:hover{border-color:var(--accent);color:var(--accent)}.ai-error-box{border-radius:var(--radius-sm);color:#fca5a5;background:#ef44441a;border:1px solid #f8717173;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin:0 18px 10px;padding:10px 12px;font-size:13px;display:flex}html[data-theme=light] .ai-error-box{color:#b91c1c;background:#fef2f2;border-color:#fecaca}.ai-composer{border-top:1px solid var(--border);background:var(--bg-elevated);flex-direction:column;gap:8px;padding:12px 16px 14px;display:flex}.ai-composer-row{align-items:flex-end;gap:10px;display:flex}.ai-input{resize:vertical;flex:1;min-height:44px;max-height:150px;line-height:1.45}.ai-composer-hint{color:var(--text-muted);justify-content:space-between;align-items:center;font-size:11.5px;display:flex}.settings-grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;display:grid}.settings-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);flex-direction:column;gap:14px;padding:18px;display:flex}.settings-card h3{color:var(--text-primary);margin:0;font-size:15.5px;font-weight:700}.settings-desc{color:var(--text-secondary);margin:-6px 0 0;font-size:13px;line-height:1.45}.field-group{flex-direction:column;gap:6px;display:flex}.field-label{color:var(--text-primary);font-size:13px;font-weight:600}.preset-row{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;display:grid}.btn-preset{appearance:none;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);cursor:pointer;white-space:nowrap;text-overflow:ellipsis;transition:border-color .16s var(--ease-out), background-color .16s var(--ease-out);align-items:center;gap:8px;padding:9px 10px;font-family:inherit;font-size:12.5px;font-weight:600;display:flex;overflow:hidden}.btn-preset:hover{border-color:var(--accent);background:var(--bg-card-hover)}.btn-preset.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}.swatch-dot{border:1px solid #ffffff40;border-radius:50%;flex-shrink:0;width:12px;height:12px}.color-picker-row{align-items:center;gap:10px;display:flex}.color-input{border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-input);cursor:pointer;width:44px;height:38px;padding:2px}.btn-row{flex-wrap:wrap;gap:8px;display:flex}.btn-primary{appearance:none;border-radius:var(--radius-sm);background:var(--accent);color:var(--accent-contrast);cursor:pointer;white-space:nowrap;transition:filter .16s var(--ease-out), transform .14s var(--ease-out);border:none;padding:9px 16px;font-family:inherit;font-size:13px;font-weight:700}.btn-primary:hover{filter:brightness(1.06)}.btn-primary:active,.btn-secondary:active{transform:scale(.98)}.btn-secondary{appearance:none;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);cursor:pointer;white-space:nowrap;transition:border-color .16s var(--ease-out), color .16s var(--ease-out), background-color .16s var(--ease-out);padding:9px 14px;font-family:inherit;font-size:13px;font-weight:600}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}.toggle-row{border-top:1px solid var(--border);justify-content:space-between;align-items:center;gap:12px;padding:10px 0;display:flex}.toggle-row:first-of-type{border-top:none;padding-top:0}.toggle-info{flex-direction:column;gap:2px;display:flex}.toggle-title{color:var(--text-primary);font-size:13.5px;font-weight:600}.toggle-sub{color:var(--text-muted);font-size:12px}.switch-btn{appearance:none;border:1px solid var(--border);background:var(--bg-card);cursor:pointer;width:44px;height:24px;transition:background-color .18s var(--ease-out), border-color .18s var(--ease-out);border-radius:999px;flex-shrink:0;padding:2px;position:relative}.switch-thumb{background:var(--text-secondary);width:18px;height:18px;transition:transform .2s var(--ease-out), background-color .2s var(--ease-out);border-radius:50%;display:block}.switch-btn[aria-checked=true]{background:var(--accent);border-color:var(--accent)}.switch-btn[aria-checked=true] .switch-thumb{background:var(--accent-contrast);transform:translate(20px)}.settings-feedback{color:var(--accent);min-height:18px;font-size:13px;font-weight:500}#zoneViewer{z-index:200;opacity:0;transition:opacity .2s var(--ease-out), transform .2s var(--ease-out);background:#000;flex-direction:column;display:none;position:fixed;inset:0;transform:translateY(10px)}#zoneViewer.open{opacity:1;transform:translateY(0)}.viewer-bar{background:var(--bg-elevated);border-bottom:1px solid var(--border);flex-shrink:0;justify-content:space-between;align-items:center;gap:12px;padding:8px 16px;display:flex}.viewer-meta{align-items:center;gap:12px;min-width:0;display:flex}.viewer-title-group{min-width:0}#zoneName{color:var(--text-primary);white-space:nowrap;text-overflow:ellipsis;margin:0;font-size:14px;font-weight:700;overflow:hidden}#zoneId{display:none}#zoneAuthor{color:var(--text-muted);white-space:nowrap;text-overflow:ellipsis;font-size:12px;text-decoration:none;display:block;overflow:hidden}#zoneAuthor:hover{color:var(--accent);text-decoration:underline}.viewer-controls{flex-shrink:0;align-items:center;gap:6px;display:flex}.viewer-btn{appearance:none;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);cursor:pointer;white-space:nowrap;transition:border-color .16s var(--ease-out), color .16s var(--ease-out);border-radius:6px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:600}.viewer-btn:hover{border-color:var(--accent);color:var(--accent)}.viewer-btn-primary{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}#zoneFrame{background:#000;border:none;flex:1;width:100%;height:100%;display:block}#popupOverlay{z-index:300;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);background:#05080cb8;justify-content:center;align-items:center;padding:16px;display:none;position:fixed;inset:0}.modal-box{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:82vh;box-shadow:var(--shadow-card-hover);flex-direction:column;display:flex;overflow:hidden}.modal-head{border-bottom:1px solid var(--border);justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;display:flex}#popupTitle{color:var(--text-primary);margin:0;font-size:16px;font-weight:700}#popupClose{appearance:none;border:1px solid var(--border);background:var(--bg-card);width:30px;height:30px;color:var(--text-secondary);cursor:pointer;border-radius:6px;justify-content:center;align-items:center;font-size:18px;line-height:1;display:inline-flex}#popupBody{color:var(--text-secondary);padding:18px;font-size:14px;line-height:1.6;overflow-y:auto}#popupBody a{color:var(--accent)}.site-footer{border-top:1px solid var(--border);color:var(--text-muted);flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:16px 24px;font-size:12.5px;display:flex}.footer-links{flex-wrap:wrap;gap:16px;display:flex}.footer-links a{color:var(--text-secondary);font-weight:500;text-decoration:none}.footer-links a:hover{color:var(--accent)}.hidden{display:none!important}body.no-motion *,body.no-motion :before,body.no-motion :after{transition-duration:.001ms!important;animation-duration:.001ms!important}@media (prefers-reduced-motion:reduce){*,:before,:after{transition-duration:.001ms!important;animation-duration:.001ms!important}}@media (width<=740px){.app-shell{flex-direction:column}.sidebar{border-right:none;border-bottom:1px solid var(--border);gap:10px;width:100%;height:auto;padding:10px 14px;position:static}.rail-nav{flex-direction:row;overflow-x:auto}.rail-btn{flex-shrink:0;width:auto;padding:8px 12px}.rail-footer{display:none}.calc-layout,.notepad-layout,.timer-layout,.ai-starters{grid-template-columns:1fr}.ai-shell{height:auto;min-height:480px}.ai-msg{max-width:96%}.workspace{padding:16px 14px 36px}.viewer-controls{flex-wrap:wrap}}</style>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Workspace Navigation">
+        <div class="sidebar-brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+          </span>
+          <h1 class="brand-wordmark" id="portal-brand">Dashboard</h1>
+        </div>
+
+        <nav class="rail-nav">
+          <button type="button" class="rail-btn active" data-app="games">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="4"></rect></svg>
+            <span>Games &amp; Links</span>
+          </button>
+          <button type="button" class="rail-btn" data-app="calculator">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+            <span>Calculator</span>
+          </button>
+          <button type="button" class="rail-btn" data-app="notepad">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+            <span>Notepad</span>
+          </button>
+          <button type="button" class="rail-btn" data-app="timer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3 2 6"></path><path d="m22 6-3-3"></path><line x1="10" y1="2" x2="14" y2="2"></line></svg>
+            <span>Focus Timer</span>
+          </button>
+          <button type="button" class="rail-btn" data-app="ai">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 10.7l-6.1 1.9L12 18.5l-1.9-5.9L4 10.7l6.1-1.9L12 3z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+            <span>AI Assistant</span>
+          </button>
+          <button type="button" class="rail-btn" data-app="settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Settings</span>
+          </button>
+        </nav>
+
+        <div class="rail-footer">
+          <button type="button" id="rail-timer-badge" class="rail-timer-badge" title="Return to Focus Timer">
+            <span>Focus Timer</span>
+            <span class="rail-timer-val" id="rail-timer-val">25:00</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="main-area">
+        <header class="topbar">
+          <div class="topbar-inner">
+            <div class="topbar-title-group">
+              <h2 class="topbar-heading" id="topbar-heading">Games &amp; Links</h2>
+              <span class="topbar-sub" id="topbar-sub">Browse library and open full-screen sessions</span>
+            </div>
+            <div class="topbar-actions">
+              <button type="button" id="refresh" class="icon-action" title="Refresh game catalog" aria-label="Refresh game catalog">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Refresh</span>
+              </button>
+              <button type="button" id="quick-cloak-btn" class="icon-action" title="Quick Cloak as Google Docs">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                <span>Quick Cloak</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <main class="workspace">
+          <!-- 1. Games & Links -->
+          <section id="app-games" class="app-panel">
+            <div class="subnav-row">
+              <div class="segmented-tabs" role="tablist" aria-label="Catalog Filter">
+                <button type="button" class="seg-btn active" data-games-tab="all">All Games</button>
+                <button type="button" class="seg-btn" data-games-tab="featured">Featured</button>
+                <button type="button" class="seg-btn" data-games-tab="favorites">Favorites</button>
+              </div>
+              <span class="meta-count" id="zoneCount">Loading catalog...</span>
+            </div>
+
+            <div class="filter-toolbar">
+              <div class="search-wrap">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchBar" class="field-input" placeholder="Search games by title or author..." autocomplete="off" />
+              </div>
+              <select id="sortOptions" class="field-select" aria-label="Sort games">
+                <option value="name">Sort: Name</option>
+                <option value="id">Sort: ID (Date)</option>
+                <option value="popular">Sort: Most Popular</option>
+                <option value="trendingDay">Trending (Day)</option>
+                <option value="trendingWeek">Trending (Week)</option>
+                <option value="trendingMonth">Trending (Month)</option>
+              </select>
+              <select id="filterOptions" class="field-select" aria-label="Filter by tag">
+                <option value="none">All Tags</option>
+              </select>
+            </div>
+
+            <div id="container" class="zone-grid"></div>
+            <div id="empty-state" class="empty-panel hidden">No games match your current filter.</div>
+          </section>
+
+          <!-- 2. Calculator -->
+          <section id="app-calculator" class="app-panel hidden">
+            <div class="calc-layout">
+              <div class="panel-surface">
+                <div class="calc-header">
+                  <div class="segmented-tabs">
+                    <button type="button" class="seg-btn active" data-calc-mode="scientific">Scientific</button>
+                    <button type="button" class="seg-btn" data-calc-mode="standard">Standard</button>
+                  </div>
+                  <button type="button" id="calc-angle-btn" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">DEG</button>
+                </div>
+
+                <div class="calc-screen">
+                  <div class="calc-expr" id="calc-expr"></div>
+                  <div class="calc-result" id="calc-result">0</div>
+                </div>
+
+                <div class="calc-sci-grid" id="calc-sci-keys">
+                  <button type="button" class="calc-key sci" data-calc-val="sin(">sin</button>
+                  <button type="button" class="calc-key sci" data-calc-val="cos(">cos</button>
+                  <button type="button" class="calc-key sci" data-calc-val="tan(">tan</button>
+                  <button type="button" class="calc-key sci" data-calc-val="log(">log</button>
+                  <button type="button" class="calc-key sci" data-calc-val="ln(">ln</button>
+                  <button type="button" class="calc-key sci" data-calc-val="sqrt(">√</button>
+                  <button type="button" class="calc-key sci" data-calc-action="sq">x²</button>
+                  <button type="button" class="calc-key sci" data-calc-val="^">xʸ</button>
+                  <button type="button" class="calc-key sci" data-calc-val="π">π</button>
+                  <button type="button" class="calc-key sci" data-calc-val="e">e</button>
+                </div>
+
+                <div class="calc-std-grid">
+                  <button type="button" class="calc-key op" data-calc-action="clear">C</button>
+                  <button type="button" class="calc-key op" data-calc-val="(">(</button>
+                  <button type="button" class="calc-key op" data-calc-val=")">)</button>
+                  <button type="button" class="calc-key op" data-calc-action="backspace">⌫</button>
+
+                  <button type="button" class="calc-key" data-calc-val="7">7</button>
+                  <button type="button" class="calc-key" data-calc-val="8">8</button>
+                  <button type="button" class="calc-key" data-calc-val="9">9</button>
+                  <button type="button" class="calc-key op" data-calc-val="÷">÷</button>
+
+                  <button type="button" class="calc-key" data-calc-val="4">4</button>
+                  <button type="button" class="calc-key" data-calc-val="5">5</button>
+                  <button type="button" class="calc-key" data-calc-val="6">6</button>
+                  <button type="button" class="calc-key op" data-calc-val="×">×</button>
+
+                  <button type="button" class="calc-key" data-calc-val="1">1</button>
+                  <button type="button" class="calc-key" data-calc-val="2">2</button>
+                  <button type="button" class="calc-key" data-calc-val="3">3</button>
+                  <button type="button" class="calc-key op" data-calc-val="-">−</button>
+
+                  <button type="button" class="calc-key" data-calc-val="0">0</button>
+                  <button type="button" class="calc-key" data-calc-val=".">.</button>
+                  <button type="button" class="calc-key op" data-calc-val="%">%</button>
+                  <button type="button" class="calc-key op" data-calc-val="+">+</button>
+
+                  <button type="button" class="calc-key" data-calc-action="negate" style="grid-column: span 2;">±</button>
+                  <button type="button" class="calc-key eq" data-calc-action="equals" style="grid-column: span 2;">=</button>
+                </div>
+              </div>
+
+              <div class="panel-surface">
+                <div class="calc-header">
+                  <strong style="font-size: 14px;">History</strong>
+                  <button type="button" id="calc-clear-history" class="btn-secondary" style="padding: 5px 10px; font-size: 12px;">Clear</button>
+                </div>
+                <div id="calc-history-list" class="calc-history-list">
+                  <div class="meta-count">No calculations yet.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Notepad -->
+          <section id="app-notepad" class="app-panel hidden">
+            <div class="notepad-layout">
+              <div class="notes-sidebar">
+                <div class="btn-row">
+                  <button type="button" id="note-new-btn" class="btn-primary" style="flex:1;">+ New Note</button>
+                </div>
+                <div id="notes-list" class="notes-list"></div>
+              </div>
+
+              <div class="note-editor-pane">
+                <div class="note-toolbar">
+                  <input type="text" id="note-title-input" class="field-input note-title-input" placeholder="Untitled Note" />
+                  <div class="btn-row">
+                    <button type="button" id="note-copy-btn" class="btn-secondary">Copy All</button>
+                    <button type="button" id="note-download-btn" class="btn-primary">Download .txt</button>
+                    <button type="button" id="note-delete-btn" class="btn-secondary">Delete</button>
+                  </div>
+                </div>
+
+                <textarea id="note-body-input" class="field-textarea" placeholder="Write class notes, formulas, or scratch ideas..."></textarea>
+
+                <div class="note-stats-bar">
+                  <span id="note-counts">0 words · 0 characters · 0 lines</span>
+                  <span id="note-save-status">Saved locally</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. Focus Timer -->
+          <section id="app-timer" class="app-panel hidden">
+            <div class="timer-layout">
+              <div class="panel-surface timer-face">
+                <div class="timer-ring-wrap">
+                  <svg class="timer-svg" viewBox="0 0 210 210" aria-hidden="true">
+                    <circle class="timer-ring-track" cx="105" cy="105" r="94"></circle>
+                    <circle class="timer-ring-progress" id="timer-ring-progress" cx="105" cy="105" r="94" stroke-dasharray="590.6" stroke-dashoffset="0"></circle>
+                  </svg>
+                  <div>
+                    <div class="timer-readout" id="timer-display">25:00</div>
+                    <div class="timer-mode-label" id="timer-mode-label">Pomodoro Focus</div>
+                  </div>
+                </div>
+
+                <div class="btn-row">
+                  <button type="button" id="timer-start-btn" class="btn-primary">Start</button>
+                  <button type="button" id="timer-pause-btn" class="btn-secondary" disabled>Pause</button>
+                  <button type="button" id="timer-reset-btn" class="btn-secondary">Reset</button>
+                </div>
+
+                <div id="timer-feedback" class="settings-feedback"></div>
+              </div>
+
+              <div class="panel-surface" style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="field-group">
+                  <span class="field-label">Quick Presets</span>
+                  <div class="btn-row">
+                    <button type="button" class="btn-preset" data-timer-preset="5" data-timer-label="Short Break">5m Break</button>
+                    <button type="button" class="btn-preset" data-timer-preset="15" data-timer-label="Deep Sprint">15m Sprint</button>
+                    <button type="button" class="btn-preset active" data-timer-preset="25" data-timer-label="Pomodoro Focus">25m Pomodoro</button>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <span class="field-label">Custom Duration</span>
+                  <div class="timer-inputs-grid">
+                    <div class="field-group">
+                      <label class="toggle-sub" for="timer-min-input">Minutes</label>
+                      <input type="number" id="timer-min-input" class="field-input" min="0" max="180" value="25" />
+                    </div>
+                    <div class="field-group">
+                      <label class="toggle-sub" for="timer-sec-input">Seconds</label>
+                      <input type="number" id="timer-sec-input" class="field-input" min="0" max="59" value="0" />
+                    </div>
+                  </div>
+                  <div class="btn-row" style="margin-top: 6px;">
+                    <button type="button" id="timer-apply-custom-btn" class="btn-secondary">Set Custom Time</button>
+                    <button type="button" id="timer-test-chime-btn" class="btn-secondary">Test Chime</button>
+                  </div>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Audio Chime on Completion</span>
+                    <span class="toggle-sub">Plays a soft Web Audio bell chime when time reaches 00:00</span>
+                  </div>
+                  <button type="button" id="timer-sound-switch" class="switch-btn" role="switch" aria-checked="true" aria-label="Toggle Timer Sound">
+                    <span class="switch-thumb"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. AI Assistant -->
+          <section id="app-ai" class="app-panel hidden">
+            <div class="panel-surface ai-shell">
+              <div class="ai-toolbar">
+                <div class="ai-toolbar-left">
+                  <div class="segmented-tabs" role="group" aria-label="Response Style">
+                    <button type="button" class="seg-btn" data-ai-style="concise">Concise</button>
+                    <button type="button" class="seg-btn active" data-ai-style="balanced">Balanced</button>
+                    <button type="button" class="seg-btn" data-ai-style="detailed">Detailed</button>
+                  </div>
+                  <button type="button" id="ai-include-note-btn" class="ai-note-toggle" aria-pressed="false" title="Attach current Notepad title and text as context">
+                    <span>Attach Active Note</span>
+                  </button>
+                </div>
+                <div class="ai-toolbar-right">
+                  <span class="meta-count">Gemini 4 Hydrogen</span>
+                  <button type="button" id="ai-clear-btn" class="btn-secondary" style="padding: 6px 12px; font-size: 12.5px;">Clear Chat</button>
+                </div>
+              </div>
+
+              <div id="ai-messages" class="ai-messages" aria-live="polite"></div>
+
+              <div id="ai-error-box" class="ai-error-box hidden" role="alert">
+                <span id="ai-error-text"></span>
+                <button type="button" id="ai-retry-btn" class="btn-secondary" style="padding: 5px 10px; font-size: 12px;">Retry</button>
+              </div>
+
+              <form id="ai-composer-form" class="ai-composer">
+                <div class="ai-composer-row">
+                  <textarea id="ai-prompt-input" class="field-input ai-input" rows="2" placeholder="Ask a question, draft notes, or explain a topic..."></textarea>
+                  <button type="submit" id="ai-send-btn" class="btn-primary" style="height: 44px; min-width: 84px;">Send</button>
+                </div>
+                <div class="ai-composer-hint">
+                  <span>Enter to send · Shift+Enter for new line</span>
+                  <span id="ai-status-text">Ready</span>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- 6. Settings -->
+          <section id="app-settings" class="app-panel hidden">
+            <div class="settings-grid">
+              <div class="settings-card">
+                <h3>Theme &amp; Typography</h3>
+                <p class="settings-desc">Customize the color palette, accent highlight, and interface typeface.</p>
+
+                <div class="field-group">
+                  <span class="field-label">Theme Presets</span>
+                  <div class="preset-row">
+                    <button type="button" class="btn-preset active" data-theme-preset="midnight">
+                      <span class="swatch-dot" style="background: #0b0f14;"></span>
+                      <span>Midnight Dark</span>
+                    </button>
+                    <button type="button" class="btn-preset" data-theme-preset="forest">
+                      <span class="swatch-dot" style="background: #0f291a;"></span>
+                      <span>Forest Green</span>
+                    </button>
+                    <button type="button" class="btn-preset" data-theme-preset="ocean">
+                      <span class="swatch-dot" style="background: #0d223c;"></span>
+                      <span>Ocean Blue</span>
+                    </button>
+                    <button type="button" class="btn-preset" data-theme-preset="light">
+                      <span class="swatch-dot" style="background: #f8fafc; border-color: #cbd5e1;"></span>
+                      <span>Clean Light</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="accent-color-picker">Accent Color</label>
+                  <div class="color-picker-row">
+                    <input type="color" id="accent-color-picker" class="color-input" value="#34d399" />
+                    <span class="meta-count" id="accent-hex-label">#34d399</span>
+                    <button type="button" id="reset-accent-btn" class="btn-secondary" style="margin-left: auto;">Reset Accent</button>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="font-family-select">Workspace Font</label>
+                  <select id="font-family-select" class="field-select" style="width: 100%;">
+                    <option value="sans">Sans-Serif (Clean UI)</option>
+                    <option value="mono">Monospace (Technical)</option>
+                    <option value="rounded">Rounded (Soft)</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="brand-name-input">Workspace Brand Title</label>
+                  <div class="btn-row">
+                    <input type="text" id="brand-name-input" class="field-input" style="flex:1" placeholder="Dashboard" />
+                    <button type="button" id="save-brand-btn" class="btn-primary">Save</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-card">
+                <h3>Tab Cloaking</h3>
+                <p class="settings-desc">Disguise the popup window title and favicon in real time.</p>
+
+                <div class="field-group">
+                  <span class="field-label">Quick Cloak Presets</span>
+                  <div class="preset-row">
+                    <button type="button" class="btn-preset" data-cloak-preset="docs">Google Docs</button>
+                    <button type="button" class="btn-preset" data-cloak-preset="classroom">Google Classroom</button>
+                    <button type="button" class="btn-preset" data-cloak-preset="canvas">Canvas LMS</button>
+                    <button type="button" class="btn-preset" data-cloak-preset="drive">Google Drive</button>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="cloak-title-input">Custom Tab Title</label>
+                  <input type="text" id="cloak-title-input" class="field-input" placeholder="e.g. Google Docs" />
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="cloak-icon-input">Custom Tab Favicon URL</label>
+                  <input type="text" id="cloak-icon-input" class="field-input" placeholder="https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico" />
+                </div>
+
+                <div class="btn-row">
+                  <button type="button" id="apply-cloak-btn" class="btn-primary">Apply Cloak</button>
+                  <button type="button" id="reset-cloak-btn" class="btn-secondary">Reset Default</button>
+                </div>
+                <div id="cloak-feedback" class="settings-feedback"></div>
+              </div>
+
+              <div class="settings-card">
+                <h3>Performance &amp; Data</h3>
+                <p class="settings-desc">Control game frame-rate limits, grid density, and backup data.</p>
+
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Unlimited FPS (Bypass 30 FPS Cap)</span>
+                    <span class="toggle-sub">Uncaps 30/60 FPS locks and enables high-performance WebGL</span>
+                  </div>
+                  <button type="button" id="fps-switch" class="switch-btn" role="switch" aria-checked="true" aria-label="Toggle Unlimited FPS">
+                    <span class="switch-thumb"></span>
+                  </button>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Compact Card Grid</span>
+                    <span class="toggle-sub">Fit more game thumbnails per row</span>
+                  </div>
+                  <button type="button" id="compact-switch" class="switch-btn" role="switch" aria-checked="false" aria-label="Toggle Compact Card Grid">
+                    <span class="switch-thumb"></span>
+                  </button>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Reduce Animations</span>
+                    <span class="toggle-sub">Disable card entrance and hover transitions</span>
+                  </div>
+                  <button type="button" id="motion-switch" class="switch-btn" role="switch" aria-checked="false" aria-label="Toggle Reduce Animations">
+                    <span class="switch-thumb"></span>
+                  </button>
+                </div>
+
+                <div class="btn-row">
+                  <button type="button" id="export-data-btn" class="btn-primary" onclick="saveData()">Export Data</button>
+                  <button type="button" id="import-data-btn" class="btn-secondary" onclick="document.getElementById('importData').click()">Import Data</button>
+                  <button type="button" id="clear-favs-btn" class="btn-secondary">Clear Favorites</button>
+                </div>
+                <div id="data-feedback" class="settings-feedback"></div>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer class="site-footer">
+          <span>Catalog synced from gn-math</span>
+          <div class="footer-links">
+            <a href="#" onclick="loadDMCA(); return false;">DMCA</a>
+            <a href="#" onclick="showContact(); return false;">Contact</a>
+            <a href="#" onclick="loadPrivacy(); return false;">Privacy Policy</a>
+            <a href="#" onclick="saveData(); return false;">Export Data</a>
+            <a href="#" onclick="document.getElementById('importData').click(); return false;">Import Data</a>
+            <input type="file" id="importData" style="display: none;" onchange="loadData(event)" />
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <div id="zoneViewer">
+      <div class="viewer-bar">
+        <div class="viewer-meta">
+          <button type="button" class="viewer-btn viewer-btn-primary" onclick="closeZone()">&larr; Back</button>
+          <div class="viewer-title-group">
+            <h2 id="zoneName">Game</h2>
+            <span id="zoneId"></span>
+            <a id="zoneAuthor" href="#" target="_blank">by Author</a>
+          </div>
+        </div>
+        <div class="viewer-controls">
+          <button type="button" id="fpsToggleBtn" class="viewer-btn viewer-btn-primary" onclick="toggleFpsUncap()" title="Toggle Unlimited FPS bypass">FPS: Unlimited</button>
+          <button type="button" class="viewer-btn" onclick="showZoneInfo()">Info</button>
+          <button type="button" class="viewer-btn" onclick="reloadCurrentZone()">Reload</button>
+          <button type="button" class="viewer-btn" onclick="fullscreenZone()">Fullscreen</button>
+          <button type="button" class="viewer-btn" onclick="aboutBlank()">New Tab</button>
+          <button type="button" class="viewer-btn" onclick="downloadZone()">Download</button>
+        </div>
+      </div>
+      <iframe id="zoneFrame" allow="autoplay; keyboard; gamepad; fullscreen"></iframe>
+    </div>
+
+    <div id="popupOverlay">
+      <div class="modal-box">
+        <div class="modal-head">
+          <h3 id="popupTitle">Title</h3>
+          <button type="button" id="popupClose" onclick="closePopup()" aria-label="Close modal">&times;</button>
+        </div>
+        <div id="popupBody"></div>
+      </div>
+    </div>
+
+    <script>
+      // Safe Storage Wrapper (prevents SecurityError inside opaque/null blob: origins)
+      const memoryStorage = Object.create(null);
+      const safeStorage = {
+        get(key, fallback) {
+          try {
+            const val = window.localStorage.getItem(key);
+            if (val !== null) {
+              memoryStorage[key] = val;
+              return val;
+            }
+          } catch (e) {}
+          return Object.prototype.hasOwnProperty.call(memoryStorage, key) ? memoryStorage[key] : fallback;
+        },
+        set(key, val) {
+          const strVal = String(val);
+          memoryStorage[key] = strVal;
+          try {
+            window.localStorage.setItem(key, strVal);
+          } catch (e) {}
+        },
+        remove(key) {
+          delete memoryStorage[key];
+          try {
+            window.localStorage.removeItem(key);
+          } catch (e) {}
+        },
+        all() {
+          try {
+            return { ...window.localStorage };
+          } catch (e) {
+            return { ...memoryStorage };
+          }
+        }
+      };
+
+      const STORAGE_KEYS = {
+        favs: 'gn_portal_favorites',
+        theme: 'gn_portal_theme_v2',
+        accent: 'gn_portal_accent',
+        font: 'gn_portal_font',
+        cloakTitle: 'gn_portal_cloak_title',
+        cloakIcon: 'gn_portal_cloak_icon',
+        brand: 'gn_portal_brand',
+        compact: 'gn_portal_compact',
+        noMotion: 'gn_portal_nomotion',
+        unlimitedFps: 'gn_portal_unlimited_fps',
+        notes: 'gn_portal_notes',
+        activeNoteId: 'gn_portal_active_note',
+        calcHistory: 'gn_portal_calc_history',
+        aiHistory: 'gn_portal_ai_history',
+        aiStyle: 'gn_portal_ai_style'
+      };
+
+      const DEFAULT_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1512'/%3E%3Cpath d='M20 42V22h8l4 8 4-8h8v20h-6V31l-4 7h-4l-4-7v11h-6z' fill='%2334d399'/%3E%3C/svg%3E";
+
+      const THEME_DEFAULTS = {
+        midnight: '#34d399',
+        forest: '#4ade80',
+        ocean: '#38bdf8',
+        light: '#059669'
+      };
+
+      const FONT_STACKS = {
+        sans: '"Plus Jakarta Sans", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+        mono: '"JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+        rounded: '"Nunito", "Quicksand", "Varela Round", "SF Pro Rounded", ui-rounded, system-ui, sans-serif'
+      };
+
+      const CLOAK_PRESETS = {
+        docs: {
+          title: 'Google Docs',
+          icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%234285F4'/%3E%3Crect x='18' y='18' width='28' height='4' rx='2' fill='white'/%3E%3Crect x='18' y='28' width='28' height='4' rx='2' fill='white'/%3E%3Crect x='18' y='38' width='18' height='4' rx='2' fill='white'/%3E%3C/svg%3E"
+        },
+        classroom: {
+          title: 'Classes',
+          icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230F9D58'/%3E%3Ccircle cx='32' cy='25' r='7' fill='white'/%3E%3Cpath d='M18 46c0-7 6-11 14-11s14 4 14 11H18z' fill='white'/%3E%3C/svg%3E"
+        },
+        canvas: {
+          title: 'Dashboard',
+          icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23E13F2B'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='white' stroke-width='5' stroke-dasharray='8 5'/%3E%3C/svg%3E"
+        },
+        drive: {
+          title: 'My Drive - Google Drive',
+          icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23ffffff'/%3E%3Cpolygon points='32,12 49,42 39,42 22,12' fill='%23FBBC05'/%3E%3Cpolygon points='15,42 32,12 37,21 20,51' fill='%2334A853'/%3E%3Cpolygon points='20,51 49,51 54,42 25,42' fill='%234285F4'/%3E%3C/svg%3E"
+        }
+      };
+
+      const APP_META = {
+        games: { title: 'Games & Links', sub: 'Browse library and open full-screen sessions' },
+        calculator: { title: 'Calculator', sub: 'Standard & scientific calculator with calculation history' },
+        notepad: { title: 'Notepad', sub: 'Multi-note scratchpad with word count and .txt export' },
+        timer: { title: 'Focus Timer', sub: 'Pomodoro presets and custom countdown with Web Audio chime' },
+        ai: { title: 'AI Assistant', sub: 'Ask questions, draft ideas, or summarize your active note' },
+        settings: { title: 'Settings', sub: 'Customize theme presets, accent color, typography, and tab cloak' }
+      };
+
+      let activeApp = 'games';
+      let activeGamesTab = 'all';
+      let viewerOpen = false;
+      let currentZoneFile = null;
+      let favorites = [];
+      let unlimitedFps = true;
+      let currentTheme = 'midnight';
+
+      const container = document.getElementById('container');
+      const emptyState = document.getElementById('empty-state');
+      const zoneCountEl = document.getElementById('zoneCount');
+      const zoneViewer = document.getElementById('zoneViewer');
+      let zoneFrame = document.getElementById('zoneFrame');
+      const searchBar = document.getElementById('searchBar');
+      const sortOptions = document.getElementById('sortOptions');
+      const filterOptions = document.getElementById('filterOptions');
+
+      const zonesurls = [
+        "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json",
+        "https://fastly.jsdelivr.net/gh/freebuisness/assets@main/zones.json",
+        "https://gcore.jsdelivr.net/gh/freebuisness/assets@master/zones.json",
+        "https://fastly.jsdelivr.net/gh/freebuisness/assets/zones.json"
+      ];
+      let zonesURL = zonesurls[Math.floor(Math.random() * zonesurls.length)];
+      const coverURL = "https://cdn.jsdelivr.net/gh/freebuisness/covers@main";
+      const htmlURL = "https://cdn.jsdelivr.net/gh/freebuisness/html@main";
+      let zones = [];
+      let popularityData = {};
+
+      function toTitleCase(str) {
+        return str.replace(/\w\S*/g, text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase());
+      }
+
+      function hexToRgb(hex) {
+        const clean = hex.replace('#', '');
+        const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
+        const num = parseInt(full, 16);
+        if (Number.isNaN(num)) return { r: 52, g: 211, b: 153 };
+        return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+      }
+
+      function setAccentColor(hex) {
+        const normalized = /^#[0-9a-f]{6}$/i.test(hex) ? hex.toLowerCase() : (THEME_DEFAULTS[currentTheme] || '#34d399');
+        const { r, g, b } = hexToRgb(normalized);
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        const contrast = luminance > 0.62 ? '#09111a' : '#ffffff';
+        const root = document.documentElement;
+        root.style.setProperty('--accent', normalized);
+        root.style.setProperty('--accent-hover', normalized);
+        root.style.setProperty('--accent-soft', `rgba(${r}, ${g}, ${b}, 0.15)`);
+        root.style.setProperty('--accent-contrast', contrast);
+        const picker = document.getElementById('accent-color-picker');
+        const label = document.getElementById('accent-hex-label');
+        if (picker) picker.value = normalized;
+        if (label) label.textContent = normalized;
+        safeStorage.set(STORAGE_KEYS.accent, normalized);
+      }
+
+      function setTheme(themeName, resetAccent) {
+        currentTheme = THEME_DEFAULTS[themeName] ? themeName : 'midnight';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        document.querySelectorAll('[data-theme-preset]').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-theme-preset') === currentTheme);
+        });
+        safeStorage.set(STORAGE_KEYS.theme, currentTheme);
+        if (resetAccent) {
+          setAccentColor(THEME_DEFAULTS[currentTheme]);
+        }
+      }
+
+      function setFont(fontKey) {
+        const key = FONT_STACKS[fontKey] ? fontKey : 'sans';
+        document.documentElement.style.setProperty('--font-ui', FONT_STACKS[key]);
+        const sel = document.getElementById('font-family-select');
+        if (sel) sel.value = key;
+        safeStorage.set(STORAGE_KEYS.font, key);
+      }
+
+      function applyCloak(title, iconUrl) {
+        const nextTitle = (title || '').trim() || 'Dashboard';
+        const nextIcon = (iconUrl || '').trim() || DEFAULT_FAVICON;
+        document.title = nextTitle;
+        const link = document.getElementById('dynamic-favicon') || document.querySelector("link[rel~='icon']");
+        if (link) link.href = nextIcon;
+        const titleInput = document.getElementById('cloak-title-input');
+        const iconInput = document.getElementById('cloak-icon-input');
+        if (titleInput && titleInput.value !== nextTitle) titleInput.value = nextTitle;
+        if (iconInput) {
+          iconInput.value = (iconUrl && !iconUrl.startsWith('data:')) ? iconUrl : '';
+        }
+        safeStorage.set(STORAGE_KEYS.cloakTitle, nextTitle);
+        safeStorage.set(STORAGE_KEYS.cloakIcon, nextIcon);
+      }
+
+      function setCompact(enabled) {
+        container.classList.toggle('compact', enabled);
+        const sw = document.getElementById('compact-switch');
+        if (sw) sw.setAttribute('aria-checked', String(enabled));
+        safeStorage.set(STORAGE_KEYS.compact, String(enabled));
+      }
+
+      function setNoMotion(enabled) {
+        document.body.classList.toggle('no-motion', enabled);
+        const sw = document.getElementById('motion-switch');
+        if (sw) sw.setAttribute('aria-checked', String(enabled));
+        safeStorage.set(STORAGE_KEYS.noMotion, String(enabled));
+      }
+
+      function setUnlimitedFps(enabled) {
+        unlimitedFps = Boolean(enabled);
+        const sw = document.getElementById('fps-switch');
+        if (sw) sw.setAttribute('aria-checked', String(unlimitedFps));
+        const btn = document.getElementById('fpsToggleBtn');
+        if (btn) {
+          btn.textContent = unlimitedFps ? 'FPS: Unlimited' : 'FPS: Native';
+          btn.classList.toggle('viewer-btn-primary', unlimitedFps);
+        }
+        safeStorage.set(STORAGE_KEYS.unlimitedFps, String(unlimitedFps));
+      }
+
+      function toggleFpsUncap() {
+        setUnlimitedFps(!unlimitedFps);
+        if (viewerOpen && currentZoneFile) {
+          openZone(currentZoneFile);
+        }
+      }
+
+      function switchApp(appKey) {
+        if (!APP_META[appKey]) return;
+        activeApp = appKey;
+        document.querySelectorAll('.rail-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-app') === appKey);
+        });
+        Object.keys(APP_META).forEach(key => {
+          const panel = document.getElementById('app-' + key);
+          if (panel) panel.classList.toggle('hidden', key !== appKey);
+        });
+        document.getElementById('topbar-heading').textContent = APP_META[appKey].title;
+        document.getElementById('topbar-sub').textContent = APP_META[appKey].sub;
+        document.getElementById('refresh').classList.toggle('hidden', appKey !== 'games');
+      }
+
+      /* ---------------- GAMES & LINKS ---------------- */
+      function ensureBaseHref(rawHtml, baseHref) {
+        if (/<base\b[^>]*href=/i.test(rawHtml)) return rawHtml;
+        if (/<head\b[^>]*>/i.test(rawHtml)) {
+          return rawHtml.replace(/(<head\b[^>]*>)/i, '$1<base href="' + baseHref + '">');
+        }
+        return '<base href="' + baseHref + '">' + rawHtml;
+      }
+
+      function getFpsUnlockTag() {
+        const scriptCode = `(function(){
+          if(window.__gnFpsUnlocked)return;
+          window.__gnFpsUnlocked=true;
+          var nativeGetContext=HTMLCanvasElement.prototype.getContext;
+          HTMLCanvasElement.prototype.getContext=function(type,attrs){
+            if(type==="webgl"||type==="webgl2"||type==="experimental-webgl"){
+              var nextAttrs=Object.assign({},attrs||{},{powerPreference:"high-performance"});
+              return nativeGetContext.call(this,type,nextAttrs);
+            }
+            return nativeGetContext.call(this,type,attrs);
+          };
+          try{
+            Object.defineProperty(document,"hidden",{configurable:true,get:function(){return false;}});
+            Object.defineProperty(document,"visibilityState",{configurable:true,get:function(){return "visible";}});
+          }catch(e){}
+          var nativeSetTimeout=window.setTimeout.bind(window);
+          var nativeClearTimeout=window.clearTimeout.bind(window);
+          var nativeSetInterval=window.setInterval.bind(window);
+          var channel=typeof MessageChannel!=="undefined"?new MessageChannel():null;
+          var rafQueue=new Map();
+          var nextRafId=1;
+          var pumpScheduled=false;
+          var lastPaintYield=performance.now();
+          function schedulePump(){
+            if(pumpScheduled)return;
+            pumpScheduled=true;
+            var now=performance.now();
+            if(channel&&(now-lastPaintYield)<8){
+              channel.port2.postMessage(null);
+            }else{
+              lastPaintYield=now;
+              nativeSetTimeout(flushRaf,0);
+            }
+          }
+          function flushRaf(){
+            pumpScheduled=false;
+            if(rafQueue.size===0)return;
+            var batch=rafQueue;
+            rafQueue=new Map();
+            var ts=performance.now();
+            batch.forEach(function(cb){
+              try{cb(ts);}catch(err){nativeSetTimeout(function(){throw err;},0);}
+            });
+            if(rafQueue.size>0){schedulePump();}
+          }
+          if(channel){channel.port1.onmessage=flushRaf;}
+          window.requestAnimationFrame=function(cb){
+            if(typeof cb!=="function")return 0;
+            var id=nextRafId++;
+            rafQueue.set(id,cb);
+            schedulePump();
+            return id;
+          };
+          window.cancelAnimationFrame=function(id){rafQueue.delete(id);};
+          var customTimers=new Map();
+          var nextCustomTimerId=900000000;
+          window.setTimeout=function(fn,delay){
+            var args=Array.prototype.slice.call(arguments,2);
+            if(typeof delay==="number"&&delay>=12&&delay<=45&&typeof fn==="function"){
+              var tid=nextCustomTimerId++;
+              var entry={cancelled:false};
+              customTimers.set(tid,entry);
+              window.requestAnimationFrame(function(){
+                if(entry.cancelled)return;
+                customTimers.delete(tid);
+                fn.apply(window,args);
+              });
+              return tid;
+            }
+            return nativeSetTimeout.apply(window,arguments);
+          };
+          window.clearTimeout=function(id){
+            if(customTimers.has(id)){
+              customTimers.get(id).cancelled=true;
+              customTimers.delete(id);
+              return;
+            }
+            return nativeClearTimeout(id);
+          };
+          window.setInterval=function(fn,delay){
+            if(typeof delay==="number"&&delay>=12&&delay<=45){
+              var args=Array.prototype.slice.call(arguments);
+              args[1]=1;
+              return nativeSetInterval.apply(window,args);
+            }
+            return nativeSetInterval.apply(window,arguments);
+          };
+        })();`;
+        return '<script data-gn-fps="unlimited">' + scriptCode + '<\/script>';
+      }
+
+      function prepareZoneHtml(rawHtml) {
+        const html = ensureBaseHref(rawHtml, htmlURL + "/");
+        if (!unlimitedFps) return html;
+        const fpsTag = getFpsUnlockTag();
+        if (/<base\b[^>]*>/i.test(html)) {
+          return html.replace(/(<base\b[^>]*>)/i, '$1' + fpsTag);
+        }
+        if (/<head\b[^>]*>/i.test(html)) {
+          return html.replace(/(<head\b[^>]*>)/i, '$1' + fpsTag);
+        }
+        return fpsTag + html;
+      }
+
+      function isFavorite(id) {
+        return favorites.indexOf(String(id)) !== -1;
+      }
+
+      function toggleFavorite(id) {
+        const key = String(id);
+        const idx = favorites.indexOf(key);
+        if (idx === -1) favorites.push(key);
+        else favorites.splice(idx, 1);
+        safeStorage.set(STORAGE_KEYS.favs, JSON.stringify(favorites));
+        renderActiveList();
+      }
+
+      function getFilteredZones() {
+        const query = (searchBar.value || '').trim().toLowerCase();
+        const tag = filterOptions.value;
+        let list = zones.slice();
+        if (activeGamesTab === 'featured') list = list.filter(z => Boolean(z.featured));
+        else if (activeGamesTab === 'favorites') list = list.filter(z => isFavorite(z.id));
+        if (tag && tag !== 'none') list = list.filter(z => Array.isArray(z.special) && z.special.includes(tag));
+        if (query) {
+          list = list.filter(z =>
+            (z.name && z.name.toLowerCase().includes(query)) ||
+            (z.author && z.author.toLowerCase().includes(query))
+          );
+        }
+        return list;
+      }
+
+      function renderActiveList() {
+        displayZones(getFilteredZones());
+      }
+
+      async function listZones() {
+        const refreshBtn = document.getElementById('refresh');
+        if (refreshBtn) {
+          refreshBtn.classList.remove('spinning');
+          void refreshBtn.offsetWidth;
+          refreshBtn.classList.add('spinning');
+        }
+        try {
+          let sharesponse;
+          try {
+            sharesponse = await fetch("https://api.github.com/repos/freebuisness/assets/commits?t=" + Date.now());
+          } catch (error) {}
+          if (sharesponse && sharesponse.status === 200) {
+            try {
+              const shajson = await sharesponse.json();
+              const sha = shajson[0]['sha'];
+              if (sha) zonesURL = `https://cdn.jsdelivr.net/gh/freebuisness/assets@${sha}/zones.json`;
+            } catch (error) {
+              try {
+                const secRes = await fetch("https://raw.githubusercontent.com/freebuisness/xml/refs/heads/main/sha.txt?t=" + Date.now());
+                if (secRes && secRes.status === 200) {
+                  const sha = (await secRes.text()).trim();
+                  if (sha) zonesURL = `https://cdn.jsdelivr.net/gh/freebuisness/assets@${sha}/zones.json`;
+                }
+              } catch (err) {}
+            }
+          }
+
+          const response = await fetch(zonesURL + "?t=" + Date.now());
+          const json = await response.json();
+          zones = json;
+          if (zones.length > 0) zones[0].featured = true;
+          await Promise.all([
+            fetchPopularity("year"),
+            fetchPopularity("month"),
+            fetchPopularity("week"),
+            fetchPopularity("day")
+          ]);
+          sortZones();
+
+          let alltags = [];
+          for (const obj of json) {
+            if (Array.isArray(obj.special)) alltags.push(...obj.special);
+          }
+          alltags = [...new Set(alltags)];
+          while (filterOptions.children.length > 1) {
+            filterOptions.removeChild(filterOptions.lastElementChild);
+          }
+          for (const tag of alltags) {
+            const opt = document.createElement("option");
+            opt.value = tag;
+            opt.textContent = toTitleCase(tag);
+            filterOptions.appendChild(opt);
+          }
+        } catch (error) {
+          zoneCountEl.textContent = 'Offline or unavailable';
+          emptyState.textContent = 'Could not load remote catalog while offline. Calculator, Notepad, and Focus Timer remain fully available.';
+          emptyState.classList.remove('hidden');
+        }
+      }
+
+      async function fetchPopularity(duration) {
+        try {
+          if (!popularityData[duration]) popularityData[duration] = {};
+          const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/freebuisness/html@main/files?period=" + duration);
+          const data = await response.json();
+          data.forEach(file => {
+            const idMatch = file.name.match(/\/(\d+)\.html$/);
+            if (idMatch) {
+              popularityData[duration][parseInt(idMatch[1], 10)] = file.hits?.total ?? 0;
+            }
+          });
+        } catch (error) {
+          if (!popularityData[duration]) popularityData[duration] = {};
+          popularityData[duration][0] = 0;
+        }
+      }
+
+      function sortZones() {
+        const sortBy = sortOptions.value;
+        if (sortBy === 'name') zones.sort((a, b) => a.name.localeCompare(b.name));
+        else if (sortBy === 'id') zones.sort((a, b) => a.id - b.id);
+        else if (sortBy === 'popular') zones.sort((a, b) => ((popularityData['year']?.[b.id]) ?? 0) - ((popularityData['year']?.[a.id]) ?? 0));
+        else if (sortBy === 'trendingMonth') zones.sort((a, b) => ((popularityData['month']?.[b.id]) ?? 0) - ((popularityData['month']?.[a.id]) ?? 0));
+        else if (sortBy === 'trendingWeek') zones.sort((a, b) => ((popularityData['week']?.[b.id]) ?? 0) - ((popularityData['week']?.[a.id]) ?? 0));
+        else if (sortBy === 'trendingDay') zones.sort((a, b) => ((popularityData['day']?.[b.id]) ?? 0) - ((popularityData['day']?.[a.id]) ?? 0));
+        zones.sort((a, b) => (a.id === -1 ? -1 : b.id === -1 ? 1 : 0));
+        renderActiveList();
+      }
+
+      function displayZones(zonesList) {
+        container.innerHTML = "";
+        zoneCountEl.textContent = `${zonesList.length} ${zonesList.length === 1 ? 'title' : 'titles'}`;
+
+        if (zonesList.length === 0) {
+          emptyState.textContent = activeGamesTab === 'favorites'
+            ? 'No favorited games yet. Click the star on any game cover to pin it here.'
+            : 'No games match your search or tag filter.';
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        const fragment = document.createDocumentFragment();
+
+        zonesList.forEach((file, index) => {
+          const card = document.createElement('div');
+          card.className = 'zone-card';
+          card.setAttribute('role', 'button');
+          card.setAttribute('tabindex', '0');
+          card.style.animationDelay = Math.min(index, 24) * 16 + 'ms';
+
+          const thumbWrap = document.createElement('div');
+          thumbWrap.className = 'zone-thumb-wrap';
+
+          const img = document.createElement('img');
+          img.dataset.src = file.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+          img.alt = file.name;
+          img.loading = 'lazy';
+          img.referrerPolicy = 'no-referrer';
+          img.className = 'zone-thumb lazy-zone-img';
+          img.onerror = function () { thumbWrap.classList.add('broken'); };
+
+          const fallback = document.createElement('div');
+          fallback.className = 'zone-thumb-fallback';
+          fallback.textContent = file.name;
+
+          const favActive = isFavorite(file.id);
+          const favBtn = document.createElement('button');
+          favBtn.type = 'button';
+          favBtn.className = 'fav-toggle' + (favActive ? ' active' : '');
+          favBtn.setAttribute('aria-label', (favActive ? 'Remove ' : 'Favorite ') + file.name);
+          favBtn.title = favActive ? 'Remove from Favorites' : 'Add to Favorites';
+          favBtn.textContent = favActive ? '\u2605' : '\u2606';
+          favBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            toggleFavorite(file.id);
+          });
+
+          thumbWrap.appendChild(img);
+          thumbWrap.appendChild(fallback);
+          thumbWrap.appendChild(favBtn);
+
+          const body = document.createElement('div');
+          body.className = 'zone-card-body';
+
+          const title = document.createElement('h3');
+          title.className = 'zone-card-title';
+          title.textContent = file.name;
+          body.appendChild(title);
+
+          if (file.author || (Array.isArray(file.special) && file.special.length)) {
+            const meta = document.createElement('div');
+            meta.className = 'zone-card-meta';
+            const parts = [];
+            if (file.author) parts.push(file.author);
+            if (Array.isArray(file.special) && file.special.length) parts.push(toTitleCase(file.special[0]));
+            meta.textContent = parts.join(' \u00B7 ');
+            body.appendChild(meta);
+          }
+
+          card.appendChild(thumbWrap);
+          card.appendChild(body);
+          card.addEventListener('click', () => openZone(file));
+          card.addEventListener('keydown', ev => {
+            if (ev.key === 'Enter' || ev.key === ' ') {
+              ev.preventDefault();
+              openZone(file);
+            }
+          });
+          fragment.appendChild(card);
+        });
+
+        container.appendChild(fragment);
+
+        const lazyImages = container.querySelectorAll('img.lazy-zone-img');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !viewerOpen) {
+              const img = entry.target;
+              img.src = img.dataset.src;
+              img.classList.remove("lazy-zone-img");
+              observer.unobserve(img);
+            }
+          });
+        }, { rootMargin: "150px", threshold: 0.05 });
+
+        lazyImages.forEach(img => imageObserver.observe(img));
+      }
+
+      function openZone(file) {
+        if (file.url.startsWith("http")) {
+          window.open(file.url, "_blank");
+          return;
+        }
+        currentZoneFile = file;
+        const url = file.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+        fetch(url + "?t=" + Date.now()).then(response => response.text()).then(html => {
+          if (zoneFrame && zoneFrame.parentNode) zoneViewer.removeChild(zoneFrame);
+          zoneFrame = document.createElement("iframe");
+          zoneFrame.id = "zoneFrame";
+          zoneFrame.setAttribute("allow", "autoplay; keyboard; gamepad; fullscreen");
+          zoneViewer.appendChild(zoneFrame);
+
+          const preparedHtml = prepareZoneHtml(html);
+          zoneFrame.contentDocument.open();
+          zoneFrame.contentDocument.write(preparedHtml);
+          zoneFrame.contentDocument.close();
+          document.getElementById('zoneName').textContent = file.name;
+          document.getElementById('zoneId').textContent = file.id;
+          document.getElementById('zoneAuthor').textContent = "by " + (file.author || "gn-math");
+          document.getElementById('zoneAuthor').href = file.authorLink || "#";
+          viewerOpen = true;
+          zoneViewer.style.display = "flex";
+          requestAnimationFrame(() => {
+            zoneViewer.classList.add('open');
+            try { zoneFrame.focus(); } catch (e) {}
+          });
+        }).catch(error => alert("Failed to load zone: " + error));
+      }
+
+      function reloadCurrentZone() {
+        if (currentZoneFile) openZone(currentZoneFile);
+      }
+
+      function aboutBlank() {
+        const newWindow = window.open("about:blank", "_blank");
+        if (!newWindow) {
+          alert("Please allow pop-ups for this site in your browser bar and try again.");
+          return;
+        }
+        const zoneObj = zones.find(z => z.id + '' === document.getElementById('zoneId').textContent);
+        if (!zoneObj) return;
+        const zone = zoneObj.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
+        fetch(zone + "?t=" + Date.now()).then(response => response.text()).then(html => {
+          newWindow.document.open();
+          newWindow.document.write(prepareZoneHtml(html));
+          newWindow.document.close();
+        });
+      }
+
+      function closeZone() {
+        viewerOpen = false;
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        zoneViewer.classList.remove('open');
+        zoneViewer.style.display = "none";
+        if (zoneFrame && zoneFrame.parentNode) zoneViewer.removeChild(zoneFrame);
+      }
+
+      function downloadZone() {
+        const zone = zones.find(z => z.id + '' === document.getElementById('zoneId').textContent);
+        if (!zone) return;
+        fetch(zone.url.replace("{HTML_URL}", htmlURL) + "?t=" + Date.now()).then(res => res.text()).then(text => {
+          const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = zone.name + ".html";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      function fullscreenZone() {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        else if (zoneFrame && zoneFrame.requestFullscreen) zoneFrame.requestFullscreen().catch(() => {});
+      }
+
+      /* ---------------- CALCULATOR ---------------- */
+      let calcExpr = '';
+      let calcLastResult = '0';
+      let calcJustEvaluated = false;
+      let calcAngleMode = 'DEG';
+      let calcHistory = [];
+
+      const calcExprEl = document.getElementById('calc-expr');
+      const calcResultEl = document.getElementById('calc-result');
+      const calcHistoryListEl = document.getElementById('calc-history-list');
+
+      function updateCalcScreen() {
+        calcExprEl.textContent = calcExpr;
+        calcResultEl.textContent = calcLastResult;
+      }
+
+      function renderCalcHistory() {
+        calcHistoryListEl.innerHTML = '';
+        if (calcHistory.length === 0) {
+          calcHistoryListEl.innerHTML = '<div class="meta-count">No calculations yet.</div>';
+          return;
+        }
+        calcHistory.slice().reverse().forEach(entry => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'calc-history-item';
+          const ex = document.createElement('span');
+          ex.className = 'calc-history-expr';
+          ex.textContent = entry.expr + ' =';
+          const res = document.createElement('span');
+          res.className = 'calc-history-val';
+          res.textContent = entry.result;
+          item.appendChild(ex);
+          item.appendChild(res);
+          item.addEventListener('click', () => {
+            calcExpr = entry.result === 'Error' ? entry.expr : String(entry.result);
+            calcLastResult = calcExpr;
+            calcJustEvaluated = false;
+            updateCalcScreen();
+          });
+          calcHistoryListEl.appendChild(item);
+        });
+      }
+
+      function evaluateMathExpression(raw) {
+        if (!raw || !raw.trim()) return 0;
+        let normalized = raw
+          .replace(/×/g, '*')
+          .replace(/÷/g, '/')
+          .replace(/−/g, '-')
+          .replace(/π/g, 'Math.PI')
+          .replace(/\be\b/g, 'Math.E')
+          .replace(/\^/g, '**')
+          .replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+
+        const toRad = calcAngleMode === 'DEG' ? (x => (x * Math.PI) / 180) : (x => x);
+        const sin = x => Math.sin(toRad(x));
+        const cos = x => Math.cos(toRad(x));
+        const tan = x => Math.tan(toRad(x));
+        const log = x => Math.log10(x);
+        const ln = x => Math.log(x);
+        const sqrt = x => Math.sqrt(x);
+
+        // Balance any unclosed parentheses cleanly
+        const opens = (normalized.match(/\(/g) || []).length;
+        const closes = (normalized.match(/\)/g) || []).length;
+        if (opens > closes) normalized += ')'.repeat(opens - closes);
+
+        const safeCharsCheck = normalized
+          .replace(/Math\.(PI|E)/g, '')
+          .replace(/\b(sin|cos|tan|log|ln|sqrt)\b/g, '');
+        if (/[^0-9+\-*/().\s]/.test(safeCharsCheck)) {
+          throw new Error('Invalid token');
+        }
+
+        const fn = new Function('sin', 'cos', 'tan', 'log', 'ln', 'sqrt', '"use strict"; return (' + normalized + ');');
+        const value = fn(sin, cos, tan, log, ln, sqrt);
+        if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error('Math error');
+        return Math.round(value * 1e12) / 1e12;
+      }
+
+      function handleCalcInput(val) {
+        if (calcJustEvaluated) {
+          if (/^[0-9.(πe]$/.test(val) || val.endsWith('(')) {
+            calcExpr = val;
+          } else {
+            calcExpr = calcLastResult + val;
+          }
+          calcJustEvaluated = false;
+        } else {
+          calcExpr += val;
+        }
+        calcLastResult = calcExpr || '0';
+        updateCalcScreen();
+      }
+
+      function handleCalcAction(action) {
+        if (action === 'clear') {
+          calcExpr = '';
+          calcLastResult = '0';
+          calcJustEvaluated = false;
+          updateCalcScreen();
+        } else if (action === 'backspace') {
+          if (calcJustEvaluated) {
+            calcExpr = '';
+            calcLastResult = '0';
+            calcJustEvaluated = false;
+          } else {
+            calcExpr = calcExpr.slice(0, -1);
+            calcLastResult = calcExpr || '0';
+          }
+          updateCalcScreen();
+        } else if (action === 'negate') {
+          if (!calcExpr && calcLastResult !== '0' && calcLastResult !== 'Error') {
+            calcExpr = calcLastResult;
+          }
+          if (calcExpr.startsWith('-')) calcExpr = calcExpr.slice(1);
+          else if (calcExpr) calcExpr = '-' + calcExpr;
+          calcLastResult = calcExpr || '0';
+          calcJustEvaluated = false;
+          updateCalcScreen();
+        } else if (action === 'sq') {
+          const target = calcExpr || calcLastResult;
+          calcExpr = '(' + target + ')^2';
+          handleCalcAction('equals');
+        } else if (action === 'equals') {
+          const exprToRun = calcExpr || calcLastResult;
+          try {
+            const val = evaluateMathExpression(exprToRun);
+            const strVal = String(val);
+            calcHistory.push({ expr: exprToRun, result: strVal });
+            if (calcHistory.length > 40) calcHistory.shift();
+            safeStorage.set(STORAGE_KEYS.calcHistory, JSON.stringify(calcHistory));
+            renderCalcHistory();
+            calcExprEl.textContent = exprToRun + ' =';
+            calcLastResult = strVal;
+            calcResultEl.textContent = strVal;
+            calcExpr = strVal;
+            calcJustEvaluated = true;
+          } catch (e) {
+            calcLastResult = 'Error';
+            calcJustEvaluated = true;
+            updateCalcScreen();
+          }
+        }
+      }
+
+      /* ---------------- NOTEPAD ---------------- */
+      let notes = [];
+      let activeNoteId = null;
+      const notesListEl = document.getElementById('notes-list');
+      const noteTitleInput = document.getElementById('note-title-input');
+      const noteBodyInput = document.getElementById('note-body-input');
+      const noteCountsEl = document.getElementById('note-counts');
+      const noteSaveStatusEl = document.getElementById('note-save-status');
+
+      function updateNoteCounts() {
+        const text = noteBodyInput.value || '';
+        const trimmed = text.trim();
+        const words = trimmed ? trimmed.split(/\s+/).length : 0;
+        const chars = text.length;
+        const lines = text ? text.split(/\r\n|\r|\n/).length : 0;
+        noteCountsEl.textContent = `${words} ${words === 1 ? 'word' : 'words'} \u00B7 ${chars} ${chars === 1 ? 'character' : 'characters'} \u00B7 ${lines} ${lines === 1 ? 'line' : 'lines'}`;
+      }
+
+      function persistNotes() {
+        safeStorage.set(STORAGE_KEYS.notes, JSON.stringify(notes));
+        safeStorage.set(STORAGE_KEYS.activeNoteId, activeNoteId || '');
+        noteSaveStatusEl.textContent = 'Saved locally';
+      }
+
+      function renderNotesList() {
+        notesListEl.innerHTML = '';
+        notes.forEach(note => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'note-item' + (note.id === activeNoteId ? ' active' : '');
+          const t = document.createElement('span');
+          t.className = 'note-item-title';
+          t.textContent = (note.title || '').trim() || 'Untitled Note';
+          const p = document.createElement('span');
+          p.className = 'note-item-preview';
+          p.textContent = (note.body || '').trim().split('\n')[0] || 'Empty note';
+          btn.appendChild(t);
+          btn.appendChild(p);
+          btn.addEventListener('click', () => selectNote(note.id));
+          notesListEl.appendChild(btn);
+        });
+      }
+
+      function selectNote(id) {
+        activeNoteId = id;
+        const note = notes.find(n => n.id === id) || notes[0];
+        if (!note) return;
+        activeNoteId = note.id;
+        noteTitleInput.value = note.title;
+        noteBodyInput.value = note.body;
+        updateNoteCounts();
+        renderNotesList();
+        safeStorage.set(STORAGE_KEYS.activeNoteId, activeNoteId);
+      }
+
+      function createNewNote() {
+        const newNote = {
+          id: 'note_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+          title: 'Note ' + (notes.length + 1),
+          body: ''
+        };
+        notes.unshift(newNote);
+        persistNotes();
+        selectNote(newNote.id);
+        noteTitleInput.focus();
+      }
+
+      function loadNotes() {
+        try {
+          const raw = JSON.parse(safeStorage.get(STORAGE_KEYS.notes, '[]'));
+          if (Array.isArray(raw) && raw.length > 0) notes = raw;
+        } catch (e) {}
+        if (notes.length === 0) {
+          notes = [{
+            id: 'note_default',
+            title: 'Quick Scratchpad',
+            body: ''
+          }];
+        }
+        const savedId = safeStorage.get(STORAGE_KEYS.activeNoteId, notes[0].id);
+        selectNote(notes.some(n => n.id === savedId) ? savedId : notes[0].id);
+      }
+
+      /* ---------------- FOCUS TIMER (POMODORO + WEB AUDIO CHIME) ---------------- */
+      const RING_CIRCUMFERENCE = 590.6;
+      let timerTotalSec = 25 * 60;
+      let timerRemainingSec = 25 * 60;
+      let timerRunning = false;
+      let timerInterval = null;
+      let timerSoundEnabled = true;
+      let sharedAudioCtx = null;
+
+      const timerDisplayEl = document.getElementById('timer-display');
+      const timerRingEl = document.getElementById('timer-ring-progress');
+      const timerFeedbackEl = document.getElementById('timer-feedback');
+      const railTimerBadge = document.getElementById('rail-timer-badge');
+      const railTimerVal = document.getElementById('rail-timer-val');
+
+      function formatMMSS(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      }
+
+      function renderTimer() {
+        const formatted = formatMMSS(timerRemainingSec);
+        timerDisplayEl.textContent = formatted;
+        railTimerVal.textContent = formatted;
+        const ratio = timerTotalSec > 0 ? (1 - timerRemainingSec / timerTotalSec) : 0;
+        timerRingEl.style.strokeDashoffset = String(RING_CIRCUMFERENCE * ratio);
+        document.getElementById('timer-start-btn').disabled = timerRunning || timerRemainingSec <= 0;
+        document.getElementById('timer-pause-btn').disabled = !timerRunning;
+        railTimerBadge.classList.toggle('running', timerRunning);
+      }
+
+      function ensureAudioContext() {
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return null;
+          if (!sharedAudioCtx) sharedAudioCtx = new Ctx();
+          if (sharedAudioCtx.state === 'suspended') sharedAudioCtx.resume().catch(() => {});
+          return sharedAudioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playSoftChime() {
+        if (!timerSoundEnabled) return;
+        const ctx = ensureAudioContext();
+        if (!ctx) return;
+        const notesHz = [523.25, 659.25, 783.99, 1046.5];
+        const now = ctx.currentTime;
+        notesHz.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.16);
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.14, now + idx * 0.16 + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.16 + 0.95);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.16);
+          osc.stop(now + idx * 0.16 + 1.0);
+        });
+      }
+
+      function stopTimerInterval() {
+        timerRunning = false;
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+        renderTimer();
+      }
+
+      function setTimerDuration(minutes, seconds, label) {
+        stopTimerInterval();
+        const mins = Math.max(0, Math.min(180, parseInt(minutes, 10) || 0));
+        const secs = Math.max(0, Math.min(59, parseInt(seconds, 10) || 0));
+        const total = Math.max(1, mins * 60 + secs);
+        timerTotalSec = total;
+        timerRemainingSec = total;
+        document.getElementById('timer-min-input').value = String(mins);
+        document.getElementById('timer-sec-input').value = String(secs);
+        if (label) document.getElementById('timer-mode-label').textContent = label;
+        timerFeedbackEl.textContent = '';
+        renderTimer();
+      }
+
+      function startTimer() {
+        if (timerRunning || timerRemainingSec <= 0) return;
+        ensureAudioContext();
+        timerRunning = true;
+        timerFeedbackEl.textContent = '';
+        renderTimer();
+        timerInterval = setInterval(() => {
+          if (timerRemainingSec > 0) {
+            timerRemainingSec--;
+            renderTimer();
+          }
+          if (timerRemainingSec <= 0) {
+            stopTimerInterval();
+            timerFeedbackEl.textContent = 'Session complete.';
+            playSoftChime();
+          }
+        }, 1000);
+      }
+
+      /* ---------------- AI ASSISTANT ---------------- */
+      const AI_STARTER_PROMPTS = [
+        'Explain photosynthesis in 4 simple steps',
+        'Summarize my active note cleanly',
+        'Quiz me with 3 quick US History questions',
+        'Fix grammar and improve clarity of a paragraph'
+      ];
+      let aiMessages = [];
+      let aiStyle = 'balanced';
+      let aiIncludeNote = false;
+      let aiStreaming = false;
+      let aiAbortCtrl = null;
+      let aiLastRequestMessages = null;
+
+      const aiMessagesEl = document.getElementById('ai-messages');
+      const aiPromptInput = document.getElementById('ai-prompt-input');
+      const aiSendBtn = document.getElementById('ai-send-btn');
+      const aiStatusEl = document.getElementById('ai-status-text');
+      const aiErrorBox = document.getElementById('ai-error-box');
+      const aiErrorText = document.getElementById('ai-error-text');
+      const aiIncludeNoteBtn = document.getElementById('ai-include-note-btn');
+
+      function resolveAiApiBase() {
+        if (typeof window.__PORTAL_ORIGIN__ === 'string' && window.__PORTAL_ORIGIN__) {
+          return window.__PORTAL_ORIGIN__.replace(/\/+$/, '');
+        }
+        try {
+          if (window.opener && window.opener.location && /^https?:/.test(window.opener.location.protocol)) {
+            return window.opener.location.origin;
+          }
+        } catch (e) {}
+        if (/^https?:/.test(window.location.protocol)) {
+          return window.location.origin;
+        }
+        return '';
+      }
+
+      function persistAiState() {
+        safeStorage.set(STORAGE_KEYS.aiHistory, JSON.stringify(aiMessages.slice(-24)));
+        safeStorage.set(STORAGE_KEYS.aiStyle, aiStyle);
+      }
+
+      function setAiStyle(nextStyle) {
+        aiStyle = (nextStyle === 'concise' || nextStyle === 'detailed') ? nextStyle : 'balanced';
+        document.querySelectorAll('[data-ai-style]').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-ai-style') === aiStyle);
+        });
+        persistAiState();
+      }
+
+      function showAiError(message) {
+        aiErrorText.textContent = message;
+        aiErrorBox.classList.remove('hidden');
+      }
+
+      function hideAiError() {
+        aiErrorBox.classList.add('hidden');
+        aiErrorText.textContent = '';
+      }
+
+      function appendFormattedInline(parent, text) {
+        const parts = String(text || '').split(/(`[^`]+`)/g);
+        parts.forEach(part => {
+          if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
+            const codeEl = document.createElement('code');
+            codeEl.textContent = part.slice(1, -1);
+            parent.appendChild(codeEl);
+          } else {
+            parent.appendChild(document.createTextNode(part));
+          }
+        });
+      }
+
+      function sendReplyToNotepad(text) {
+        const cleaned = (text || '').trim();
+        if (!cleaned) return;
+        const firstLine = cleaned.split('\n')[0].replace(/^#+\s*/, '').slice(0, 42) || 'AI Note';
+        const newNote = {
+          id: 'note_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+          title: firstLine,
+          body: cleaned
+        };
+        notes.unshift(newNote);
+        persistNotes();
+        selectNote(newNote.id);
+        aiStatusEl.textContent = 'Saved reply to Notepad';
+      }
+
+      function renderAiMessages() {
+        aiMessagesEl.innerHTML = '';
+        if (aiMessages.length === 0) {
+          const empty = document.createElement('div');
+          empty.className = 'ai-empty';
+
+          const icon = document.createElement('div');
+          icon.className = 'ai-empty-icon';
+          icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 10.7l-6.1 1.9L12 18.5l-1.9-5.9L4 10.7l6.1-1.9L12 3z"></path></svg>';
+
+          const heading = document.createElement('h3');
+          heading.textContent = 'Workspace AI Assistant';
+
+          const sub = document.createElement('p');
+          sub.textContent = 'Powered by Gemini 4 Hydrogen. Ask questions, check math steps, brainstorm ideas, or attach your active note.';
+
+          const starters = document.createElement('div');
+          starters.className = 'ai-starters';
+          AI_STARTER_PROMPTS.forEach(promptText => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'ai-starter-btn';
+            btn.textContent = promptText;
+            btn.addEventListener('click', () => {
+              if (promptText.toLowerCase().includes('active note') && !aiIncludeNote) {
+                aiIncludeNote = true;
+                aiIncludeNoteBtn.classList.add('active');
+                aiIncludeNoteBtn.setAttribute('aria-pressed', 'true');
+              }
+              sendAiPrompt(promptText);
+            });
+            starters.appendChild(btn);
+          });
+
+          empty.appendChild(icon);
+          empty.appendChild(heading);
+          empty.appendChild(sub);
+          empty.appendChild(starters);
+          aiMessagesEl.appendChild(empty);
+          return;
+        }
+
+        aiMessages.forEach((msg, idx) => {
+          const wrap = document.createElement('div');
+          wrap.className = 'ai-msg ' + (msg.role === 'user' ? 'user' : 'model');
+
+          const roleEl = document.createElement('span');
+          roleEl.className = 'ai-msg-role';
+          roleEl.textContent = msg.role === 'user' ? 'You' : 'Gemini';
+
+          const bubble = document.createElement('div');
+          bubble.className = 'ai-msg-bubble';
+          if (msg.text) {
+            appendFormattedInline(bubble, msg.text);
+          } else if (aiStreaming && idx === aiMessages.length - 1) {
+            bubble.textContent = 'Thinking...';
+          }
+
+          wrap.appendChild(roleEl);
+          wrap.appendChild(bubble);
+
+          if (msg.role === 'model' && msg.text && !(aiStreaming && idx === aiMessages.length - 1)) {
+            const actions = document.createElement('div');
+            actions.className = 'ai-msg-actions';
+
+            const copyBtn = document.createElement('button');
+            copyBtn.type = 'button';
+            copyBtn.className = 'ai-mini-btn';
+            copyBtn.textContent = 'Copy';
+            copyBtn.addEventListener('click', async () => {
+              try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                  await navigator.clipboard.writeText(msg.text);
+                }
+                copyBtn.textContent = 'Copied';
+                setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1400);
+              } catch (e) {}
+            });
+
+            const saveNoteBtn = document.createElement('button');
+            saveNoteBtn.type = 'button';
+            saveNoteBtn.className = 'ai-mini-btn';
+            saveNoteBtn.textContent = 'Save to Notepad';
+            saveNoteBtn.addEventListener('click', () => {
+              sendReplyToNotepad(msg.text);
+              saveNoteBtn.textContent = 'Saved';
+              setTimeout(() => { saveNoteBtn.textContent = 'Save to Notepad'; }, 1400);
+            });
+
+            actions.appendChild(copyBtn);
+            actions.appendChild(saveNoteBtn);
+            wrap.appendChild(actions);
+          }
+
+          aiMessagesEl.appendChild(wrap);
+        });
+
+        aiMessagesEl.scrollTop = aiMessagesEl.scrollHeight;
+      }
+
+      function setAiBusy(busy) {
+        aiStreaming = busy;
+        aiSendBtn.textContent = busy ? 'Stop' : 'Send';
+        aiStatusEl.textContent = busy ? 'Generating response...' : 'Ready';
+      }
+
+      async function executeAiRequest(requestMessages) {
+        hideAiError();
+        aiLastRequestMessages = requestMessages.slice();
+        aiAbortCtrl = new AbortController();
+        setAiBusy(true);
+
+        const modelMsg = { role: 'model', text: '' };
+        aiMessages.push(modelMsg);
+        renderAiMessages();
+
+        const activeNote = notes.find(n => n.id === activeNoteId);
+        const noteContext = aiIncludeNote && activeNote
+          ? { title: activeNote.title, body: activeNote.body }
+          : null;
+
+        try {
+          const endpoint = resolveAiApiBase() + '/api/ai/chat';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: requestMessages,
+              style: aiStyle,
+              noteContext
+            }),
+            signal: aiAbortCtrl.signal
+          });
+
+          const contentType = res.headers.get('content-type') || '';
+          if (!res.ok) {
+            let errMsg = `Request failed (${res.status}).`;
+            if (contentType.includes('application/json')) {
+              const errData = await res.json().catch(() => null);
+              if (errData && errData.error) errMsg = errData.error;
+            } else if (res.status === 404 || res.status === 405) {
+              errMsg = 'AI backend is unavailable from this static host. Launch via the app server to use live AI.';
+            }
+            throw new Error(errMsg);
+          }
+
+          if (contentType.includes('text/event-stream') && res.body) {
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || '';
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith('data:')) continue;
+                const jsonStr = trimmed.slice(5).trim();
+                if (!jsonStr) continue;
+                let payload = null;
+                try { payload = JSON.parse(jsonStr); } catch (e) {}
+                if (!payload) continue;
+                if (payload.error) throw new Error(payload.error);
+                if (payload.chunk) {
+                  modelMsg.text += payload.chunk;
+                  renderAiMessages();
+                }
+              }
+            }
+          } else {
+            const data = await res.json();
+            if (data && data.error) throw new Error(data.error);
+            modelMsg.text = (data && data.text) || '';
+          }
+
+          if (!modelMsg.text.trim()) {
+            throw new Error('The AI returned an empty response. Please try again.');
+          }
+
+          persistAiState();
+        } catch (err) {
+          if (err && err.name === 'AbortError') {
+            if (!modelMsg.text.trim()) aiMessages.pop();
+            aiStatusEl.textContent = 'Stopped';
+          } else {
+            if (!modelMsg.text.trim()) aiMessages.pop();
+            const msg = err && err.message && err.message.includes('Failed to fetch')
+              ? 'Could not reach the AI server. Check your connection or ensure the app server is running.'
+              : (err && err.message) || 'Failed to get AI response.';
+            showAiError(msg);
+          }
+        } finally {
+          aiAbortCtrl = null;
+          setAiBusy(false);
+          renderAiMessages();
+        }
+      }
+
+      function sendAiPrompt(overrideText) {
+        if (aiStreaming) {
+          if (aiAbortCtrl) aiAbortCtrl.abort();
+          return;
+        }
+        const text = (typeof overrideText === 'string' ? overrideText : aiPromptInput.value).trim();
+        if (!text) return;
+        if (typeof overrideText !== 'string') aiPromptInput.value = '';
+        aiMessages.push({ role: 'user', text });
+        persistAiState();
+        const historySnapshot = aiMessages.map(m => ({ role: m.role, text: m.text }));
+        executeAiRequest(historySnapshot);
+      }
+
+      function loadAiState() {
+        try {
+          const saved = JSON.parse(safeStorage.get(STORAGE_KEYS.aiHistory, '[]'));
+          if (Array.isArray(saved)) {
+            aiMessages = saved.filter(m => m && (m.role === 'user' || m.role === 'model') && typeof m.text === 'string');
+          }
+        } catch (e) {}
+        setAiStyle(safeStorage.get(STORAGE_KEYS.aiStyle, 'balanced'));
+        renderAiMessages();
+      }
+
+      /* ---------------- DATA EXPORT / IMPORT / MODALS ---------------- */
+      function sanitizeData(obj, maxStringLen = 1000, maxArrayLen = 10000) {
+        if (typeof obj === 'string') return obj.length > maxStringLen ? obj.slice(0, maxStringLen) + '...[truncated]' : obj;
+        if (obj instanceof Uint8Array) return obj.length > maxArrayLen ? `[Uint8Array too large (${obj.length} bytes)]` : obj;
+        if (Array.isArray(obj)) return obj.map(item => sanitizeData(item, maxStringLen, maxArrayLen));
+        if (obj && typeof obj === 'object') {
+          const out = {};
+          for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) out[key] = sanitizeData(obj[key], maxStringLen, maxArrayLen);
+          }
+          return out;
+        }
+        return obj;
+      }
+
+      async function saveData() {
+        const feedbackEl = document.getElementById('data-feedback');
+        if (feedbackEl) feedbackEl.textContent = 'Preparing export...';
+        const result = {
+          cookies: '',
+          localStorage: safeStorage.all(),
+          sessionStorage: {},
+          indexedDB: {},
+          caches: {}
+        };
+        try { result.cookies = document.cookie; } catch (e) {}
+        try { result.sessionStorage = { ...sessionStorage }; } catch (e) {}
+        try {
+          const dbs = await indexedDB.databases();
+          for (const dbInfo of dbs) {
+            if (!dbInfo.name) continue;
+            result.indexedDB[dbInfo.name] = {};
+            await new Promise((resolve, reject) => {
+              const req = indexedDB.open(dbInfo.name, dbInfo.version);
+              req.onerror = () => reject(req.error);
+              req.onsuccess = () => {
+                const db = req.result;
+                const stores = Array.from(db.objectStoreNames);
+                if (stores.length === 0) { resolve(); return; }
+                const tx = db.transaction(stores, 'readonly');
+                Promise.all(stores.map(storeName => new Promise((res, rej) => {
+                  const getAll = tx.objectStore(storeName).getAll();
+                  getAll.onsuccess = () => {
+                    result.indexedDB[dbInfo.name][storeName] = sanitizeData(getAll.result, 1000, 100);
+                    res();
+                  };
+                  getAll.onerror = () => rej(getAll.error);
+                }))).then(resolve);
+              };
+            });
+          }
+        } catch (e) {}
+
+        const link = document.createElement('a');
+        const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(result)], { type: 'application/json' }));
+        link.href = blobUrl;
+        link.download = `workspace-backup-${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+        if (feedbackEl) feedbackEl.textContent = 'Workspace data exported.';
+      }
+
+      async function loadData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const feedbackEl = document.getElementById('data-feedback');
+        if (feedbackEl) feedbackEl.textContent = 'Importing...';
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (data.localStorage) {
+              for (const key in data.localStorage) {
+                safeStorage.set(key, data.localStorage[key]);
+              }
+            }
+            loadPreferences();
+            loadNotes();
+            renderActiveList();
+            if (feedbackEl) feedbackEl.textContent = 'Workspace data imported.';
+          } catch (err) {
+            if (feedbackEl) feedbackEl.textContent = 'Invalid backup file.';
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function showContact() {
+        document.getElementById('popupTitle').textContent = "Contact";
+        document.getElementById('popupBody').innerHTML = `<p>Discord: https://discord.gg/NAFw4ykZ7n</p><p>Email: gn.math.business@gmail.com</p>`;
+        document.getElementById('popupOverlay').style.display = "flex";
+      }
+
+      function loadPrivacy() {
+        document.getElementById('popupTitle').textContent = "Privacy Policy";
+        document.getElementById('popupBody').innerHTML = `<p><strong>Privacy Notice</strong></p><p>Notes, calculation history, favorites, and appearance settings remain strictly inside your browser.</p><p>Catalog service: <a href="https://gn-math.dev" target="_blank" rel="noopener noreferrer">gn-math.dev</a></p>`;
+        document.getElementById('popupOverlay').style.display = "flex";
+      }
+
+      function loadDMCA() {
+        document.getElementById('popupTitle').textContent = "DMCA";
+        document.getElementById('popupBody').innerHTML = `<p>If you own a game hosted on gn-math and want it removed, email <a href="mailto:gn.math.business@gmail.com">gn.math.business@gmail.com</a> with subject <code>!DMCA</code>.</p>`;
+        document.getElementById('popupOverlay').style.display = "flex";
+      }
+
+      function showZoneInfo() {
+        const id = Number(document.getElementById('zoneId').textContent);
+        const zone = zones.find(a => a.id === id);
+        document.getElementById('popupTitle').textContent = zone ? `${zone.name} Info` : 'Game Info';
+        document.getElementById('popupBody').innerHTML = zone
+          ? `<p><strong>Title:</strong> ${zone.name}<br>${zone.author ? `<strong>Author:</strong> ${zone.author}<br>` : ''}${zone.special ? `<strong>Tags:</strong> ${zone.special.join(', ')}<br>` : ''}<strong>ID:</strong> ${zone.id}</p>`
+          : `<p>Metadata unavailable.</p>`;
+        document.getElementById('popupOverlay').style.display = "flex";
+      }
+
+      function closePopup() {
+        document.getElementById('popupOverlay').style.display = "none";
+      }
+
+      /* ---------------- INITIALIZATION & EVENTS ---------------- */
+      function loadPreferences() {
+        try {
+          const parsedFavs = JSON.parse(safeStorage.get(STORAGE_KEYS.favs, '[]'));
+          if (Array.isArray(parsedFavs)) favorites = parsedFavs;
+        } catch (e) {}
+
+        try {
+          const parsedHist = JSON.parse(safeStorage.get(STORAGE_KEYS.calcHistory, '[]'));
+          if (Array.isArray(parsedHist)) calcHistory = parsedHist;
+        } catch (e) {}
+
+        const savedTheme = safeStorage.get(STORAGE_KEYS.theme, 'midnight');
+        setTheme(savedTheme, false);
+        const savedAccent = safeStorage.get(STORAGE_KEYS.accent, THEME_DEFAULTS[currentTheme]);
+        setAccentColor(savedAccent);
+        setFont(safeStorage.get(STORAGE_KEYS.font, 'sans'));
+        setCompact(safeStorage.get(STORAGE_KEYS.compact, 'false') === 'true');
+        setNoMotion(safeStorage.get(STORAGE_KEYS.noMotion, 'false') === 'true');
+        setUnlimitedFps(safeStorage.get(STORAGE_KEYS.unlimitedFps, 'true') !== 'false');
+
+        const savedBrand = safeStorage.get(STORAGE_KEYS.brand, 'Dashboard');
+        document.getElementById('portal-brand').textContent = savedBrand;
+        document.getElementById('brand-name-input').value = savedBrand;
+
+        const savedTitle = safeStorage.get(STORAGE_KEYS.cloakTitle, 'Dashboard');
+        const savedIcon = safeStorage.get(STORAGE_KEYS.cloakIcon, DEFAULT_FAVICON);
+        applyCloak(savedTitle, savedIcon);
+      }
+
+      // Navigation Rail
+      document.querySelectorAll('.rail-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchApp(btn.getAttribute('data-app')));
+      });
+      document.getElementById('rail-timer-badge').addEventListener('click', () => switchApp('timer'));
+
+      // Topbar Actions
+      document.getElementById('refresh').addEventListener('click', listZones);
+      document.getElementById('quick-cloak-btn').addEventListener('click', () => {
+        applyCloak(CLOAK_PRESETS.docs.title, CLOAK_PRESETS.docs.icon);
+        document.getElementById('cloak-feedback').textContent = 'Tab cloaked as "Google Docs".';
+      });
+
+      // Games Sub-tabs & Filters
+      document.querySelectorAll('[data-games-tab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeGamesTab = btn.getAttribute('data-games-tab');
+          document.querySelectorAll('[data-games-tab]').forEach(b => b.classList.toggle('active', b === btn));
+          renderActiveList();
+        });
+      });
+      searchBar.addEventListener('input', renderActiveList);
+      sortOptions.addEventListener('change', sortZones);
+      filterOptions.addEventListener('change', renderActiveList);
+
+      // Calculator Events
+      document.querySelectorAll('[data-calc-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mode = btn.getAttribute('data-calc-mode');
+          document.querySelectorAll('[data-calc-mode]').forEach(b => b.classList.toggle('active', b === btn));
+          document.getElementById('calc-sci-keys').classList.toggle('hidden', mode === 'standard');
+        });
+      });
+      document.getElementById('calc-angle-btn').addEventListener('click', e => {
+        calcAngleMode = calcAngleMode === 'DEG' ? 'RAD' : 'DEG';
+        e.target.textContent = calcAngleMode;
+      });
+      document.querySelectorAll('[data-calc-val]').forEach(btn => {
+        btn.addEventListener('click', () => handleCalcInput(btn.getAttribute('data-calc-val')));
+      });
+      document.querySelectorAll('[data-calc-action]').forEach(btn => {
+        btn.addEventListener('click', () => handleCalcAction(btn.getAttribute('data-calc-action')));
+      });
+      document.getElementById('calc-clear-history').addEventListener('click', () => {
+        calcHistory = [];
+        safeStorage.set(STORAGE_KEYS.calcHistory, '[]');
+        renderCalcHistory();
+      });
+
+      document.addEventListener('keydown', e => {
+        if (activeApp !== 'calculator' || viewerOpen) return;
+        const tag = (document.activeElement?.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+        if (/^[0-9.()+\-*/%^]$/.test(e.key)) {
+          e.preventDefault();
+          const mapped = e.key === '*' ? '×' : e.key === '/' ? '÷' : e.key;
+          handleCalcInput(mapped);
+        } else if (e.key === 'Enter' || e.key === '=') {
+          e.preventDefault();
+          handleCalcAction('equals');
+        } else if (e.key === 'Backspace') {
+          e.preventDefault();
+          handleCalcAction('backspace');
+        } else if (e.key === 'Escape' || e.key === 'Delete') {
+          e.preventDefault();
+          handleCalcAction('clear');
+        }
+      });
+
+      // Notepad Events
+      document.getElementById('note-new-btn').addEventListener('click', createNewNote);
+      noteTitleInput.addEventListener('input', () => {
+        const note = notes.find(n => n.id === activeNoteId);
+        if (!note) return;
+        note.title = noteTitleInput.value;
+        persistNotes();
+        renderNotesList();
+      });
+      noteBodyInput.addEventListener('input', () => {
+        const note = notes.find(n => n.id === activeNoteId);
+        if (!note) return;
+        note.body = noteBodyInput.value;
+        updateNoteCounts();
+        persistNotes();
+        renderNotesList();
+      });
+      document.getElementById('note-download-btn').addEventListener('click', () => {
+        const title = (noteTitleInput.value || 'note').trim().replace(/[^a-z0-9_\- ]/gi, '_') || 'note';
+        const blob = new Blob([noteBodyInput.value], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = title + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        noteSaveStatusEl.textContent = 'Downloaded .txt';
+      });
+      document.getElementById('note-copy-btn').addEventListener('click', async () => {
+        const text = noteBodyInput.value || '';
+        let copied = false;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            copied = true;
+          }
+        } catch (err) {}
+        if (!copied) {
+          noteBodyInput.select();
+          try { copied = document.execCommand('copy'); } catch (err) {}
+          try { noteBodyInput.setSelectionRange(0, 0); noteBodyInput.blur(); } catch (err) {}
+        }
+        noteSaveStatusEl.textContent = copied ? 'Copied all text' : 'Select text to copy';
+      });
+      document.getElementById('note-delete-btn').addEventListener('click', () => {
+        if (notes.length <= 1) {
+          notes[0].title = 'Quick Scratchpad';
+          notes[0].body = '';
+          persistNotes();
+          selectNote(notes[0].id);
+          return;
+        }
+        notes = notes.filter(n => n.id !== activeNoteId);
+        persistNotes();
+        selectNote(notes[0].id);
+      });
+
+      // Focus Timer Events
+      document.querySelectorAll('[data-timer-preset]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-timer-preset]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          setTimerDuration(btn.getAttribute('data-timer-preset'), 0, btn.getAttribute('data-timer-label'));
+        });
+      });
+      document.getElementById('timer-apply-custom-btn').addEventListener('click', () => {
+        document.querySelectorAll('[data-timer-preset]').forEach(b => b.classList.remove('active'));
+        setTimerDuration(document.getElementById('timer-min-input').value, document.getElementById('timer-sec-input').value, 'Custom Timer');
+      });
+      document.getElementById('timer-start-btn').addEventListener('click', startTimer);
+      document.getElementById('timer-pause-btn').addEventListener('click', stopTimerInterval);
+      document.getElementById('timer-reset-btn').addEventListener('click', () => {
+        stopTimerInterval();
+        timerRemainingSec = timerTotalSec;
+        timerFeedbackEl.textContent = '';
+        renderTimer();
+      });
+      document.getElementById('timer-test-chime-btn').addEventListener('click', () => {
+        playSoftChime();
+        timerFeedbackEl.textContent = 'Chime played.';
+      });
+      document.getElementById('timer-sound-switch').addEventListener('click', e => {
+        timerSoundEnabled = !timerSoundEnabled;
+        e.currentTarget.setAttribute('aria-checked', String(timerSoundEnabled));
+      });
+
+      // Settings Events
+      document.querySelectorAll('[data-theme-preset]').forEach(btn => {
+        btn.addEventListener('click', () => setTheme(btn.getAttribute('data-theme-preset'), true));
+      });
+      document.getElementById('accent-color-picker').addEventListener('input', e => {
+        setAccentColor(e.target.value);
+      });
+      document.getElementById('reset-accent-btn').addEventListener('click', () => {
+        setAccentColor(THEME_DEFAULTS[currentTheme]);
+      });
+      document.getElementById('font-family-select').addEventListener('change', e => {
+        setFont(e.target.value);
+      });
+      document.getElementById('save-brand-btn').addEventListener('click', () => {
+        const nextBrand = document.getElementById('brand-name-input').value.trim() || 'Dashboard';
+        document.getElementById('portal-brand').textContent = nextBrand;
+        safeStorage.set(STORAGE_KEYS.brand, nextBrand);
+      });
+      document.querySelectorAll('[data-cloak-preset]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const preset = CLOAK_PRESETS[btn.getAttribute('data-cloak-preset')];
+          if (!preset) return;
+          document.querySelectorAll('[data-cloak-preset]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyCloak(preset.title, preset.icon);
+          document.getElementById('cloak-feedback').textContent = `Tab cloaked as "${preset.title}".`;
+        });
+      });
+      document.getElementById('cloak-title-input').addEventListener('input', e => {
+        applyCloak(e.target.value, safeStorage.get(STORAGE_KEYS.cloakIcon, DEFAULT_FAVICON));
+      });
+      document.getElementById('apply-cloak-btn').addEventListener('click', () => {
+        applyCloak(document.getElementById('cloak-title-input').value, document.getElementById('cloak-icon-input').value);
+        document.getElementById('cloak-feedback').textContent = 'Custom tab cloak applied.';
+      });
+      document.getElementById('reset-cloak-btn').addEventListener('click', () => {
+        document.querySelectorAll('[data-cloak-preset]').forEach(b => b.classList.remove('active'));
+        applyCloak('Dashboard', DEFAULT_FAVICON);
+        document.getElementById('cloak-feedback').textContent = 'Restored default Dashboard title and icon.';
+      });
+      document.getElementById('fps-switch').addEventListener('click', () => setUnlimitedFps(!unlimitedFps));
+      document.getElementById('compact-switch').addEventListener('click', () => setCompact(!container.classList.contains('compact')));
+      document.getElementById('motion-switch').addEventListener('click', () => setNoMotion(!document.body.classList.contains('no-motion')));
+      document.getElementById('clear-favs-btn').addEventListener('click', () => {
+        favorites = [];
+        safeStorage.set(STORAGE_KEYS.favs, '[]');
+        renderActiveList();
+        document.getElementById('data-feedback').textContent = 'Favorites cleared.';
+      });
+
+      // AI Assistant Events
+      document.querySelectorAll('[data-ai-style]').forEach(btn => {
+        btn.addEventListener('click', () => setAiStyle(btn.getAttribute('data-ai-style')));
+      });
+      aiIncludeNoteBtn.addEventListener('click', () => {
+        aiIncludeNote = !aiIncludeNote;
+        aiIncludeNoteBtn.classList.toggle('active', aiIncludeNote);
+        aiIncludeNoteBtn.setAttribute('aria-pressed', String(aiIncludeNote));
+      });
+      document.getElementById('ai-clear-btn').addEventListener('click', () => {
+        if (aiAbortCtrl) aiAbortCtrl.abort();
+        aiMessages = [];
+        aiLastRequestMessages = null;
+        hideAiError();
+        persistAiState();
+        renderAiMessages();
+      });
+      document.getElementById('ai-retry-btn').addEventListener('click', () => {
+        if (aiStreaming || !aiLastRequestMessages || aiLastRequestMessages.length === 0) return;
+        executeAiRequest(aiLastRequestMessages);
+      });
+      document.getElementById('ai-composer-form').addEventListener('submit', e => {
+        e.preventDefault();
+        sendAiPrompt();
+      });
+      aiPromptInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendAiPrompt();
+        }
+      });
+
+      loadPreferences();
+      loadNotes();
+      loadAiState();
+      renderCalcHistory();
+      renderTimer();
+      listZones();
+    </script>
+  </template>
+
+  <script>
+    (function () {
+      var activePopup = null;
+
+      document.addEventListener("click", function () {
+        if (activePopup && !activePopup.closed) {
+          activePopup.focus();
+          return;
+        }
+
+        var templateEl = document.getElementById("portal-template");
+        var apiOrigin = (
+          window.location.origin &&
+          window.location.origin !== "null" &&
+          window.location.protocol.indexOf("http") === 0
+        ) ? window.location.origin : "";
+        var originScript = "<script>window.__PORTAL_ORIGIN__=" + JSON.stringify(apiOrigin) + ";<\/script>\n";
+        var htmlContent = "<!DOCTYPE html>\n<html lang=\"en\">\n" + originScript + templateEl.innerHTML + "\n<\/html>";
+        var blob = new Blob([htmlContent], { type: "text/html" });
+        var blobUrl = URL.createObjectURL(blob);
+        var popup = window.open(
+          blobUrl,
+          "_blank",
+          "width=920,height=650,menubar=no,toolbar=no,location=no,status=no"
+        );
+
+        if (!popup || popup.closed || typeof popup.closed === "undefined") {
+          URL.revokeObjectURL(blobUrl);
+          alert("Please allow pop-ups for this site in your browser bar and click again.");
+          return;
+        }
+
+        activePopup = popup;
+        setTimeout(function () {
+          URL.revokeObjectURL(blobUrl);
+        }, 60000);
+      });
+    })();
+  </script>
+</body>
+</html>

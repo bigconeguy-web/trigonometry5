@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GN Arcade — Unblocked Games Matrix</title>
+  <meta name="description" content="High-performance modern unblocked game portal powered by the GN-Math and Titanium Network ecosystem.">
+  <link rel="icon" id="dynamic-favicon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            arcade: {
+              bg: '#0f172a',
+              card: '#1e293b',
+              surface: '#334155',
+              border: '#475569',
+              purple: '#a855f7',
+              cyan: '#06b6d4',
+              pink: '#ec4899',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a855f7; }
+    
+    .glow-purple { box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.4); }
+    .glow-cyan { box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.4); }
+    .neon-text-purple { text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
+    .neon-text-cyan { text-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+  </style>
+</head>
+<body class="bg-[#0f172a] text-slate-100 min-h-screen flex flex-col font-sans selection:bg-purple-500 selection:text-white">
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-40 bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-800 transition-all duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      
+      <!-- Logo / Brand -->
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="#" onclick="exitTheater(); return false;" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white font-black text-lg shadow-lg group-hover:scale-105 transition-transform duration-200">
+            ▲
+          </div>
+          <div>
+            <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+              GN ARCADE
+            </span>
+            <span class="text-[10px] font-mono tracking-widest text-slate-400 block -mt-1 uppercase">
+              Unblocked Matrix
+            </span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center: Instant Search Filter Bar -->
+      <div class="flex-1 max-w-md mx-2 sm:mx-6">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search 50+ games... (Press '/' to focus)"
+            class="w-full pl-9 pr-8 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all duration-150"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button
+            id="clearSearchBtn"
+            onclick="clearSearch()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300 hidden"
+            title="Clear search"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Tab Cloak, Stealth & Options -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        
+        <!-- Tab Cloaker Dropdown -->
+        <div class="relative inline-block text-left">
+          <button
+            id="cloakMenuBtn"
+            onclick="toggleCloakMenu()"
+            class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+            title="Disguise browser tab"
+          >
+            <span id="currentCloakIcon">🎭</span>
+            <span class="hidden md:inline" id="currentCloakLabel">Disguise Tab</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <!-- Dropdown menu -->
+          <div
+            id="cloakDropdown"
+            class="hidden origin-top-right absolute right-0 mt-2 w-52 rounded-xl shadow-2xl bg-slate-900 border border-slate-700 p-1.5 z-50 text-xs text-slate-200 space-y-1"
+          >
+            <div class="px-2.5 py-1 text-[10px] font-mono uppercase text-slate-400 tracking-wider">
+              Select Cloak Preset
+            </div>
+            <button onclick="setTabCloak('default')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800 flex items-center gap-2 transition-colors">
+              <span>🕹️</span> <span>GN Arcade (Default)</span>
+            </button>
+            <button onclick="setTabCloak('classroom')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800 flex items-center gap-2 transition-colors">
+              <span>📚</span> <span>Google Classroom</span>
+            </button>
+            <button onclick="setTabCloak('docs')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800 flex items-center gap-2 transition-colors">
+              <span>📄</span> <span>Google Docs (Research)</span>
+            </button>
+            <button onclick="setTabCloak('canvas')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800 flex items-center gap-2 transition-colors">
+              <span>⭕</span> <span>Canvas LMS Dashboard</span>
+            </button>
+            <button onclick="setTabCloak('wikipedia')" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-800 flex items-center gap-2 transition-colors">
+              <span>🌐</span> <span>Wikipedia: Calculus</span>
+            </button>
+            <div class="h-px bg-slate-800 my-1"></div>
+            <button onclick="launchAboutBlank()" class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-purple-950/60 text-purple-300 flex items-center gap-2 transition-colors">
+              <span>🚀</span> <span>Launch in about:blank</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Emergency Panic Button -->
+        <button
+          onclick="triggerPanicRedirect()"
+          class="px-3 py-1.5 bg-red-950/40 hover:bg-red-900/60 border border-red-800/80 rounded-lg text-xs font-semibold text-red-300 hover:text-white flex items-center gap-1.5 transition-colors"
+          title="Emergency redirect to Google Classroom (Hotkey: Esc)"
+        >
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span class="hidden sm:inline">Panic</span>
+          <kbd class="hidden md:inline-block px-1 py-0.2 bg-red-900/60 border border-red-700/60 rounded text-[10px] font-mono">ESC</kbd>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Filters Sub-bar -->
+    <div id="categoryFilterBar" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center gap-2 overflow-x-auto border-t border-slate-800/60 text-xs no-scrollbar">
+      <button onclick="filterCategory('All')" class="category-btn active px-3.5 py-1 rounded-full font-medium transition-all bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-xs">
+        All Games (<span id="totalGamesBadge">0</span>)
+      </button>
+      <button onclick="filterCategory('Action')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Action
+      </button>
+      <button onclick="filterCategory('Sports')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Sports
+      </button>
+      <button onclick="filterCategory('Driving')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Driving
+      </button>
+      <button onclick="filterCategory('Arcade')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Arcade
+      </button>
+      <button onclick="filterCategory('Puzzle')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Puzzle
+      </button>
+      <button onclick="filterCategory('Strategy')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Strategy
+      </button>
+      <button onclick="filterCategory('Horror')" class="category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white">
+        Horror
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Arcade Catalog View -->
+  <main id="catalogView" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full transition-opacity duration-300">
+    
+    <!-- Hero Banner -->
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900/90 to-purple-950/40 border border-slate-800 p-6 sm:p-8 mb-8 shadow-xl">
+      <div class="absolute -right-12 -top-12 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-12 -bottom-12 w-64 h-64 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10 max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono font-semibold mb-3">
+          <span>⚡ GN-MATH PROXY ARRAYS ACTIVE</span>
+          <span>·</span>
+          <span class="text-cyan-400">50+ VERIFIED TITLES</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-2 leading-tight">
+          High-Velocity Unblocked Games
+        </h1>
+        <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
+          Zero-latency, sandbox-protected game catalog running directly inside isolated iframe wrappers. Streamlined for school and network compliance with dynamic tab disguise.
+        </p>
+      </div>
+    </div>
+
+    <!-- Active Filters & Result Count -->
+    <div class="flex items-center justify-between mb-4 text-xs text-slate-400 font-mono">
+      <div class="flex items-center gap-2">
+        <span id="activeFilterLabel">Showing All Games</span>
+        <span class="text-slate-600">·</span>
+        <span id="resultCountLabel" class="text-purple-400 font-semibold">50 games</span>
+      </div>
+      <div>
+        <span>Click any title to launch theater mode</span>
+      </div>
+    </div>
+
+    <!-- Game Grid Container -->
+    <div
+      id="gamesGrid"
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-5"
+    >
+      <!-- Dynamically Rendered by JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 px-4 bg-slate-900/50 rounded-2xl border border-slate-800/80">
+      <div class="w-12 h-12 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-2xl mb-3 text-slate-400">
+        🔍
+      </div>
+      <h3 class="text-base font-semibold text-white mb-1">No Games Found</h3>
+      <p class="text-xs text-slate-400 max-w-sm mx-auto mb-4">
+        We couldn't find any games matching your search query. Try typing another title or category.
+      </p>
+      <button
+        onclick="clearSearch()"
+        class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg transition-colors shadow-lg"
+      >
+        Reset Search Filter
+      </button>
+    </div>
+  </main>
+
+  <!-- Theater Mode Full-Screen Component -->
+  <section
+    id="theaterView"
+    class="fixed inset-0 z-50 bg-slate-950 flex flex-col hidden opacity-0 transition-opacity duration-200"
+  >
+    <!-- Theater Top Control Bar -->
+    <div class="h-14 px-4 bg-slate-900/95 border-b border-slate-800 flex items-center justify-between gap-4 shrink-0 shadow-md">
+      
+      <!-- Current Game Title & Category -->
+      <div class="flex items-center gap-3 min-w-0">
+        <button
+          onclick="exitTheater()"
+          class="p-2 rounded-lg bg-slate-800 hover:bg-purple-600 text-slate-300 hover:text-white transition-colors"
+          title="Exit to Arcade (ESC)"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+        </button>
+        <div>
+          <h2 id="theaterTitle" class="text-sm sm:text-base font-bold text-white truncate max-w-xs sm:max-w-md">
+            Game Title
+          </h2>
+          <div class="flex items-center gap-2 text-[11px] text-slate-400 -mt-0.5">
+            <span id="theaterCategory" class="text-cyan-400 font-mono font-medium">Arcade</span>
+            <span>·</span>
+            <span class="text-emerald-400 font-mono">Sandbox Protected</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Reload Game -->
+        <button
+          onclick="reloadTheaterGame()"
+          class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+          title="Reload Game Sandbox"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          <span class="hidden sm:inline">Reload</span>
+        </button>
+
+        <!-- Fullscreen Toggle -->
+        <button
+          onclick="toggleTheaterFullscreen()"
+          class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-medium text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors"
+          title="Toggle Fullscreen"
+        >
+          <svg id="fullscreenIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+          </svg>
+          <span class="hidden sm:inline">Fullscreen</span>
+        </button>
+
+        <!-- Exit to Arcade -->
+        <button
+          onclick="exitTheater()"
+          class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md"
+        >
+          <span>Exit to Arcade</span>
+          <kbd class="hidden md:inline-block px-1 py-0.2 bg-black/30 rounded text-[10px] font-mono">ESC</kbd>
+        </button>
+      </div>
+    </div>
+
+    <!-- Theater Canvas Frame Container -->
+    <div class="flex-1 bg-black relative flex items-center justify-center overflow-hidden">
+      <!-- Loading indicator -->
+      <div id="theaterLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 text-slate-300 z-10 transition-opacity duration-300">
+        <div class="w-10 h-10 border-3 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mb-3"></div>
+        <p class="text-xs font-mono text-slate-400">Loading unblocked sandbox...</p>
+      </div>
+
+      <!-- Sandboxed iframe -->
+      <iframe
+        id="theaterIframe"
+        class="w-full h-full border-0 bg-black"
+        allow="fullscreen; autoplay; pointer-lock"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups-to-escape-sandbox allow-downloads allow-modals"
+        loading="eager"
+      ></iframe>
+    </div>
+  </section>
+
+  <!-- Minimalist Arcade Footer -->
+  <footer class="mt-auto border-t border-slate-800 bg-slate-950/80 py-5 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-300">GN Arcade</span>
+        <span>·</span>
+        <span>High-Performance Unblocked Gaming Network</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>Titanium Network &amp; GN-Math Mirror</span>
+        <span>·</span>
+        <span>Press <kbd class="px-1 py-0.5 bg-slate-800 border border-slate-700 rounded text-[10px] font-mono text-slate-300">/</kbd> to search</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript & 50+ Game Data Array -->
+  <script>
+    // ==========================================
+    // 50+ UNBLOCKED GAME CATALOG MAPPING (GN-MATH & TITANIUM NETWORK)
+    // ==========================================
+    const games = [
+      {
+        name: "Slope",
+        category: "Arcade",
+        url: "https://azgames.io/game/slope/",
+        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+        badge: "Popular"
+      },
+      {
+        name: "Retro Bowl",
+        category: "Sports",
+        url: "https://ubghyper.github.io/GameList.github.io/retro-bowl/",
+        thumbnail: "https://images.unsplash.com/photo-1566577739112-5180d4bf9390?auto=format&fit=crop&w=400&q=80",
+        badge: "Top Rated"
+      },
+      {
+        name: "Run 3",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/run-3/",
+        thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        badge: "Classic"
+      },
+      {
+        name: "1v1.LOL",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/1v1lol/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Hot"
+      },
+      {
+        name: "Drift Hunters",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/drift-hunters/",
+        thumbnail: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80",
+        badge: "3D Car"
+      },
+      {
+        name: "BitLife",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/bitlife/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: "Sim"
+      },
+      {
+        name: "Five Nights at Freddy's",
+        category: "Horror",
+        url: "https://ubghyper.github.io/GameList.github.io/fnaf1/",
+        thumbnail: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+        badge: "FNAF"
+      },
+      {
+        name: "Five Nights at Freddy's 2",
+        category: "Horror",
+        url: "https://ubghyper.github.io/GameList.github.io/fnaf2/",
+        thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        badge: "FNAF"
+      },
+      {
+        name: "Five Nights at Freddy's 3",
+        category: "Horror",
+        url: "https://ubghyper.github.io/GameList.github.io/fnaf3/",
+        thumbnail: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+        badge: "FNAF"
+      },
+      {
+        name: "Five Nights at Freddy's 4",
+        category: "Horror",
+        url: "https://ubghyper.github.io/GameList.github.io/fnaf4/",
+        thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        badge: "FNAF"
+      },
+      {
+        name: "Five Nights at Epstein's",
+        category: "Horror",
+        url: "https://ubghyper.github.io/GameList.github.io/FNAE/",
+        thumbnail: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+        badge: "Parody"
+      },
+      {
+        name: "Cookie Clicker",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/cookie-clicker/",
+        thumbnail: "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=400&q=80",
+        badge: "Idle"
+      },
+      {
+        name: "Friday Night Funkin'",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/fnf/",
+        thumbnail: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=400&q=80",
+        badge: "Rhythm"
+      },
+      {
+        name: "Tetris",
+        category: "Puzzle",
+        url: "https://ubghyper.github.io/GameList.github.io/tetris/",
+        thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80",
+        badge: "Classic"
+      },
+      {
+        name: "Tunnel Rush",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/tunnel-rush/",
+        thumbnail: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=400&q=80",
+        badge: "Speed"
+      },
+      {
+        name: "Smash Karts",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/smash-karts/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: "Multiplayer"
+      },
+      {
+        name: "Eggy Car",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/eggy-car/",
+        thumbnail: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80",
+        badge: "Physics"
+      },
+      {
+        name: "Basket Random",
+        category: "Sports",
+        url: "https://ubghyper.github.io/GameList.github.io/basket-random/",
+        thumbnail: "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=400&q=80",
+        badge: "2 Player"
+      },
+      {
+        name: "Basket Hoop Physics",
+        category: "Sports",
+        url: "https://storage.googleapis.com/freezenova/all/2024/construct/311/basket-hoop/pre-gg.html",
+        thumbnail: "https://images.unsplash.com/photo-1519766304817-4f37bda74a29?auto=format&fit=crop&w=400&q=80",
+        badge: "Physics"
+      },
+      {
+        name: "Elastic Face",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/Elastic-Face/",
+        thumbnail: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        badge: "Fun"
+      },
+      {
+        name: "Moto X3M",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/moto-x3m/",
+        thumbnail: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=400&q=80",
+        badge: "Bike"
+      },
+      {
+        name: "Moto X3M Winter",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/motox3m-winter/",
+        thumbnail: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=400&q=80",
+        badge: "Winter"
+      },
+      {
+        name: "Moto X3M Spooky Land",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/motox3m-spooky/",
+        thumbnail: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=400&q=80",
+        badge: "Halloween"
+      },
+      {
+        name: "Moto X3M Pool Party",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/motox3m-pool/",
+        thumbnail: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80",
+        badge: "Summer"
+      },
+      {
+        name: "Soccer Random",
+        category: "Sports",
+        url: "https://ubghyper.github.io/GameList.github.io/soccer-random/",
+        thumbnail: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=400&q=80",
+        badge: "Ragdoll"
+      },
+      {
+        name: "Volley Random",
+        category: "Sports",
+        url: "https://ubghyper.github.io/GameList.github.io/volley-random/",
+        thumbnail: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=400&q=80",
+        badge: "Sports"
+      },
+      {
+        name: "Boxing Random",
+        category: "Sports",
+        url: "https://ubghyper.github.io/GameList.github.io/boxing-random/",
+        thumbnail: "https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=400&q=80",
+        badge: "Action"
+      },
+      {
+        name: "Basketball Stars",
+        category: "Sports",
+        url: "https://ubghyper.github.io/GameList.github.io/basketball-stars/",
+        thumbnail: "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=400&q=80",
+        badge: "Top Tier"
+      },
+      {
+        name: "Geometry Dash",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/geometry-dash/",
+        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+        badge: "Hard"
+      },
+      {
+        name: "Subway Surfers",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/subway-surfers/",
+        thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        badge: "Endless"
+      },
+      {
+        name: "Temple Run 2",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/temple-run-2/",
+        thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        badge: "Runner"
+      },
+      {
+        name: "Crossy Road",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/crossy-road/",
+        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+        badge: "Voxel"
+      },
+      {
+        name: "Flappy Bird",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/flappy-bird/",
+        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+        badge: "Retro"
+      },
+      {
+        name: "2048",
+        category: "Puzzle",
+        url: "https://ubghyper.github.io/GameList.github.io/2048/",
+        thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80",
+        badge: "Math"
+      },
+      {
+        name: "Wordle",
+        category: "Puzzle",
+        url: "https://ubghyper.github.io/GameList.github.io/wordle/",
+        thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80",
+        badge: "Words"
+      },
+      {
+        name: "Cut the Rope",
+        category: "Puzzle",
+        url: "https://ubghyper.github.io/GameList.github.io/cut-the-rope/",
+        thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80",
+        badge: "Physics"
+      },
+      {
+        name: "Bad Piggies",
+        category: "Puzzle",
+        url: "https://ubghyper.github.io/GameList.github.io/bad-piggies/",
+        thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80",
+        badge: "Build"
+      },
+      {
+        name: "Happy Wheels",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/happy-wheels/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Physics"
+      },
+      {
+        name: "Superhot",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/superhot/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Time"
+      },
+      {
+        name: "Rooftop Snipers",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/rooftop-snipers/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "2 Player"
+      },
+      {
+        name: "Getaway Shootout",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/getaway-shootout/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Chaos"
+      },
+      {
+        name: "Stickman Hook",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/stickman-hook/",
+        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+        badge: "Swing"
+      },
+      {
+        name: "Paper.io 2",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/paperio2/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: ".IO"
+      },
+      {
+        name: "Hole.io",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/hole-io/",
+        thumbnail: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=400&q=80",
+        badge: ".IO"
+      },
+      {
+        name: "Slither.io",
+        category: "Arcade",
+        url: "https://ubghyper.github.io/GameList.github.io/slitherio/",
+        thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80",
+        badge: ".IO"
+      },
+      {
+        name: "Madalin Stunt Cars 2",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/madalin-stunt-cars-2/",
+        thumbnail: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80",
+        badge: "3D Stunts"
+      },
+      {
+        name: "Madalin Cars Multiplayer",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/madalin-cars-multiplayer/",
+        thumbnail: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80",
+        badge: "Multiplayer"
+      },
+      {
+        name: "Highway Traffic",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/highway-traffic/",
+        thumbnail: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=400&q=80",
+        badge: "Traffic"
+      },
+      {
+        name: "Drive Mad",
+        category: "Driving",
+        url: "https://ubghyper.github.io/GameList.github.io/drive-mad/",
+        thumbnail: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=400&q=80",
+        badge: "Voxel Car"
+      },
+      {
+        name: "Duck Life 1",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/duck-life-1/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: "Training"
+      },
+      {
+        name: "Duck Life 2",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/duck-life-2/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: "World Champ"
+      },
+      {
+        name: "Duck Life 3",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/duck-life-3/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: "Evolution"
+      },
+      {
+        name: "Duck Life 4",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/duck-life-4/",
+        thumbnail: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=400&q=80",
+        badge: "Adventure"
+      },
+      {
+        name: "Minecraft Classic",
+        category: "Strategy",
+        url: "https://ubghyper.github.io/GameList.github.io/minecraft-classic/",
+        thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
+        badge: "Sandbox"
+      },
+      {
+        name: "Vex 3",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/vex-3/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Parkour"
+      },
+      {
+        name: "Vex 4",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/vex-4/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Parkour"
+      },
+      {
+        name: "Vex 5",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/vex-5/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Parkour"
+      },
+      {
+        name: "Vex 6",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/vex-6/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Parkour"
+      },
+      {
+        name: "Vex 7",
+        category: "Action",
+        url: "https://ubghyper.github.io/GameList.github.io/vex-7/",
+        thumbnail: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=400&q=80",
+        badge: "Parkour"
+      }
+    ];
+
+    // ==========================================
+    // STATE & DOM ELEMENTS
+    // ==========================================
+    let currentCategory = 'All';
+    let searchQuery = '';
+    let isTheaterFullscreen = false;
+    let currentGame = null;
+
+    const gamesGrid = document.getElementById('gamesGrid');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const totalGamesBadge = document.getElementById('totalGamesBadge');
+    const activeFilterLabel = document.getElementById('activeFilterLabel');
+    const resultCountLabel = document.getElementById('resultCountLabel');
+    const theaterView = document.getElementById('theaterView');
+    const theaterIframe = document.getElementById('theaterIframe');
+    const theaterTitle = document.getElementById('theaterTitle');
+    const theaterCategory = document.getElementById('theaterCategory');
+    const theaterLoading = document.getElementById('theaterLoading');
+    const cloakDropdown = document.getElementById('cloakDropdown');
+
+    // Gradient card accents based on category
+    const categoryGradients = {
+      Action: 'from-purple-900/60 to-slate-900',
+      Sports: 'from-cyan-900/60 to-slate-900',
+      Driving: 'from-amber-900/60 to-slate-900',
+      Arcade: 'from-pink-900/60 to-slate-900',
+      Puzzle: 'from-emerald-900/60 to-slate-900',
+      Strategy: 'from-blue-900/60 to-slate-900',
+      Horror: 'from-red-950/70 to-slate-900',
+      default: 'from-slate-800 to-slate-900'
+    };
+
+    const categoryBadges = {
+      Action: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+      Sports: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+      Driving: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+      Arcade: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
+      Puzzle: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+      Strategy: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+      Horror: 'bg-red-500/20 text-red-300 border-red-500/30',
+      default: 'bg-slate-700/40 text-slate-300 border-slate-600/40'
+    };
+
+    // ==========================================
+    // INITIALIZATION & RENDERING
+    // ==========================================
+    function init() {
+      totalGamesBadge.textContent = games.length;
+      renderGrid();
+
+      // Search event listener
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        clearSearchBtn.classList.toggle('hidden', searchQuery.length === 0);
+        renderGrid();
+      });
+
+      // Global hotkeys (ESC exits theater, '/' focuses search)
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (!theaterView.classList.contains('hidden')) {
+            exitTheater();
+          } else {
+            triggerPanicRedirect();
+          }
+        } else if (e.key === '/' && document.activeElement !== searchInput) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+
+      // Handle iframe load event
+      theaterIframe.addEventListener('load', () => {
+        theaterLoading.style.opacity = '0';
+        setTimeout(() => { theaterLoading.classList.add('hidden'); }, 300);
+      });
+
+      // Close cloak dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#cloakMenuBtn') && !e.target.closest('#cloakDropdown')) {
+          cloakDropdown.classList.add('hidden');
+        }
+      });
+    }
+
+    function renderGrid() {
+      const filtered = games.filter(g => {
+        const matchesCategory = (currentCategory === 'All') || (g.category === currentCategory);
+        const matchesSearch = !searchQuery || 
+          g.name.toLowerCase().includes(searchQuery) || 
+          g.category.toLowerCase().includes(searchQuery);
+        return matchesCategory && matchesSearch;
+      });
+
+      resultCountLabel.textContent = `${filtered.length} game${filtered.length === 1 ? '' : 's'}`;
+      activeFilterLabel.textContent = currentCategory === 'All' ? 'All Categories' : currentCategory;
+
+      if (filtered.length === 0) {
+        gamesGrid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      gamesGrid.innerHTML = filtered.map((game, index) => {
+        const bgGrad = categoryGradients[game.category] || categoryGradients.default;
+        const badgeStyle = categoryBadges[game.category] || categoryBadges.default;
+
+        return `
+          <div
+            onclick="launchTheaterByIndex(${games.indexOf(game)})"
+            class="group relative bg-[#1e293b] rounded-xl border border-slate-800/80 hover:border-purple-500/50 p-3.5 flex flex-col justify-between cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-purple-500/10 overflow-hidden"
+          >
+            <!-- Background accent gradient -->
+            <div class="absolute inset-0 bg-gradient-to-b ${bgGrad} opacity-30 group-hover:opacity-60 transition-opacity"></div>
+            
+            <!-- Card Content Top -->
+            <div class="relative z-10">
+              <div class="flex items-center justify-between gap-1 mb-2.5">
+                <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded border ${badgeStyle}">
+                  ${game.category}
+                </span>
+                ${game.badge ? `
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/60">
+                    ${game.badge}
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- Stylized Title & Icon -->
+              <div class="flex items-start gap-2.5 my-2">
+                <div class="w-8 h-8 rounded-lg bg-slate-800/90 border border-slate-700/80 flex items-center justify-center text-sm font-bold text-cyan-400 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all shrink-0">
+                  ▶
+                </div>
+                <h3 class="text-sm font-bold text-slate-100 group-hover:text-purple-300 transition-colors line-clamp-2 leading-tight">
+                  ${game.name}
+                </h3>
+              </div>
+            </div>
+
+            <!-- Card Bottom Bar -->
+            <div class="relative z-10 mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span class="text-slate-500">Unblocked</span>
+              <span class="text-purple-400 group-hover:translate-x-0.5 transition-transform font-semibold flex items-center gap-1">
+                Play Now →
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========================================
+    // FILTERING LOGIC
+    // ==========================================
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        const isMatch = btn.textContent.trim().startsWith(cat);
+        if (isMatch) {
+          btn.className = 'category-btn px-3.5 py-1 rounded-full font-medium transition-all bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-xs';
+        } else {
+          btn.className = 'category-btn px-3 py-1 rounded-full font-medium transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white';
+        }
+      });
+      renderGrid();
+    }
+
+    function clearSearch() {
+      searchQuery = '';
+      searchInput.value = '';
+      clearSearchBtn.classList.add('hidden');
+      renderGrid();
+      searchInput.focus();
+    }
+
+    // ==========================================
+    // THEATER MODE (FULL-SCREEN CANVAS WRAPPER)
+    // ==========================================
+    function launchTheaterByIndex(index) {
+      const game = games[index];
+      if (!game) return;
+      currentGame = game;
+
+      // Update Header Text
+      theaterTitle.textContent = game.name;
+      theaterCategory.textContent = game.category;
+
+      // Show Loading Screen
+      theaterLoading.classList.remove('hidden');
+      theaterLoading.style.opacity = '1';
+
+      // Set Iframe Source
+      theaterIframe.src = game.url;
+
+      // Smooth display
+      theaterView.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        theaterView.classList.remove('opacity-0');
+        theaterView.classList.add('opacity-100');
+      });
+
+      // Prevent body scrolling
+      document.body.style.overflow = 'hidden';
+    }
+
+    function exitTheater() {
+      theaterView.classList.remove('opacity-100');
+      theaterView.classList.add('opacity-0');
+      setTimeout(() => {
+        theaterView.classList.add('hidden');
+        theaterIframe.src = 'about:blank';
+        document.body.style.overflow = '';
+        currentGame = null;
+      }, 200);
+    }
+
+    function reloadTheaterGame() {
+      if (!currentGame) return;
+      theaterLoading.classList.remove('hidden');
+      theaterLoading.style.opacity = '1';
+      theaterIframe.src = currentGame.url;
+    }
+
+    function toggleTheaterFullscreen() {
+      if (!document.fullscreenElement) {
+        theaterView.requestFullscreen().catch(err => {
+          console.warn('Fullscreen error:', err);
+        });
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // ==========================================
+    // TAB CLOAKING & ABOUT:BLANK STEALTH
+    // ==========================================
+    const CLOAK_PRESETS = {
+      default: {
+        title: "GN Arcade — Unblocked Games Matrix",
+        icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕹️</text></svg>",
+        label: "Disguise Tab",
+        emoji: "🎭"
+      },
+      classroom: {
+        title: "Classes - Google Classroom",
+        icon: "https://ssl.gstatic.com/classroom/favicon.png",
+        label: "Google Classroom",
+        emoji: "📚"
+      },
+      docs: {
+        title: "Untitled Document - Google Docs",
+        icon: "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico",
+        label: "Google Docs",
+        emoji: "📄"
+      },
+      canvas: {
+        title: "Dashboard | Canvas LMS",
+        icon: "https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico",
+        label: "Canvas LMS",
+        emoji: "⭕"
+      },
+      wikipedia: {
+        title: "Calculus - Wikipedia",
+        icon: "https://en.wikipedia.org/static/favicon/wikipedia.ico",
+        label: "Wikipedia",
+        emoji: "🌐"
+      }
+    };
+
+    function toggleCloakMenu() {
+      cloakDropdown.classList.toggle('hidden');
+    }
+
+    function setTabCloak(presetKey) {
+      const preset = CLOAK_PRESETS[presetKey] || CLOAK_PRESETS.default;
+      document.title = preset.title;
+      
+      let link = document.querySelector("link[rel*='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = preset.icon;
+
+      document.getElementById('currentCloakIcon').textContent = preset.emoji;
+      document.getElementById('currentCloakLabel').textContent = preset.label;
+      cloakDropdown.classList.add('hidden');
+    }
+
+    // about:blank stealth launcher
+    function launchAboutBlank() {
+      const win = window.open('about:blank', '_blank');
+      if (!win) {
+        alert('Popup blocked! Please allow popups for this site to use about:blank cloaking.');
+        return;
+      }
+      const doc = win.document;
+      const iframe = doc.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.top = '0';
+      iframe.style.left = '0';
+      iframe.style.width = '100vw';
+      iframe.style.height = '100vh';
+      iframe.style.border = 'none';
+      iframe.src = window.location.href;
+      
+      doc.body.style.margin = '0';
+      doc.body.style.padding = '0';
+      doc.body.style.overflow = 'hidden';
+      doc.title = 'Classes';
+      doc.body.appendChild(iframe);
+      cloakDropdown.classList.add('hidden');
+    }
+
+    // Emergency Panic button
+    function triggerPanicRedirect() {
+      window.location.replace('https://classroom.google.com');
+    }
+
+    // Initialize application on load
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
