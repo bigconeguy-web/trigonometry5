@@ -1277,14 +1277,42 @@
         width: 100%;
         height: 100%;
         display: none;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 12px;
+        gap: 8px;
+        padding: 14px;
         text-align: center;
-        font-size: 13px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: var(--text-primary);
+        background:
+          radial-gradient(circle at 25% 20%, var(--accent-soft) 0%, transparent 60%),
+          linear-gradient(145deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+      }
+
+      .zone-thumb-monogram {
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        background: var(--accent-soft);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 16px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .zone-thumb-label {
+        font-size: 11px;
         font-weight: 600;
-        color: var(--text-secondary);
-        background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
       }
 
       .zone-thumb-wrap.broken .zone-thumb {
@@ -1293,6 +1321,169 @@
 
       .zone-thumb-wrap.broken .zone-thumb-fallback {
         display: flex;
+      }
+
+      .ugs-loading-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 40px 20px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .ugs-spinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2.5px solid var(--border);
+        border-top-color: var(--accent);
+        animation: spinOnce 0.75s linear infinite;
+        flex-shrink: 0;
+      }
+
+      .ugs-fallback-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+        padding: 10px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--accent-soft);
+        color: var(--text-primary);
+        font-size: 12.5px;
+      }
+
+      .ugs-fallback-banner strong {
+        color: var(--accent);
+      }
+
+      .zone-player-wrap {
+        position: relative;
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        display: flex;
+        background: #000000;
+      }
+
+      .zone-loading-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        background: radial-gradient(circle at 50% 25%, rgba(52, 211, 153, 0.1), rgba(11, 15, 20, 0.96) 65%);
+        backdrop-filter: blur(8px);
+        color: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .zone-loader-card {
+        width: 100%;
+        max-width: 440px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 26px 24px;
+        box-shadow: var(--shadow-card-hover);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+      }
+
+      .zone-loader-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .zone-loader-title {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .zone-loader-status {
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-secondary);
+      }
+
+      .zone-loader-track {
+        width: 100%;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        margin: 4px 0;
+      }
+
+      .zone-loader-bar {
+        width: 42%;
+        height: 100%;
+        border-radius: 999px;
+        background: var(--accent);
+        animation: zoneProgressSlide 1.25s ease-in-out infinite;
+      }
+
+      @keyframes zoneProgressSlide {
+        0% { transform: translateX(-110%); }
+        50% { transform: translateX(130%); }
+        100% { transform: translateX(260%); }
+      }
+
+      .zone-error-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: rgba(248, 113, 113, 0.14);
+        border: 1px solid rgba(248, 113, 113, 0.45);
+        color: #f87171;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 800;
+      }
+
+      .zone-error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 6px;
+        width: 100%;
+      }
+
+      .load-more-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px 0 6px;
       }
 
       .fav-toggle {
@@ -1338,8 +1529,8 @@
 
       .zone-card-title {
         margin: 0;
-        font-size: 13.5px;
-        font-weight: 600;
+        font-size: 13px;
+        font-weight: 700;
         line-height: 1.35;
         color: var(--text-primary);
         display: -webkit-box;
@@ -1349,7 +1540,7 @@
       }
 
       .zone-card-meta {
-        font-size: 12px;
+        font-size: 11.5px;
         color: var(--text-muted);
         white-space: nowrap;
         overflow: hidden;
@@ -2305,7 +2496,7 @@
         height: 100%;
         border: none;
         display: block;
-        background: #000000;
+        background: #ffffff;
       }
 
       #popupOverlay {
@@ -2484,6 +2675,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"></line><line x1="8" y1="10" x2="8" y2="14"></line><line x1="15" y1="13" x2="15.01" y2="13"></line><line x1="18" y1="11" x2="18.01" y2="11"></line><rect x="2" y="6" width="20" height="12" rx="4"></rect></svg>
             <span>Games &amp; Links</span>
           </button>
+          <button type="button" class="rail-btn" data-app="ckv">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>CKV Library</span>
+          </button>
           <button type="button" class="rail-btn" data-app="calculator">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
             <span>Calculator</span>
@@ -2519,10 +2714,10 @@
           <div class="topbar-inner">
             <div class="topbar-title-group">
               <h2 class="topbar-heading" id="topbar-heading">Games &amp; Links</h2>
-              <span class="topbar-sub" id="topbar-sub">Browse library and open full-screen sessions</span>
+              <span class="topbar-sub" id="topbar-sub">Browse all games or switch between GN-Math, UGS, and CKV providers</span>
             </div>
             <div class="topbar-actions">
-              <button type="button" id="refresh" class="icon-action" title="Refresh game catalog" aria-label="Refresh game catalog">
+              <button type="button" id="refresh" class="icon-action" title="Refresh catalog" aria-label="Refresh catalog">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
                 <span>Refresh</span>
               </button>
@@ -2535,36 +2730,53 @@
         </header>
 
         <main class="workspace">
-          <!-- 1. Games & Links -->
+          <!-- 1. Games & Links / CKV Library -->
           <section id="app-games" class="app-panel">
             <div class="subnav-row">
-              <div class="segmented-tabs" role="tablist" aria-label="Catalog Filter">
+              <div class="segmented-tabs" role="tablist" aria-label="Provider Tabs">
                 <button type="button" class="seg-btn active" data-games-tab="all">All Games</button>
+                <button type="button" class="seg-btn" data-games-tab="gn">GN-Math</button>
+                <button type="button" class="seg-btn" data-games-tab="ugs">UGS</button>
+                <button type="button" class="seg-btn" data-games-tab="ckv">CKV</button>
                 <button type="button" class="seg-btn" data-games-tab="featured">Featured</button>
                 <button type="button" class="seg-btn" data-games-tab="favorites">Favorites</button>
               </div>
               <span class="meta-count" id="zoneCount">Loading catalog...</span>
             </div>
 
+            <div id="ugs-fallback-banner" class="ugs-fallback-banner hidden" role="status">
+              <span id="ugs-fallback-text"><strong>Partial Sync Active:</strong> Showing built-in fallback titles for temporarily rate-limited catalogs.</span>
+              <button type="button" id="ugs-retry-api-btn" class="btn-secondary" style="padding: 5px 10px; font-size: 12px;">Retry</button>
+            </div>
+
             <div class="filter-toolbar">
               <div class="search-wrap">
                 <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="searchBar" class="field-input" placeholder="Search games by title or author..." autocomplete="off" />
+                <input type="text" id="searchBar" class="field-input" placeholder="Loading games..." autocomplete="off" />
               </div>
               <select id="sortOptions" class="field-select" aria-label="Sort games">
-                <option value="name">Sort: Name</option>
-                <option value="id">Sort: ID (Date)</option>
+                <option value="name">Sort: Name (A–Z)</option>
+                <option value="name-desc">Sort: Name (Z–A)</option>
                 <option value="popular">Sort: Most Popular</option>
                 <option value="trendingDay">Trending (Day)</option>
                 <option value="trendingWeek">Trending (Week)</option>
                 <option value="trendingMonth">Trending (Month)</option>
+                <option value="id">Sort: ID (Date)</option>
               </select>
-              <select id="filterOptions" class="field-select" aria-label="Filter by tag">
+              <select id="filterOptions" class="field-select" aria-label="Filter games">
                 <option value="none">All Tags</option>
+                <option value="covers">With Cover Art</option>
               </select>
             </div>
 
+            <div id="ugs-loading" class="ugs-loading-bar" role="status" aria-live="polite">
+              <span class="ugs-spinner" aria-hidden="true"></span>
+              <span>Loading GN-Math, UGS, and CKV game libraries...</span>
+            </div>
             <div id="container" class="zone-grid"></div>
+            <div id="load-more-wrap" class="load-more-wrap hidden">
+              <button type="button" id="loadMoreBtn" class="btn-secondary">Load More Games</button>
+            </div>
             <div id="empty-state" class="empty-panel hidden">No games match your current filter.</div>
           </section>
 
@@ -2909,10 +3121,8 @@
         </main>
 
         <footer class="site-footer">
-          <span>Catalog synced from gn-math</span>
+          <span>Browser Workspace · Tools &amp; Library</span>
           <div class="footer-links">
-            <a href="#" onclick="loadDMCA(); return false;">DMCA</a>
-            <a href="#" onclick="showContact(); return false;">Contact</a>
             <a href="#" onclick="loadPrivacy(); return false;">Privacy Policy</a>
             <a href="#" onclick="saveData(); return false;">Export Data</a>
             <a href="#" onclick="document.getElementById('importData').click(); return false;">Import Data</a>
@@ -2925,23 +3135,48 @@
     <div id="zoneViewer">
       <div class="viewer-bar">
         <div class="viewer-meta">
-          <button type="button" class="viewer-btn viewer-btn-primary" onclick="closeZone()">&larr; Back</button>
+          <button type="button" id="closeZoneBtn" class="viewer-btn viewer-btn-primary" onclick="closeZone()">&larr; Back to Library</button>
           <div class="viewer-title-group">
             <h2 id="zoneName">Game</h2>
             <span id="zoneId"></span>
-            <a id="zoneAuthor" href="#" target="_blank">by Author</a>
+            <span id="zoneAuthor" style="display:none;font-size:12px;color:var(--text-muted);"></span>
           </div>
         </div>
         <div class="viewer-controls">
           <button type="button" id="fpsToggleBtn" class="viewer-btn viewer-btn-primary" onclick="toggleFpsUncap()" title="Toggle Unlimited FPS bypass">FPS: Unlimited</button>
           <button type="button" class="viewer-btn" onclick="showZoneInfo()">Info</button>
           <button type="button" class="viewer-btn" onclick="reloadCurrentZone()">Reload</button>
-          <button type="button" class="viewer-btn" onclick="fullscreenZone()">Fullscreen</button>
-          <button type="button" class="viewer-btn" onclick="aboutBlank()">New Tab</button>
+          <button type="button" id="fullscreenZoneBtn" class="viewer-btn" onclick="fullscreenZone()">Fullscreen</button>
           <button type="button" class="viewer-btn" onclick="downloadZone()">Download</button>
+          <a id="openDirectLinkBtn" class="viewer-btn" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">Open Direct Link</a>
         </div>
       </div>
-      <iframe id="zoneFrame" allow="autoplay; keyboard; gamepad; fullscreen"></iframe>
+      <div class="zone-player-wrap" id="zonePlayerWrap">
+        <div id="zoneLoadingOverlay" class="zone-loading-overlay hidden">
+          <div class="zone-loader-card" id="zoneLoaderLoadingState">
+            <span class="zone-loader-badge" id="zoneLoadingBadge">Launching</span>
+            <h3 class="zone-loader-title" id="zoneLoadingTitle">Loading Game</h3>
+            <div class="zone-loader-track" aria-hidden="true">
+              <div class="zone-loader-bar"></div>
+            </div>
+            <p class="zone-loader-status" id="zoneLoadingText">Connecting to game server...</p>
+            <button type="button" class="btn-secondary" style="padding:7px 14px;font-size:12.5px;" onclick="closeZone()">Cancel</button>
+          </div>
+          <div class="zone-loader-card hidden" id="zoneLoaderErrorState" role="alert">
+            <span class="zone-error-icon" aria-hidden="true">!</span>
+            <span class="zone-loader-badge" id="zoneErrorBadge">Load Error</span>
+            <h3 class="zone-loader-title" id="zoneErrorTitle">This game could not be loaded</h3>
+            <p class="zone-loader-status" id="zoneErrorDetail">The game file was unavailable or blocked by the network.</p>
+            <div class="zone-error-actions">
+              <button type="button" class="btn-primary" style="padding:8px 14px;font-size:12.5px;" onclick="reloadCurrentZone()">Retry</button>
+              <button type="button" class="btn-secondary" style="padding:8px 14px;font-size:12.5px;" onclick="tryDirectEmbedZone()">Try Direct Embed</button>
+              <a id="zoneErrorDirectLink" class="btn-secondary" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration:none;padding:8px 14px;font-size:12.5px;">Open Direct Link</a>
+              <button type="button" class="btn-secondary" style="padding:8px 14px;font-size:12.5px;" onclick="closeZone()">Back to Library</button>
+            </div>
+          </div>
+        </div>
+        <iframe id="zoneFrame" allow="autoplay; keyboard; gamepad; fullscreen"></iframe>
+      </div>
     </div>
 
     <div id="popupOverlay">
@@ -2990,6 +3225,29 @@
         }
       };
 
+      const safeCache = {
+        get(key) {
+          try {
+            const sval = window.sessionStorage.getItem(key);
+            if (sval !== null) return sval;
+          } catch (e) {}
+          return safeStorage.get(key, null);
+        },
+        set(key, val) {
+          const strVal = String(val);
+          try {
+            window.sessionStorage.setItem(key, strVal);
+          } catch (e) {}
+          safeStorage.set(key, strVal);
+        },
+        remove(key) {
+          try {
+            window.sessionStorage.removeItem(key);
+          } catch (e) {}
+          safeStorage.remove(key);
+        }
+      };
+
       const STORAGE_KEYS = {
         favs: 'gn_portal_favorites',
         theme: 'gn_portal_theme_v2',
@@ -3005,7 +3263,9 @@
         activeNoteId: 'gn_portal_active_note',
         calcHistory: 'gn_portal_calc_history',
         aiHistory: 'gn_portal_ai_history',
-        aiStyle: 'gn_portal_ai_style'
+        aiStyle: 'gn_portal_ai_style',
+        ugsCache: 'ugs_catalog_cache_v1',
+        ckvCache: 'ckv_catalog_cache_v1'
       };
 
       const DEFAULT_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1512'/%3E%3Cpath d='M20 42V22h8l4 8 4-8h8v20h-6V31l-4 7h-4l-4-7v11h-6z' fill='%2334d399'/%3E%3C/svg%3E";
@@ -3043,7 +3303,8 @@
       };
 
       const APP_META = {
-        games: { title: 'Games & Links', sub: 'Browse library and open full-screen sessions' },
+        games: { title: 'Games & Links', sub: 'Browse all games or switch between GN-Math, UGS, and CKV providers' },
+        ckv: { title: 'CKV Library', sub: 'Browse WanoCapy/ChickenKingsVault titles with cover thumbnails & fullscreen player' },
         calculator: { title: 'Calculator', sub: 'Standard & scientific calculator with calculation history' },
         notepad: { title: 'Notepad', sub: 'Multi-note scratchpad with word count and .txt export' },
         timer: { title: 'Focus Timer', sub: 'Pomodoro presets and custom countdown with Web Audio chime' },
@@ -3051,22 +3312,38 @@
         settings: { title: 'Settings', sub: 'Customize theme presets, accent color, typography, and tab cloak' }
       };
 
+      const PROVIDER_LABELS = {
+        gn: 'GN-Math',
+        ugs: 'UGS',
+        ckv: 'CKV'
+      };
+
       let activeApp = 'games';
       let activeGamesTab = 'all';
       let viewerOpen = false;
       let currentZoneFile = null;
+      let currentZoneAbort = null;
       let favorites = [];
       let unlimitedFps = true;
       let currentTheme = 'midnight';
 
       const container = document.getElementById('container');
       const emptyState = document.getElementById('empty-state');
+      const loadMoreWrap = document.getElementById('load-more-wrap');
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
       const zoneCountEl = document.getElementById('zoneCount');
       const zoneViewer = document.getElementById('zoneViewer');
+      const zonePlayerWrap = document.getElementById('zonePlayerWrap');
+      const zoneLoadingOverlay = document.getElementById('zoneLoadingOverlay');
+      const zoneLoaderLoadingState = document.getElementById('zoneLoaderLoadingState');
+      const zoneLoaderErrorState = document.getElementById('zoneLoaderErrorState');
       let zoneFrame = document.getElementById('zoneFrame');
       const searchBar = document.getElementById('searchBar');
       const sortOptions = document.getElementById('sortOptions');
       const filterOptions = document.getElementById('filterOptions');
+      const ugsLoadingEl = document.getElementById('ugs-loading');
+      const ugsFallbackBannerEl = document.getElementById('ugs-fallback-banner');
+      const ugsFallbackTextEl = document.getElementById('ugs-fallback-text');
 
       const zonesurls = [
         "https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json",
@@ -3077,8 +3354,29 @@
       let zonesURL = zonesurls[Math.floor(Math.random() * zonesurls.length)];
       const coverURL = "https://cdn.jsdelivr.net/gh/freebuisness/covers@main";
       const htmlURL = "https://cdn.jsdelivr.net/gh/freebuisness/html@main";
+
+      const UGS_TREE_URLS = [
+        { branch: 'main', url: "https://api.github.com/repos/bubbls/UGS-Assets/git/trees/main?recursive=1" },
+        { branch: 'master', url: "https://api.github.com/repos/bubbls/UGS-Assets/git/trees/master?recursive=1" }
+      ];
+      const UGS_CDN_BASE = "https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main";
+
+      const CKV_TREE_URLS = [
+        { branch: 'main', url: "https://api.github.com/repos/WanoCapy/ChickenKingsVault/git/trees/main?recursive=1" },
+        { branch: 'master', url: "https://api.github.com/repos/WanoCapy/ChickenKingsVault/git/trees/master?recursive=1" }
+      ];
+      const CKV_CDN_BASE = "https://cdn.jsdelivr.net/gh/WanoCapy/ChickenKingsVault@main";
+      const CATALOG_CACHE_TTL_MS = 30 * 60 * 1000;
+
+      let rawCatalogs = { gn: [], ugs: [], ckv: [] };
       let zones = [];
       let popularityData = {};
+      let isFallbackCatalog = false;
+      let currentRenderedList = [];
+      let renderedOffset = 0;
+      const RENDER_BATCH_SIZE = 96;
+      let lazyImgObserver = null;
+      let scrollSentinelObserver = null;
 
       function toTitleCase(str) {
         return str.replace(/\w\S*/g, text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase());
@@ -3178,24 +3476,446 @@
         }
       }
 
+      function syncCatalogUiState() {
+        const isCkvView = activeApp === 'ckv' || (activeApp === 'games' && activeGamesTab === 'ckv');
+        if (activeApp === 'games' || activeApp === 'ckv') {
+          const meta = isCkvView ? APP_META.ckv : APP_META.games;
+          document.getElementById('topbar-heading').textContent = meta.title;
+          document.getElementById('topbar-sub').textContent = meta.sub;
+        }
+        document.querySelectorAll('[data-games-tab]').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-games-tab') === activeGamesTab);
+        });
+        updateSearchPlaceholder();
+      }
+
       function switchApp(appKey) {
         if (!APP_META[appKey]) return;
         activeApp = appKey;
+        const panelKey = appKey === 'ckv' ? 'games' : appKey;
+        if (appKey === 'ckv') {
+          activeGamesTab = 'ckv';
+        } else if (appKey === 'games' && activeGamesTab === 'ckv') {
+          activeGamesTab = 'all';
+        }
         document.querySelectorAll('.rail-btn').forEach(btn => {
           btn.classList.toggle('active', btn.getAttribute('data-app') === appKey);
         });
-        Object.keys(APP_META).forEach(key => {
+        ['games', 'calculator', 'notepad', 'timer', 'ai', 'settings'].forEach(key => {
           const panel = document.getElementById('app-' + key);
-          if (panel) panel.classList.toggle('hidden', key !== appKey);
+          if (panel) panel.classList.toggle('hidden', key !== panelKey);
         });
         document.getElementById('topbar-heading').textContent = APP_META[appKey].title;
         document.getElementById('topbar-sub').textContent = APP_META[appKey].sub;
-        document.getElementById('refresh').classList.toggle('hidden', appKey !== 'games');
+        document.getElementById('refresh').classList.toggle('hidden', panelKey !== 'games');
+        if (panelKey === 'games') {
+          syncCatalogUiState();
+          renderActiveList();
+        }
       }
 
-      /* ---------------- GAMES & LINKS ---------------- */
+      /* ---------------- UGS ARCADE (bubbls/UGS-Assets) ---------------- */
+      const UGS_EXCLUDED_DIRS = new Set([
+        'assets', 'streamingassets', 'cdn-cgi', 'loc', 'snd', 'img', 'images',
+        'patch', 'api', 'releases', '.vscode', '.github', 'node_modules', 'build', 'templatedata'
+      ]);
+      const UGS_EXCLUDED_FILES = new Set([
+        '404.html', '408.html', 'null.html', 'about.html', 'font_test.html', 'sdk.html',
+        'speculation.html', 'guide.html', 'notes.html', 'lobby.html', 'exists_by_casino.html',
+        'drop_campaigns.html', 'games235.html', 'ubg235.html', 'frame.html', 'depression.html',
+        'n.html', 'json-editor.html', 'login-buttons.html'
+      ]);
+      const UGS_POPULAR_SLUGS = new Set([
+        '10minutestilldawn', 'slope 3', 'slope 2 player', 'retro bowl', 'cookieclicker',
+        'drift-hunters', 'snow-rider', 'monkey mart v6.3', 'stickman hook', 'burritobison-main',
+        'doodle jump', 'big 2048', 'basketball-superstars', 'bouncy basketball',
+        'adventure-capitalist', '3dash', '2doom', 'russian-buckshot', 'ovomod', 'ages of conflict'
+      ]);
+      const UGS_COMPOUND_WORDS = [
+        'adventures', 'adventure', 'capitalist', 'basketball', 'superstars',
+        'minutes', 'minute', 'till', 'dawn', 'cookie', 'clicker', 'subway',
+        'surfers', 'surfer', 'burrito', 'bison', 'stickman', 'hunters', 'hunter',
+        'ducklife', 'bitlife', 'polytrack', 'snowrider', 'retro', 'bowl',
+        'doodle', 'jump', 'bouncy', 'motors', 'smash', 'karts', 'drift', 'boss',
+        'paper', 'hole', 'block', 'miner', 'post', 'clash', 'duel', 'tower',
+        'defense', 'idle', 'tycoon', 'space', 'alien', 'dash', 'doom', 'card',
+        'poker', 'ball', 'balls', 'rush', 'run', 'date', 'danger', 'buckshot',
+        'russian', 'football', 'soccer', 'weird', 'gun', 'game', 'tiny',
+        'fishing', 'bad', 'monday', 'pizza', 'geometry', 'monkey', 'mart',
+        'one', 'bit', 'endacopia', 'quake'
+      ].sort((a, b) => b.length - a.length);
+
+      function splitUgsCompound(token) {
+        const lower = token.toLowerCase();
+        if (lower.length < 7 || /[^a-z]/i.test(token)) return [token];
+        const n = lower.length;
+        const dp = new Array(n + 1).fill(null);
+        dp[0] = [];
+        for (let i = 0; i < n; i++) {
+          if (!dp[i]) continue;
+          for (const word of UGS_COMPOUND_WORDS) {
+            if (lower.startsWith(word, i)) {
+              const end = i + word.length;
+              const cand = dp[i].concat([word]);
+              if (!dp[end] || cand.length < dp[end].length) dp[end] = cand;
+            }
+          }
+        }
+        return (dp[n] && dp[n].length > 1) ? dp[n] : [token];
+      }
+
+      function formatUgsTitle(folderOrPath) {
+        let raw = String(folderOrPath || '').trim();
+        if (!raw) return 'UNTITLED GAME';
+        raw = raw.includes('/') ? raw.split('/')[0] : raw.replace(/\.html?$/i, '');
+        raw = raw
+          .replace(/([_-](?:main|master|gh-pages|branch))$/i, '')
+          .replace(/[_/]+/g, ' ')
+          .replace(/-/g, ' ')
+          .replace(/([a-z])([A-Z])/g, '$1 $2')
+          .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+          .replace(/(\d)([a-zA-Z])/g, function (full, digit, letter, offset, src) {
+            const rest = src.slice(offset + 1);
+            if (/^(?:d\b|st\b|nd\b|rd\b|th\b|x\b)/i.test(rest)) return full;
+            return digit + ' ' + letter;
+          })
+          .replace(/([a-zA-Z])(\d)/g, function (full, letter, digit, offset, src) {
+            const before = src.slice(Math.max(0, offset - 1), offset + 1);
+            if (/^v$/i.test(letter)) return full;
+            if (before.length === 2 && /\s/.test(before[0])) return full;
+            return letter + ' ' + digit;
+          });
+        const expanded = [];
+        raw.split(/\s+/).filter(Boolean).forEach(tok => {
+          expanded.push(...splitUgsCompound(tok));
+        });
+        return expanded.join(' ').replace(/\s+/g, ' ').trim().toUpperCase();
+      }
+
+      function encodeCdnPath(repoPath) {
+        return repoPath.split('/').map(seg => encodeURIComponent(seg)).join('/');
+      }
+
+      function buildUgsCdnUrl(repoPath) {
+        return UGS_CDN_BASE + '/' + encodeCdnPath(String(repoPath || '').replace(/^\/+/, ''));
+      }
+
+      function getUgsFolderBaseUrl(repoPath) {
+        const parts = String(repoPath || '').replace(/^\/+/, '').split('/');
+        if (parts.length <= 1) return UGS_CDN_BASE + '/';
+        parts.pop();
+        return UGS_CDN_BASE + '/' + encodeCdnPath(parts.join('/')) + '/';
+      }
+
+      function scoreUgsEntry(repoPath) {
+        const parts = repoPath.split('/');
+        const filename = parts[parts.length - 1].toLowerCase();
+        const depth = parts.length;
+        let score = 0;
+        if (depth === 2 && (filename === 'index.html' || filename === 'index.htm')) score += 1000;
+        else if (filename === 'index.html' || filename === 'index.htm') score += 500;
+        else if (filename === 'play.html') score += 300;
+        else if (filename === 'game.html') score += 280;
+        else if (filename === 'new.html' || filename === 'fun.html') score += 240;
+        else if (filename.startsWith('index')) score += 220;
+        else score += 100;
+        return score - depth * 20;
+      }
+
+      function scoreUgsCover(repoPath) {
+        const filename = repoPath.split('/').pop().toLowerCase();
+        let score = 0;
+        if (filename.startsWith('cover.')) score += 50;
+        else if (filename.startsWith('thumb')) score += 40;
+        else if (filename.startsWith('logo.')) score += 35;
+        else if (filename.startsWith('icon.')) score += 30;
+        else if (filename.startsWith('favicon.')) score += 15;
+        if (/\.(png|webp|jpe?g)$/i.test(filename)) score += 10;
+        return score;
+      }
+
+      function parseUgsTree(treeItems) {
+        if (!Array.isArray(treeItems)) return [];
+        const coverMap = new Map();
+        const byFolder = new Map();
+        const standalone = [];
+
+        for (const item of treeItems) {
+          if (!item || item.type !== 'blob' || typeof item.path !== 'string') continue;
+          const p = item.path.replace(/^\/+/, '');
+          if (!p) continue;
+
+          const coverMatch = p.match(/^([^/]+)\/(?:icon|logo|cover|thumb|thumbnail|favicon)\.(?:png|jpe?g|webp|svg|ico)$/i);
+          if (coverMatch) {
+            const folder = coverMatch[1];
+            const sc = scoreUgsCover(p);
+            const prev = coverMap.get(folder);
+            if (!prev || sc > prev.score) coverMap.set(folder, { path: p, score: sc });
+            continue;
+          }
+
+          if (!/\.html?$/i.test(p)) continue;
+          const parts = p.split('/');
+          const filename = parts[parts.length - 1].toLowerCase();
+          if (UGS_EXCLUDED_FILES.has(filename)) continue;
+          const subdirs = parts.slice(1, -1);
+          if (subdirs.some(dir => UGS_EXCLUDED_DIRS.has(dir.toLowerCase()) || dir.toLowerCase() === 'old')) continue;
+          const topFolder = parts[0];
+          if (UGS_EXCLUDED_DIRS.has(topFolder.toLowerCase())) continue;
+
+          if (parts.length === 1) {
+            const slug = p.replace(/\.html?$/i, '');
+            standalone.push({
+              id: 'ugs:' + p,
+              name: formatUgsTitle(p),
+              folder: slug,
+              path: p,
+              url: buildUgsCdnUrl(p),
+              baseUrl: getUgsFolderBaseUrl(p),
+              cover: null,
+              featured: UGS_POPULAR_SLUGS.has(slug.toLowerCase())
+            });
+            continue;
+          }
+
+          const arr = byFolder.get(topFolder) || [];
+          arr.push({ path: p, score: scoreUgsEntry(p) });
+          byFolder.set(topFolder, arr);
+        }
+
+        const out = standalone.slice();
+        for (const [folder, cands] of byFolder.entries()) {
+          cands.sort((a, b) => b.score - a.score || a.path.localeCompare(b.path));
+          const best = cands[0];
+          const cov = coverMap.get(folder);
+            out.push({
+            id: 'ugs:' + folder,
+            provider: 'ugs',
+            name: formatUgsTitle(folder),
+            folder,
+            path: best.path,
+            url: buildUgsCdnUrl(best.path),
+            baseUrl: getUgsFolderBaseUrl(best.path),
+            cover: cov ? buildUgsCdnUrl(cov.path) : null,
+            featured: UGS_POPULAR_SLUGS.has(folder.toLowerCase())
+          });
+        }
+        return out;
+      }
+
+      const FALLBACK_UGS_ITEMS = [
+        { path: '10minutestilldawn/index.html', cover: '10minutestilldawn/icon.png' },
+        { path: 'slope 3/index.html' },
+        { path: 'slope 2 player/index.html' },
+        { path: 'retro bowl/new.html' },
+        { path: 'cookieclicker/index.html' },
+        { path: 'drift-hunters/index.html', cover: 'drift-hunters/favicon.ico' },
+        { path: 'snow-rider/index.html' },
+        { path: 'monkey mart v6.3/index.html' },
+        { path: 'stickman hook/index.html' },
+        { path: 'BurritoBison-main/index.html' },
+        { path: 'doodle jump/index.html', cover: 'doodle jump/favicon.ico' },
+        { path: 'big 2048/index.html', cover: 'big 2048/favicon.ico' },
+        { path: 'basketball-superstars/index.html' },
+        { path: 'bouncy basketball/index.html' },
+        { path: 'adventure-capitalist/index.html', cover: 'adventure-capitalist/logo.webp' },
+        { path: '3dash/index.html', cover: '3dash/logo.png' },
+        { path: '2doom/index.html' },
+        { path: 'russian-buckshot/index.html' },
+        { path: 'ovomod/index.html' },
+        { path: 'ages of conflict/index.html' }
+      ];
+
+      function buildFallbackUgsGames() {
+        return FALLBACK_UGS_ITEMS.map(item => {
+          const folder = item.path.split('/')[0];
+          return {
+            id: 'ugs:' + folder,
+            provider: 'ugs',
+            name: formatUgsTitle(folder),
+            folder,
+            path: item.path,
+            url: buildUgsCdnUrl(item.path),
+            baseUrl: getUgsFolderBaseUrl(item.path),
+            cover: item.cover ? buildUgsCdnUrl(item.cover) : null,
+            featured: true
+          };
+        });
+      }
+
+      /* ---------------- CKV LIBRARY (WanoCapy/ChickenKingsVault) ---------------- */
+      const CKV_POPULAR_STEMS = new Set([
+        '2048', '1v1lol', 'retrobowl', 'cookieclicker', 'basketrandom', 'driftboss',
+        'drifthunters', 'snowrider3d', 'stickmanhook', 'monkeymart', 'subwaysurfers',
+        'run3', 'motox3m', 'geometrydash', 'chessclassic', 'drivemad', 'crossyroad',
+        'flappybird', 'doodlejump', 'tetris'
+      ]);
+
+      function formatCkvTitle(repoPath) {
+        let raw = String(repoPath || '').trim();
+        if (!raw) return 'Untitled Game';
+        raw = raw
+          .replace(/^gamefiles\//i, '')
+          .replace(/\.html?$/i, '')
+          .replace(/[-_]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!raw) return 'Untitled Game';
+        return raw.split(' ').map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : '').join(' ');
+      }
+
+      function normalizeStemKey(str) {
+        return String(str || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      }
+
+      function scoreCkvImageExt(p) {
+        const lower = p.toLowerCase();
+        if (lower.endsWith('.png')) return 5;
+        if (lower.endsWith('.webp')) return 4;
+        if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 3;
+        if (lower.endsWith('.avif')) return 2;
+        return 1;
+      }
+
+      function buildCkvCdnUrl(repoPath, cdnBase) {
+        const base = (cdnBase || CKV_CDN_BASE).replace(/\/+$/, '');
+        return base + '/' + encodeCdnPath(String(repoPath || '').replace(/^\/+/, ''));
+      }
+
+      function parseCkvTree(treeItems, cdnBase) {
+        if (!Array.isArray(treeItems)) return [];
+        const base = (cdnBase || CKV_CDN_BASE).replace(/\/+$/, '');
+        const exactImgs = new Map();
+        const normImgs = new Map();
+
+        for (const item of treeItems) {
+          if (!item || item.type !== 'blob' || typeof item.path !== 'string') continue;
+          const p = item.path.replace(/^\/+/, '');
+          if (!/^gameimages\/.+\.(?:png|jpe?g|webp|avif|jfif|gif|svg|ico)$/i.test(p)) continue;
+          const stem = p.slice('gameimages/'.length).replace(/\.[^.]+$/, '');
+          const exactKey = stem.toLowerCase();
+          const prevExact = exactImgs.get(exactKey);
+          if (!prevExact || scoreCkvImageExt(p) > scoreCkvImageExt(prevExact)) exactImgs.set(exactKey, p);
+          const normKey = normalizeStemKey(stem);
+          if (normKey) {
+            const prevNorm = normImgs.get(normKey);
+            if (!prevNorm || scoreCkvImageExt(p) > scoreCkvImageExt(prevNorm)) normImgs.set(normKey, p);
+          }
+        }
+
+        const ckvBaseUrl = base + '/gamefiles/';
+        const entries = [];
+        for (const item of treeItems) {
+          if (!item || item.type !== 'blob' || typeof item.path !== 'string') continue;
+          const p = item.path.replace(/^\/+/, '');
+          if (!/^gamefiles\/.+\.html?$/i.test(p)) continue;
+          const stem = p.slice('gamefiles/'.length).replace(/\.html?$/i, '');
+          const exactKey = stem.toLowerCase();
+          const normKey = normalizeStemKey(stem);
+          const matchedImg = exactImgs.get(exactKey) || (normKey ? normImgs.get(normKey) : undefined);
+
+          entries.push({
+            id: 'ckv:' + p,
+            provider: 'ckv',
+            name: formatCkvTitle(p),
+            path: p,
+            url: buildCkvCdnUrl(p, base),
+            baseUrl: ckvBaseUrl,
+            cover: matchedImg ? buildCkvCdnUrl(matchedImg, base) : null,
+            featured: CKV_POPULAR_STEMS.has(normKey)
+          });
+        }
+        return entries;
+      }
+
+      const FALLBACK_CKV_ITEMS = [
+        { path: 'gamefiles/2048 Merge Run.html', cover: 'gameimages/2048mergerun.png' },
+        { path: 'gamefiles/1v1.LoL.html', cover: 'gameimages/1v1.lol.webp' },
+        { path: 'gamefiles/Retro Bowl.html', cover: 'gameimages/retrobowl.png' },
+        { path: 'gamefiles/Cookie Clicker.html', cover: 'gameimages/cookieclicker.png' },
+        { path: 'gamefiles/Basket Random.html', cover: 'gameimages/basketrandom.png' },
+        { path: 'gamefiles/Drift Boss.html', cover: 'gameimages/driftboss.jpg' },
+        { path: 'gamefiles/Drift Hunters.html', cover: 'gameimages/drifthunters.png' },
+        { path: 'gamefiles/Snow Rider 3D.html', cover: 'gameimages/snowrider3d.webp' },
+        { path: 'gamefiles/Stickman Hook.html', cover: 'gameimages/stickmanhook.jfif' },
+        { path: 'gamefiles/Monkey Mart.html', cover: 'gameimages/monkeymart.jpg' },
+        { path: 'gamefiles/Subway Surfers.html', cover: 'gameimages/subwaysurfers.png' },
+        { path: 'gamefiles/Run 3.html', cover: 'gameimages/run3.jpg' },
+        { path: 'gamefiles/Moto X3M.html', cover: 'gameimages/motox3m.png' },
+        { path: 'gamefiles/Geometry Dash.html', cover: 'gameimages/geometrydash.png' },
+        { path: 'gamefiles/Chess Classic.html', cover: 'gameimages/chessclassic.png' },
+        { path: 'gamefiles/Drive Mad.html', cover: 'gameimages/drivemad.png' },
+        { path: 'gamefiles/Crossy Road.html', cover: 'gameimages/crossyroad.jpg' },
+        { path: 'gamefiles/Flappy Bird.html', cover: 'gameimages/flappybird.jpg' },
+        { path: 'gamefiles/Doodle Jump.html', cover: 'gameimages/doodlejump.jpg' },
+        { path: 'gamefiles/Tetris.html', cover: 'gameimages/tetris.png' }
+      ];
+
+      function buildFallbackCkvGames() {
+        const ckvBaseUrl = CKV_CDN_BASE + '/gamefiles/';
+        return FALLBACK_CKV_ITEMS.map(item => {
+          const stem = item.path.slice('gamefiles/'.length).replace(/\.html?$/i, '');
+          const coverRel = item.cover || ('gameimages/' + stem + '.png');
+          return {
+            id: 'ckv:' + item.path,
+            provider: 'ckv',
+            name: formatCkvTitle(item.path),
+            path: item.path,
+            url: buildCkvCdnUrl(item.path, CKV_CDN_BASE),
+            baseUrl: ckvBaseUrl,
+            cover: buildCkvCdnUrl(coverRel, CKV_CDN_BASE),
+            featured: true
+          };
+        });
+      }
+
+      function serializeCkvCache(entries, cdnBase) {
+        const basePrefix = (cdnBase || CKV_CDN_BASE).replace(/\/+$/, '') + '/';
+        const items = entries.map(e => {
+          let i = null;
+          if (e.cover && e.cover.startsWith(basePrefix)) {
+            i = e.cover.slice(basePrefix.length).split('/').map(s => {
+              try { return decodeURIComponent(s); } catch (err) { return s; }
+            }).join('/');
+          }
+          return i ? { p: e.path, i } : { p: e.path };
+        });
+        return JSON.stringify({ savedAt: Date.now(), cdnBase: cdnBase || CKV_CDN_BASE, items });
+      }
+
+      function deserializeCkvCache(rawJson) {
+        if (!rawJson) return null;
+        try {
+          const parsed = JSON.parse(rawJson);
+          if (!parsed || typeof parsed.savedAt !== 'number' || !Array.isArray(parsed.items)) return null;
+          if (Date.now() - parsed.savedAt > CATALOG_CACHE_TTL_MS) return null;
+          const cdnBase = (parsed.cdnBase || CKV_CDN_BASE).replace(/\/+$/, '');
+          const baseUrl = cdnBase + '/gamefiles/';
+          const list = [];
+          for (const row of parsed.items) {
+            if (!row || typeof row.p !== 'string') continue;
+            const stem = row.p.slice('gamefiles/'.length).replace(/\.html?$/i, '');
+            list.push({
+              id: 'ckv:' + row.p,
+              provider: 'ckv',
+              name: formatCkvTitle(row.p),
+              path: row.p,
+              url: buildCkvCdnUrl(row.p, cdnBase),
+              baseUrl,
+              cover: row.i ? buildCkvCdnUrl(row.i, cdnBase) : null,
+              featured: CKV_POPULAR_STEMS.has(normalizeStemKey(stem))
+            });
+          }
+          return list.length > 0 ? list : null;
+        } catch (err) {
+          return null;
+        }
+      }
+
       function ensureBaseHref(rawHtml, baseHref) {
-        if (/<base\b[^>]*href=/i.test(rawHtml)) return rawHtml;
+        if (/<base\b[^>]*href=/i.test(rawHtml)) {
+          return rawHtml;
+        }
         if (/<head\b[^>]*>/i.test(rawHtml)) {
           return rawHtml.replace(/(<head\b[^>]*>)/i, '$1<base href="' + baseHref + '">');
         }
@@ -3221,21 +3941,13 @@
           var nativeSetTimeout=window.setTimeout.bind(window);
           var nativeClearTimeout=window.clearTimeout.bind(window);
           var nativeSetInterval=window.setInterval.bind(window);
-          var channel=typeof MessageChannel!=="undefined"?new MessageChannel():null;
           var rafQueue=new Map();
           var nextRafId=1;
           var pumpScheduled=false;
-          var lastPaintYield=performance.now();
           function schedulePump(){
             if(pumpScheduled)return;
             pumpScheduled=true;
-            var now=performance.now();
-            if(channel&&(now-lastPaintYield)<8){
-              channel.port2.postMessage(null);
-            }else{
-              lastPaintYield=now;
-              nativeSetTimeout(flushRaf,0);
-            }
+            nativeSetTimeout(flushRaf,0);
           }
           function flushRaf(){
             pumpScheduled=false;
@@ -3248,7 +3960,6 @@
             });
             if(rafQueue.size>0){schedulePump();}
           }
-          if(channel){channel.port1.onmessage=flushRaf;}
           window.requestAnimationFrame=function(cb){
             if(typeof cb!=="function")return 0;
             var id=nextRafId++;
@@ -3294,8 +4005,8 @@
         return '<script data-gn-fps="unlimited">' + scriptCode + '<\/script>';
       }
 
-      function prepareZoneHtml(rawHtml) {
-        const html = ensureBaseHref(rawHtml, htmlURL + "/");
+      function prepareZoneHtml(rawHtml, baseHref) {
+        const html = ensureBaseHref(rawHtml, baseHref || (UGS_CDN_BASE + '/'));
         if (!unlimitedFps) return html;
         const fpsTag = getFpsUnlockTag();
         if (/<base\b[^>]*>/i.test(html)) {
@@ -3320,91 +4031,91 @@
         renderActiveList();
       }
 
+      function cleanGameAuthor(author) {
+        const val = String(author || '').trim();
+        if (!val) return '';
+        if (/gn[\s._-]*math|freebuisness|bubbls|ugs|ckv|wanocapy|chickenkingsvault|jsdelivr|github/i.test(val)) return '';
+        return val;
+      }
+
+      function normalizeTitleKey(title) {
+        return String(title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      }
+
+      function mergeUnifiedCatalogs(gnGames, ugsGames, ckvGames) {
+        const seen = new Set();
+        const merged = [];
+        const groups = [gnGames || [], ugsGames || [], ckvGames || []];
+        for (const list of groups) {
+          for (const item of list) {
+            if (!item || !item.name || !item.url) continue;
+            const key = normalizeTitleKey(item.name);
+            if (key && seen.has(key)) continue;
+            if (key) seen.add(key);
+            merged.push(item);
+          }
+        }
+        return merged;
+      }
+
+      function updateSearchPlaceholder() {
+        if (!searchBar) return;
+        if (activeGamesTab === 'gn') {
+          searchBar.placeholder = 'Search ' + rawCatalogs.gn.length + ' GN-Math games...';
+        } else if (activeGamesTab === 'ugs') {
+          searchBar.placeholder = 'Search ' + rawCatalogs.ugs.length + ' UGS games...';
+        } else if (activeGamesTab === 'ckv') {
+          searchBar.placeholder = 'Search ' + rawCatalogs.ckv.length + ' CKV games...';
+        } else {
+          searchBar.placeholder = 'Search ' + zones.length + ' games...';
+        }
+      }
+
       function getFilteredZones() {
         const query = (searchBar.value || '').trim().toLowerCase();
-        const tag = filterOptions.value;
-        let list = zones.slice();
-        if (activeGamesTab === 'featured') list = list.filter(z => Boolean(z.featured));
-        else if (activeGamesTab === 'favorites') list = list.filter(z => isFavorite(z.id));
-        if (tag && tag !== 'none') list = list.filter(z => Array.isArray(z.special) && z.special.includes(tag));
+        const filterVal = filterOptions.value;
+        let baseList;
+        if (activeGamesTab === 'gn') baseList = rawCatalogs.gn.slice();
+        else if (activeGamesTab === 'ugs') baseList = rawCatalogs.ugs.slice();
+        else if (activeGamesTab === 'ckv') baseList = rawCatalogs.ckv.slice();
+        else baseList = zones.slice();
+
+        if (activeGamesTab === 'featured') baseList = baseList.filter(z => Boolean(z.featured));
+        else if (activeGamesTab === 'favorites') baseList = baseList.filter(z => isFavorite(z.id));
+
+        if (filterVal === 'covers') baseList = baseList.filter(z => Boolean(z.cover));
+        else if (filterVal && filterVal !== 'none') baseList = baseList.filter(z => Array.isArray(z.special) && z.special.includes(filterVal));
+
         if (query) {
-          list = list.filter(z =>
+          baseList = baseList.filter(z =>
             (z.name && z.name.toLowerCase().includes(query)) ||
             (z.author && z.author.toLowerCase().includes(query))
           );
         }
-        return list;
+        return baseList;
       }
 
       function renderActiveList() {
+        updateSearchPlaceholder();
         displayZones(getFilteredZones());
       }
 
-      async function listZones() {
-        const refreshBtn = document.getElementById('refresh');
-        if (refreshBtn) {
-          refreshBtn.classList.remove('spinning');
-          void refreshBtn.offsetWidth;
-          refreshBtn.classList.add('spinning');
-        }
+      async function fetchWithTimeout(url, options, timeoutMs) {
+        const ms = typeof timeoutMs === 'number' ? timeoutMs : 7000;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), ms);
         try {
-          let sharesponse;
-          try {
-            sharesponse = await fetch("https://api.github.com/repos/freebuisness/assets/commits?t=" + Date.now());
-          } catch (error) {}
-          if (sharesponse && sharesponse.status === 200) {
-            try {
-              const shajson = await sharesponse.json();
-              const sha = shajson[0]['sha'];
-              if (sha) zonesURL = `https://cdn.jsdelivr.net/gh/freebuisness/assets@${sha}/zones.json`;
-            } catch (error) {
-              try {
-                const secRes = await fetch("https://raw.githubusercontent.com/freebuisness/xml/refs/heads/main/sha.txt?t=" + Date.now());
-                if (secRes && secRes.status === 200) {
-                  const sha = (await secRes.text()).trim();
-                  if (sha) zonesURL = `https://cdn.jsdelivr.net/gh/freebuisness/assets@${sha}/zones.json`;
-                }
-              } catch (err) {}
-            }
-          }
-
-          const response = await fetch(zonesURL + "?t=" + Date.now());
-          const json = await response.json();
-          zones = json;
-          if (zones.length > 0) zones[0].featured = true;
-          await Promise.all([
-            fetchPopularity("year"),
-            fetchPopularity("month"),
-            fetchPopularity("week"),
-            fetchPopularity("day")
-          ]);
-          sortZones();
-
-          let alltags = [];
-          for (const obj of json) {
-            if (Array.isArray(obj.special)) alltags.push(...obj.special);
-          }
-          alltags = [...new Set(alltags)];
-          while (filterOptions.children.length > 1) {
-            filterOptions.removeChild(filterOptions.lastElementChild);
-          }
-          for (const tag of alltags) {
-            const opt = document.createElement("option");
-            opt.value = tag;
-            opt.textContent = toTitleCase(tag);
-            filterOptions.appendChild(opt);
-          }
-        } catch (error) {
-          zoneCountEl.textContent = 'Offline or unavailable';
-          emptyState.textContent = 'Could not load remote catalog while offline. Calculator, Notepad, and Focus Timer remain fully available.';
-          emptyState.classList.remove('hidden');
+          const opts = Object.assign({}, options || {}, { signal: controller.signal });
+          return await fetch(url, opts);
+        } finally {
+          clearTimeout(timer);
         }
       }
 
       async function fetchPopularity(duration) {
         try {
           if (!popularityData[duration]) popularityData[duration] = {};
-          const response = await fetch("https://data.jsdelivr.com/v1/stats/packages/gh/freebuisness/html@main/files?period=" + duration);
+          const response = await fetchWithTimeout("https://data.jsdelivr.com/v1/stats/packages/gh/freebuisness/html@main/files?period=" + duration, {}, 5000);
           const data = await response.json();
           data.forEach(file => {
             const idMatch = file.name.match(/\/(\d+)\.html$/);
@@ -3414,27 +4125,357 @@
           });
         } catch (error) {
           if (!popularityData[duration]) popularityData[duration] = {};
-          popularityData[duration][0] = 0;
         }
       }
 
+      async function fetchPrimaryCatalog() {
+        try {
+          let sharesponse;
+          try {
+            sharesponse = await fetchWithTimeout("https://api.github.com/repos/freebuisness/assets/commits?t=" + Date.now(), {}, 5000);
+          } catch (error) {}
+          if (sharesponse && sharesponse.status === 200) {
+            try {
+              const shajson = await sharesponse.json();
+              const sha = shajson[0]['sha'];
+              if (sha) zonesURL = `https://cdn.jsdelivr.net/gh/freebuisness/assets@${sha}/zones.json`;
+            } catch (error) {
+              try {
+                const secRes = await fetchWithTimeout("https://raw.githubusercontent.com/freebuisness/xml/refs/heads/main/sha.txt?t=" + Date.now(), {}, 4000);
+                if (secRes && secRes.status === 200) {
+                  const sha = (await secRes.text()).trim();
+                  if (sha) zonesURL = `https://cdn.jsdelivr.net/gh/freebuisness/assets@${sha}/zones.json`;
+                }
+              } catch (err) {}
+            }
+          }
+
+          const response = await fetchWithTimeout(zonesURL + "?t=" + Date.now(), {}, 8000);
+          if (!response.ok) return { ok: false, items: [] };
+          const json = await response.json();
+          if (!Array.isArray(json)) return { ok: false, items: [] };
+
+          const items = json
+            .filter(z => z && typeof z.id === 'number' && z.id >= 0 && typeof z.url === 'string' && z.url.includes('{HTML_URL}') && !/discord\.gg|suggest games/i.test(z.name || ''))
+            .map((z, idx) => ({
+              id: String(z.id),
+              numericId: z.id,
+              provider: 'gn',
+              name: String(z.name || 'Untitled').trim(),
+              author: cleanGameAuthor(z.author),
+              special: Array.isArray(z.special) ? z.special : [],
+              url: z.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL),
+              baseUrl: htmlURL + "/",
+              cover: z.cover ? z.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL) : null,
+              featured: Boolean(z.featured) || idx === 0
+            }));
+
+          await Promise.all([
+            fetchPopularity("year"),
+            fetchPopularity("month"),
+            fetchPopularity("week"),
+            fetchPopularity("day")
+          ]);
+          return { ok: true, items };
+        } catch (err) {
+          return { ok: false, items: [] };
+        }
+      }
+
+      async function fetchSecondaryCatalog(forceRefresh) {
+        if (!forceRefresh) {
+          try {
+            const cachedRaw = safeCache.get(STORAGE_KEYS.ugsCache);
+            if (cachedRaw) {
+              const cached = JSON.parse(cachedRaw);
+              if (cached && typeof cached.savedAt === 'number' && (Date.now() - cached.savedAt <= CATALOG_CACHE_TTL_MS) && Array.isArray(cached.items) && cached.items.length > 0) {
+                return { ok: true, items: cached.items };
+              }
+            }
+          } catch (err) {}
+        }
+
+        for (const entry of UGS_TREE_URLS) {
+          try {
+            const response = await fetchWithTimeout(entry.url, {
+              headers: { 'Accept': 'application/vnd.github+json' }
+            }, 6500);
+            if (!response.ok) continue;
+            const json = await response.json();
+            if (json && Array.isArray(json.tree)) {
+              const candidate = parseUgsTree(json.tree);
+              if (candidate.length > 0) {
+                try {
+                  safeCache.set(STORAGE_KEYS.ugsCache, JSON.stringify({ savedAt: Date.now(), items: candidate }));
+                } catch (err) {}
+                return { ok: true, items: candidate };
+              }
+            }
+          } catch (err) {}
+        }
+        return { ok: false, items: buildFallbackUgsGames() };
+      }
+
+      async function fetchCkvCatalog(forceRefresh) {
+        if (!forceRefresh) {
+          const cached = deserializeCkvCache(safeCache.get(STORAGE_KEYS.ckvCache));
+          if (cached && cached.length > 0) {
+            return { ok: true, items: cached };
+          }
+        }
+
+        for (const entry of CKV_TREE_URLS) {
+          try {
+            const response = await fetchWithTimeout(entry.url, {
+              headers: { 'Accept': 'application/vnd.github+json' }
+            }, 6500);
+            if (!response.ok) continue;
+            const json = await response.json();
+            if (json && Array.isArray(json.tree)) {
+              const cdnBase = "https://cdn.jsdelivr.net/gh/WanoCapy/ChickenKingsVault@" + entry.branch;
+              const candidate = parseCkvTree(json.tree, cdnBase);
+              if (candidate.length > 0) {
+                try {
+                  safeCache.set(STORAGE_KEYS.ckvCache, serializeCkvCache(candidate, cdnBase));
+                } catch (err) {}
+                return { ok: true, items: candidate };
+              }
+            }
+          } catch (err) {}
+        }
+        return { ok: false, items: buildFallbackCkvGames() };
+      }
+
+      async function listZones(forceRefresh) {
+        const refreshBtn = document.getElementById('refresh');
+        if (refreshBtn) {
+          refreshBtn.classList.remove('spinning');
+          void refreshBtn.offsetWidth;
+          refreshBtn.classList.add('spinning');
+        }
+        if (ugsLoadingEl) ugsLoadingEl.classList.remove('hidden');
+        if (ugsFallbackBannerEl) ugsFallbackBannerEl.classList.add('hidden');
+        container.innerHTML = '';
+        if (loadMoreWrap) loadMoreWrap.classList.add('hidden');
+        emptyState.classList.add('hidden');
+        zoneCountEl.textContent = 'Loading catalog...';
+        searchBar.placeholder = 'Loading games...';
+
+        const [primaryRes, secondaryRes, ckvRes] = await Promise.all([
+          fetchPrimaryCatalog(),
+          fetchSecondaryCatalog(Boolean(forceRefresh)),
+          fetchCkvCatalog(Boolean(forceRefresh))
+        ]);
+
+        if (ugsLoadingEl) ugsLoadingEl.classList.add('hidden');
+
+        rawCatalogs = {
+          gn: primaryRes.items,
+          ugs: secondaryRes.items,
+          ckv: ckvRes.items
+        };
+
+        const failedProviders = [];
+        if (!primaryRes.ok) failedProviders.push('GN-Math');
+        if (!secondaryRes.ok) failedProviders.push('UGS');
+        if (!ckvRes.ok) failedProviders.push('CKV');
+        isFallbackCatalog = failedProviders.length > 0;
+
+        zones = mergeUnifiedCatalogs(rawCatalogs.gn, rawCatalogs.ugs, rawCatalogs.ckv);
+
+        if (ugsFallbackBannerEl) {
+          if (isFallbackCatalog && ugsFallbackTextEl) {
+            ugsFallbackTextEl.innerHTML = '<strong>Fallback Mode (' + failedProviders.join(', ') + '):</strong> GitHub API rate limit or network pause detected — showing built-in popular fallback games for ' + failedProviders.join(', ') + '.';
+          }
+          ugsFallbackBannerEl.classList.toggle('hidden', !isFallbackCatalog);
+        }
+
+        const alltags = [];
+        for (const obj of zones) {
+          if (Array.isArray(obj.special)) alltags.push(...obj.special);
+        }
+        const uniqueTags = [...new Set(alltags)];
+        while (filterOptions.children.length > 2) {
+          filterOptions.removeChild(filterOptions.lastElementChild);
+        }
+        for (const tag of uniqueTags) {
+          const opt = document.createElement("option");
+          opt.value = tag;
+          opt.textContent = toTitleCase(tag);
+          filterOptions.appendChild(opt);
+        }
+
+        updateSearchPlaceholder();
+        sortZones();
+      }
+
+      function sortComparator(sortBy) {
+        if (sortBy === 'name-desc') {
+          return (a, b) => b.name.localeCompare(a.name);
+        }
+        if (sortBy === 'id') {
+          return (a, b) => {
+            const an = typeof a.numericId === 'number' ? a.numericId : Number.MAX_SAFE_INTEGER;
+            const bn = typeof b.numericId === 'number' ? b.numericId : Number.MAX_SAFE_INTEGER;
+            return an - bn || a.name.localeCompare(b.name);
+          };
+        }
+        if (sortBy === 'popular') {
+          return (a, b) => ((popularityData['year']?.[b.numericId]) ?? -1) - ((popularityData['year']?.[a.numericId]) ?? -1) || (Number(b.featured) - Number(a.featured)) || a.name.localeCompare(b.name);
+        }
+        if (sortBy === 'trendingMonth') {
+          return (a, b) => ((popularityData['month']?.[b.numericId]) ?? -1) - ((popularityData['month']?.[a.numericId]) ?? -1) || (Number(b.featured) - Number(a.featured)) || a.name.localeCompare(b.name);
+        }
+        if (sortBy === 'trendingWeek') {
+          return (a, b) => ((popularityData['week']?.[b.numericId]) ?? -1) - ((popularityData['week']?.[a.numericId]) ?? -1) || (Number(b.featured) - Number(a.featured)) || a.name.localeCompare(b.name);
+        }
+        if (sortBy === 'trendingDay') {
+          return (a, b) => ((popularityData['day']?.[b.numericId]) ?? -1) - ((popularityData['day']?.[a.numericId]) ?? -1) || (Number(b.featured) - Number(a.featured)) || a.name.localeCompare(b.name);
+        }
+        return (a, b) => a.name.localeCompare(b.name);
+      }
+
       function sortZones() {
-        const sortBy = sortOptions.value;
-        if (sortBy === 'name') zones.sort((a, b) => a.name.localeCompare(b.name));
-        else if (sortBy === 'id') zones.sort((a, b) => a.id - b.id);
-        else if (sortBy === 'popular') zones.sort((a, b) => ((popularityData['year']?.[b.id]) ?? 0) - ((popularityData['year']?.[a.id]) ?? 0));
-        else if (sortBy === 'trendingMonth') zones.sort((a, b) => ((popularityData['month']?.[b.id]) ?? 0) - ((popularityData['month']?.[a.id]) ?? 0));
-        else if (sortBy === 'trendingWeek') zones.sort((a, b) => ((popularityData['week']?.[b.id]) ?? 0) - ((popularityData['week']?.[a.id]) ?? 0));
-        else if (sortBy === 'trendingDay') zones.sort((a, b) => ((popularityData['day']?.[b.id]) ?? 0) - ((popularityData['day']?.[a.id]) ?? 0));
-        zones.sort((a, b) => (a.id === -1 ? -1 : b.id === -1 ? 1 : 0));
+        const cmp = sortComparator(sortOptions.value);
+        rawCatalogs.gn.sort(cmp);
+        rawCatalogs.ugs.sort(cmp);
+        rawCatalogs.ckv.sort(cmp);
+        zones.sort(cmp);
         renderActiveList();
       }
 
-      function displayZones(zonesList) {
-        container.innerHTML = "";
-        zoneCountEl.textContent = `${zonesList.length} ${zonesList.length === 1 ? 'title' : 'titles'}`;
+      function getGameInitials(title) {
+        const words = String(title || '').split(/\s+/).filter(Boolean);
+        if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+        return String(title || 'GM').slice(0, 2).toUpperCase();
+      }
 
-        if (zonesList.length === 0) {
+      function createZoneCardElement(file, index) {
+        const card = document.createElement('div');
+        card.className = 'zone-card';
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.style.animationDelay = Math.min(index % RENDER_BATCH_SIZE, 18) * 14 + 'ms';
+
+        const thumbWrap = document.createElement('div');
+        thumbWrap.className = 'zone-thumb-wrap' + (file.cover ? '' : ' broken');
+
+        if (file.cover) {
+          const img = document.createElement('img');
+          img.dataset.src = file.cover;
+          img.alt = file.name;
+          img.loading = 'lazy';
+          img.referrerPolicy = 'no-referrer';
+          img.className = 'zone-thumb lazy-zone-img';
+          img.onerror = function () { thumbWrap.classList.add('broken'); };
+          thumbWrap.appendChild(img);
+        }
+
+        const fallback = document.createElement('div');
+        fallback.className = 'zone-thumb-fallback';
+        const monogram = document.createElement('span');
+        monogram.className = 'zone-thumb-monogram';
+        monogram.textContent = getGameInitials(file.name);
+        const lbl = document.createElement('span');
+        lbl.className = 'zone-thumb-label';
+        lbl.textContent = PROVIDER_LABELS[file.provider] || (file.featured ? 'Popular Pick' : 'Arcade');
+        fallback.appendChild(monogram);
+        fallback.appendChild(lbl);
+
+        const favActive = isFavorite(file.id);
+        const favBtn = document.createElement('button');
+        favBtn.type = 'button';
+        favBtn.className = 'fav-toggle' + (favActive ? ' active' : '');
+        favBtn.setAttribute('aria-label', (favActive ? 'Remove ' : 'Favorite ') + file.name);
+        favBtn.title = favActive ? 'Remove from Favorites' : 'Add to Favorites';
+        favBtn.textContent = favActive ? '\u2605' : '\u2606';
+        favBtn.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          toggleFavorite(file.id);
+        });
+
+        thumbWrap.appendChild(fallback);
+        thumbWrap.appendChild(favBtn);
+
+        const body = document.createElement('div');
+        body.className = 'zone-card-body';
+
+        const title = document.createElement('h3');
+        title.className = 'zone-card-title';
+        title.textContent = file.name;
+        body.appendChild(title);
+
+        const metaParts = [];
+        if (PROVIDER_LABELS[file.provider]) metaParts.push(PROVIDER_LABELS[file.provider]);
+        if (file.author) metaParts.push(file.author);
+        if (Array.isArray(file.special) && file.special.length) metaParts.push(toTitleCase(file.special[0]));
+        if (metaParts.length > 0) {
+          const meta = document.createElement('div');
+          meta.className = 'zone-card-meta';
+          meta.textContent = metaParts.join(' \u00B7 ');
+          body.appendChild(meta);
+        }
+
+        card.appendChild(thumbWrap);
+        card.appendChild(body);
+        card.addEventListener('click', () => openZone(file));
+        card.addEventListener('keydown', ev => {
+          if (ev.key === 'Enter' || ev.key === ' ') {
+            ev.preventDefault();
+            openZone(file);
+          }
+        });
+        return card;
+      }
+
+      function appendNextZoneBatch() {
+        if (renderedOffset >= currentRenderedList.length) {
+          if (loadMoreWrap) loadMoreWrap.classList.add('hidden');
+          return;
+        }
+        const slice = currentRenderedList.slice(renderedOffset, renderedOffset + RENDER_BATCH_SIZE);
+        const fragment = document.createDocumentFragment();
+        const newLazyImages = [];
+        slice.forEach((file, idx) => {
+          const card = createZoneCardElement(file, renderedOffset + idx);
+          const lazyImg = card.querySelector('img.lazy-zone-img');
+          if (lazyImg) newLazyImages.push(lazyImg);
+          fragment.appendChild(card);
+        });
+        renderedOffset += slice.length;
+        container.appendChild(fragment);
+
+        if (lazyImgObserver && newLazyImages.length > 0) {
+          newLazyImages.forEach(img => lazyImgObserver.observe(img));
+        }
+        if (loadMoreWrap) {
+          const remaining = currentRenderedList.length - renderedOffset;
+          if (remaining > 0) {
+            if (loadMoreBtn) loadMoreBtn.textContent = 'Load More (' + remaining + ' remaining)';
+            loadMoreWrap.classList.remove('hidden');
+          } else {
+            loadMoreWrap.classList.add('hidden');
+          }
+        }
+      }
+
+      function displayZones(zonesList) {
+        if (lazyImgObserver) {
+          lazyImgObserver.disconnect();
+          lazyImgObserver = null;
+        }
+        if (scrollSentinelObserver) {
+          scrollSentinelObserver.disconnect();
+          scrollSentinelObserver = null;
+        }
+
+        container.innerHTML = "";
+        currentRenderedList = zonesList || [];
+        renderedOffset = 0;
+        zoneCountEl.textContent = currentRenderedList.length + ' ' + (currentRenderedList.length === 1 ? 'title' : 'titles');
+
+        if (currentRenderedList.length === 0) {
+          if (loadMoreWrap) loadMoreWrap.classList.add('hidden');
           emptyState.textContent = activeGamesTab === 'favorites'
             ? 'No favorited games yet. Click the star on any game cover to pin it here.'
             : 'No games match your search or tag filter.';
@@ -3443,80 +4484,7 @@
         }
 
         emptyState.classList.add('hidden');
-        const fragment = document.createDocumentFragment();
-
-        zonesList.forEach((file, index) => {
-          const card = document.createElement('div');
-          card.className = 'zone-card';
-          card.setAttribute('role', 'button');
-          card.setAttribute('tabindex', '0');
-          card.style.animationDelay = Math.min(index, 24) * 16 + 'ms';
-
-          const thumbWrap = document.createElement('div');
-          thumbWrap.className = 'zone-thumb-wrap';
-
-          const img = document.createElement('img');
-          img.dataset.src = file.cover.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
-          img.alt = file.name;
-          img.loading = 'lazy';
-          img.referrerPolicy = 'no-referrer';
-          img.className = 'zone-thumb lazy-zone-img';
-          img.onerror = function () { thumbWrap.classList.add('broken'); };
-
-          const fallback = document.createElement('div');
-          fallback.className = 'zone-thumb-fallback';
-          fallback.textContent = file.name;
-
-          const favActive = isFavorite(file.id);
-          const favBtn = document.createElement('button');
-          favBtn.type = 'button';
-          favBtn.className = 'fav-toggle' + (favActive ? ' active' : '');
-          favBtn.setAttribute('aria-label', (favActive ? 'Remove ' : 'Favorite ') + file.name);
-          favBtn.title = favActive ? 'Remove from Favorites' : 'Add to Favorites';
-          favBtn.textContent = favActive ? '\u2605' : '\u2606';
-          favBtn.addEventListener('click', function (ev) {
-            ev.stopPropagation();
-            toggleFavorite(file.id);
-          });
-
-          thumbWrap.appendChild(img);
-          thumbWrap.appendChild(fallback);
-          thumbWrap.appendChild(favBtn);
-
-          const body = document.createElement('div');
-          body.className = 'zone-card-body';
-
-          const title = document.createElement('h3');
-          title.className = 'zone-card-title';
-          title.textContent = file.name;
-          body.appendChild(title);
-
-          if (file.author || (Array.isArray(file.special) && file.special.length)) {
-            const meta = document.createElement('div');
-            meta.className = 'zone-card-meta';
-            const parts = [];
-            if (file.author) parts.push(file.author);
-            if (Array.isArray(file.special) && file.special.length) parts.push(toTitleCase(file.special[0]));
-            meta.textContent = parts.join(' \u00B7 ');
-            body.appendChild(meta);
-          }
-
-          card.appendChild(thumbWrap);
-          card.appendChild(body);
-          card.addEventListener('click', () => openZone(file));
-          card.addEventListener('keydown', ev => {
-            if (ev.key === 'Enter' || ev.key === ' ') {
-              ev.preventDefault();
-              openZone(file);
-            }
-          });
-          fragment.appendChild(card);
-        });
-
-        container.appendChild(fragment);
-
-        const lazyImages = container.querySelectorAll('img.lazy-zone-img');
-        const imageObserver = new IntersectionObserver((entries, observer) => {
+        lazyImgObserver = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
             if (entry.isIntersecting && !viewerOpen) {
               const img = entry.target;
@@ -3525,74 +4493,203 @@
               observer.unobserve(img);
             }
           });
-        }, { rootMargin: "150px", threshold: 0.05 });
+        }, { rootMargin: "200px", threshold: 0.02 });
 
-        lazyImages.forEach(img => imageObserver.observe(img));
+        appendNextZoneBatch();
+
+        if (loadMoreWrap && renderedOffset < currentRenderedList.length) {
+          scrollSentinelObserver = new IntersectionObserver((entries) => {
+            if (entries.some(e => e.isIntersecting) && !viewerOpen) {
+              appendNextZoneBatch();
+            }
+          }, { rootMargin: "320px" });
+          scrollSentinelObserver.observe(loadMoreWrap);
+        }
       }
 
-      function openZone(file) {
-        if (file.url.startsWith("http")) {
-          window.open(file.url, "_blank");
-          return;
+      function showZoneLoadingScreen(file, statusMsg) {
+        if (!zoneLoadingOverlay) return;
+        zoneLoadingOverlay.classList.remove('hidden');
+        if (zoneLoaderLoadingState) zoneLoaderLoadingState.classList.remove('hidden');
+        if (zoneLoaderErrorState) zoneLoaderErrorState.classList.add('hidden');
+        const badgeEl = document.getElementById('zoneLoadingBadge');
+        const titleEl = document.getElementById('zoneLoadingTitle');
+        const textEl = document.getElementById('zoneLoadingText');
+        if (badgeEl) badgeEl.textContent = PROVIDER_LABELS[file.provider] || 'Game';
+        if (titleEl) titleEl.textContent = file.name;
+        if (textEl) textEl.textContent = statusMsg || 'Connecting to game server...';
+      }
+
+      function showZoneErrorScreen(file, reason) {
+        if (!zoneLoadingOverlay) return;
+        zoneLoadingOverlay.classList.remove('hidden');
+        if (zoneLoaderLoadingState) zoneLoaderLoadingState.classList.add('hidden');
+        if (zoneLoaderErrorState) zoneLoaderErrorState.classList.remove('hidden');
+        const badgeEl = document.getElementById('zoneErrorBadge');
+        const titleEl = document.getElementById('zoneErrorTitle');
+        const detailEl = document.getElementById('zoneErrorDetail');
+        const directEl = document.getElementById('zoneErrorDirectLink');
+        if (badgeEl) badgeEl.textContent = (PROVIDER_LABELS[file.provider] || 'Game') + ' · Load Error';
+        if (titleEl) titleEl.textContent = 'Unable to load "' + file.name + '"';
+        if (detailEl) detailEl.textContent = reason || 'This game failed to respond or could not be loaded in the embedded player.';
+        if (directEl) directEl.href = file.url;
+      }
+
+      function tryDirectEmbedZone() {
+        if (!currentZoneFile || !viewerOpen || !zoneFrame) return;
+        const file = currentZoneFile;
+        showZoneLoadingScreen(file, 'Attempting direct frame embed...');
+        let settled = false;
+        const timer = setTimeout(() => {
+          if (!settled && currentZoneFile === file && viewerOpen) {
+            settled = true;
+            if (zoneLoadingOverlay) zoneLoadingOverlay.classList.add('hidden');
+          }
+        }, 3500);
+        zoneFrame.onload = () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timer);
+            if (zoneLoadingOverlay) zoneLoadingOverlay.classList.add('hidden');
+          }
+        };
+        zoneFrame.onerror = () => {
+          if (!settled) {
+            settled = true;
+            clearTimeout(timer);
+            showZoneErrorScreen(file, 'Direct embedding was blocked or failed. Use "Open Direct Link" to open it in a dedicated tab.');
+          }
+        };
+        zoneFrame.src = file.url;
+      }
+
+      async function openZone(file) {
+        if (currentZoneAbort) {
+          try { currentZoneAbort.abort(); } catch (e) {}
+          currentZoneAbort = null;
         }
         currentZoneFile = file;
-        const url = file.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
-        fetch(url + "?t=" + Date.now()).then(response => response.text()).then(html => {
-          if (zoneFrame && zoneFrame.parentNode) zoneViewer.removeChild(zoneFrame);
-          zoneFrame = document.createElement("iframe");
-          zoneFrame.id = "zoneFrame";
-          zoneFrame.setAttribute("allow", "autoplay; keyboard; gamepad; fullscreen");
-          zoneViewer.appendChild(zoneFrame);
+        document.getElementById('zoneName').textContent = file.name;
+        document.getElementById('zoneId').textContent = file.id;
+        const authorEl = document.getElementById('zoneAuthor');
+        if (authorEl) {
+          const prov = PROVIDER_LABELS[file.provider] || '';
+          const metaLabel = [prov, file.author ? ('by ' + file.author) : ''].filter(Boolean).join(' · ');
+          if (metaLabel) {
+            authorEl.textContent = metaLabel;
+            authorEl.style.display = 'block';
+          } else {
+            authorEl.textContent = '';
+            authorEl.style.display = 'none';
+          }
+        }
 
-          const preparedHtml = prepareZoneHtml(html);
+        const directLinkBtn = document.getElementById('openDirectLinkBtn');
+        if (directLinkBtn) directLinkBtn.href = file.url;
+
+        if (zoneFrame && zoneFrame.parentNode) zonePlayerWrap.removeChild(zoneFrame);
+        zoneFrame = document.createElement("iframe");
+        zoneFrame.id = "zoneFrame";
+        zoneFrame.setAttribute("allow", "autoplay; keyboard; gamepad; fullscreen");
+        zonePlayerWrap.appendChild(zoneFrame);
+
+        showZoneLoadingScreen(file, 'Fetching game package...');
+
+        viewerOpen = true;
+        zoneViewer.style.display = "flex";
+        requestAnimationFrame(() => {
+          zoneViewer.classList.add('open');
+        });
+
+        const controller = new AbortController();
+        currentZoneAbort = controller;
+        const timeoutId = setTimeout(() => controller.abort(), 18000);
+
+        try {
+          const response = await fetch(file.url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (!response.ok) {
+            throw new Error('The game server responded with HTTP ' + response.status + '. The file may have moved or is temporarily unavailable.');
+          }
+          if (currentZoneFile !== file || !viewerOpen) return;
+          showZoneLoadingScreen(file, 'Initializing game frame...');
+          const html = await response.text();
+          if (currentZoneFile !== file || !viewerOpen) return;
+          if (!html || html.trim().length < 24) {
+            throw new Error('The fetched game file was empty or incomplete.');
+          }
+          if (!/<(?:body|frameset|canvas|iframe|div)\b/i.test(html) && html.length < 1500) {
+            throw new Error('The remote game file appears incomplete or missing its playable game body.');
+          }
+          const preparedHtml = prepareZoneHtml(html, file.baseUrl);
+          let frameSettled = false;
+          const finishLoad = () => {
+            if (frameSettled || currentZoneFile !== file || !viewerOpen) return;
+            frameSettled = true;
+            try {
+              const doc = zoneFrame.contentDocument;
+              const docBody = doc && doc.body;
+              const hasRenderedNodes = !!(docBody && (docBody.children.length > 0 || docBody.innerHTML.trim().length > 0))
+                || !!(doc && doc.querySelector('frameset, canvas, iframe'));
+              if (!doc || !hasRenderedNodes) {
+                showZoneErrorScreen(file, 'The game document rendered empty because the upstream file is incomplete.');
+                return;
+              }
+            } catch (e) {}
+            if (zoneLoadingOverlay) zoneLoadingOverlay.classList.add('hidden');
+            try { zoneFrame.focus(); } catch (e) {}
+          };
+          const revealTimer = setTimeout(() => {
+            if (frameSettled || currentZoneFile !== file || !viewerOpen) return;
+            try {
+              const doc = zoneFrame.contentDocument;
+              if (doc && doc.readyState === 'complete') {
+                finishLoad();
+                return;
+              }
+            } catch (e) {}
+            frameSettled = true;
+            if (zoneLoadingOverlay) zoneLoadingOverlay.classList.add('hidden');
+            try { zoneFrame.focus(); } catch (e) {}
+          }, 1800);
+          zoneFrame.onload = () => {
+            clearTimeout(revealTimer);
+            finishLoad();
+          };
+          zoneFrame.onerror = () => {
+            clearTimeout(revealTimer);
+            if (frameSettled || currentZoneFile !== file || !viewerOpen) return;
+            frameSettled = true;
+            showZoneErrorScreen(file, 'The embedded game frame reported a load error. Try opening the direct link.');
+          };
           zoneFrame.contentDocument.open();
           zoneFrame.contentDocument.write(preparedHtml);
           zoneFrame.contentDocument.close();
-          document.getElementById('zoneName').textContent = file.name;
-          document.getElementById('zoneId').textContent = file.id;
-          document.getElementById('zoneAuthor').textContent = "by " + (file.author || "gn-math");
-          document.getElementById('zoneAuthor').href = file.authorLink || "#";
-          viewerOpen = true;
-          zoneViewer.style.display = "flex";
-          requestAnimationFrame(() => {
-            zoneViewer.classList.add('open');
-            try { zoneFrame.focus(); } catch (e) {}
-          });
-        }).catch(error => alert("Failed to load zone: " + error));
+          if (zoneFrame.contentDocument && zoneFrame.contentDocument.readyState === 'complete') {
+            clearTimeout(revealTimer);
+            finishLoad();
+          }
+        } catch (err) {
+          clearTimeout(timeoutId);
+          if (currentZoneFile !== file || !viewerOpen) return;
+          const isTimeout = err && err.name === 'AbortError';
+          const reason = isTimeout
+            ? 'Loading timed out after 18 seconds. Check your connection or try opening the direct link.'
+            : ((err && err.message) ? err.message : 'Unable to reach the game file. It may be blocked or offline.');
+          showZoneErrorScreen(file, reason);
+        } finally {
+          if (currentZoneAbort === controller) currentZoneAbort = null;
+        }
       }
 
       function reloadCurrentZone() {
         if (currentZoneFile) openZone(currentZoneFile);
       }
 
-      function aboutBlank() {
-        const newWindow = window.open("about:blank", "_blank");
-        if (!newWindow) {
-          alert("Please allow pop-ups for this site in your browser bar and try again.");
-          return;
-        }
-        const zoneObj = zones.find(z => z.id + '' === document.getElementById('zoneId').textContent);
-        if (!zoneObj) return;
-        const zone = zoneObj.url.replace("{COVER_URL}", coverURL).replace("{HTML_URL}", htmlURL);
-        fetch(zone + "?t=" + Date.now()).then(response => response.text()).then(html => {
-          newWindow.document.open();
-          newWindow.document.write(prepareZoneHtml(html));
-          newWindow.document.close();
-        });
-      }
-
-      function closeZone() {
-        viewerOpen = false;
-        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-        zoneViewer.classList.remove('open');
-        zoneViewer.style.display = "none";
-        if (zoneFrame && zoneFrame.parentNode) zoneViewer.removeChild(zoneFrame);
-      }
-
       function downloadZone() {
-        const zone = zones.find(z => z.id + '' === document.getElementById('zoneId').textContent);
+        const zone = currentZoneFile || zones.find(z => String(z.id) === document.getElementById('zoneId').textContent);
         if (!zone) return;
-        fetch(zone.url.replace("{HTML_URL}", htmlURL) + "?t=" + Date.now()).then(res => res.text()).then(text => {
+        fetch(zone.url + "?t=" + Date.now()).then(res => res.text()).then(text => {
           const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -3602,12 +4699,27 @@
           a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-        });
+        }).catch(() => {});
+      }
+
+      function closeZone() {
+        if (currentZoneAbort) {
+          try { currentZoneAbort.abort(); } catch (e) {}
+          currentZoneAbort = null;
+        }
+        viewerOpen = false;
+        currentZoneFile = null;
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        if (zoneLoadingOverlay) zoneLoadingOverlay.classList.add('hidden');
+        zoneViewer.classList.remove('open');
+        zoneViewer.style.display = "none";
+        if (zoneFrame && zoneFrame.parentNode) zonePlayerWrap.removeChild(zoneFrame);
       }
 
       function fullscreenZone() {
         if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
         else if (zoneFrame && zoneFrame.requestFullscreen) zoneFrame.requestFullscreen().catch(() => {});
+        else if (zoneViewer && zoneViewer.requestFullscreen) zoneViewer.requestFullscreen().catch(() => {});
       }
 
       /* ---------------- CALCULATOR ---------------- */
@@ -4359,30 +5471,17 @@
         reader.readAsText(file);
       }
 
-      function showContact() {
-        document.getElementById('popupTitle').textContent = "Contact";
-        document.getElementById('popupBody').innerHTML = `<p>Discord: https://discord.gg/NAFw4ykZ7n</p><p>Email: gn.math.business@gmail.com</p>`;
-        document.getElementById('popupOverlay').style.display = "flex";
-      }
-
       function loadPrivacy() {
         document.getElementById('popupTitle').textContent = "Privacy Policy";
-        document.getElementById('popupBody').innerHTML = `<p><strong>Privacy Notice</strong></p><p>Notes, calculation history, favorites, and appearance settings remain strictly inside your browser.</p><p>Catalog service: <a href="https://gn-math.dev" target="_blank" rel="noopener noreferrer">gn-math.dev</a></p>`;
-        document.getElementById('popupOverlay').style.display = "flex";
-      }
-
-      function loadDMCA() {
-        document.getElementById('popupTitle').textContent = "DMCA";
-        document.getElementById('popupBody').innerHTML = `<p>If you own a game hosted on gn-math and want it removed, email <a href="mailto:gn.math.business@gmail.com">gn.math.business@gmail.com</a> with subject <code>!DMCA</code>.</p>`;
+        document.getElementById('popupBody').innerHTML = `<p><strong>Privacy Notice</strong></p><p>Notes, calculation history, favorites, and appearance settings remain strictly inside your browser.</p>`;
         document.getElementById('popupOverlay').style.display = "flex";
       }
 
       function showZoneInfo() {
-        const id = Number(document.getElementById('zoneId').textContent);
-        const zone = zones.find(a => a.id === id);
+        const zone = currentZoneFile || zones.find(a => String(a.id) === document.getElementById('zoneId').textContent);
         document.getElementById('popupTitle').textContent = zone ? `${zone.name} Info` : 'Game Info';
         document.getElementById('popupBody').innerHTML = zone
-          ? `<p><strong>Title:</strong> ${zone.name}<br>${zone.author ? `<strong>Author:</strong> ${zone.author}<br>` : ''}${zone.special ? `<strong>Tags:</strong> ${zone.special.join(', ')}<br>` : ''}<strong>ID:</strong> ${zone.id}</p>`
+          ? `<p><strong>Title:</strong> ${zone.name}<br>${zone.author ? `<strong>Author:</strong> ${zone.author}<br>` : ''}${zone.special && zone.special.length ? `<strong>Tags:</strong> ${zone.special.join(', ')}` : '<strong>Category:</strong> Arcade'}</p>`
           : `<p>Metadata unavailable.</p>`;
         document.getElementById('popupOverlay').style.display = "flex";
       }
@@ -4428,7 +5527,10 @@
       document.getElementById('rail-timer-badge').addEventListener('click', () => switchApp('timer'));
 
       // Topbar Actions
-      document.getElementById('refresh').addEventListener('click', listZones);
+      document.getElementById('refresh').addEventListener('click', () => listZones(true));
+      const retryApiBtn = document.getElementById('ugs-retry-api-btn');
+      if (retryApiBtn) retryApiBtn.addEventListener('click', () => listZones(true));
+      if (loadMoreBtn) loadMoreBtn.addEventListener('click', appendNextZoneBatch);
       document.getElementById('quick-cloak-btn').addEventListener('click', () => {
         applyCloak(CLOAK_PRESETS.docs.title, CLOAK_PRESETS.docs.icon);
         document.getElementById('cloak-feedback').textContent = 'Tab cloaked as "Google Docs".';
@@ -4438,7 +5540,11 @@
       document.querySelectorAll('[data-games-tab]').forEach(btn => {
         btn.addEventListener('click', () => {
           activeGamesTab = btn.getAttribute('data-games-tab');
-          document.querySelectorAll('[data-games-tab]').forEach(b => b.classList.toggle('active', b === btn));
+          activeApp = activeGamesTab === 'ckv' ? 'ckv' : 'games';
+          document.querySelectorAll('.rail-btn').forEach(r => {
+            r.classList.toggle('active', r.getAttribute('data-app') === activeApp);
+          });
+          syncCatalogUiState();
           renderActiveList();
         });
       });
