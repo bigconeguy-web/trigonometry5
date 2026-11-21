@@ -50,7 +50,13 @@ export const ModulePlayerModal: React.FC<ModulePlayerModalProps> = ({
 
   // Notes persistence
   const notesKey = `scholastica_notes_${module.id}`;
-  const [notes, setNotes] = useState(() => localStorage.getItem(notesKey) || '');
+  const [notes, setNotes] = useState(() => {
+    try {
+      return localStorage.getItem(notesKey) || '';
+    } catch {
+      return '';
+    }
+  });
 
   // Pomodoro Study Timer state
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
@@ -95,7 +101,9 @@ export const ModulePlayerModal: React.FC<ModulePlayerModalProps> = ({
 
   const handleNotesChange = (val: string) => {
     setNotes(val);
-    localStorage.setItem(notesKey, val);
+    try {
+      localStorage.setItem(notesKey, val);
+    } catch {}
   };
 
   const toggleFullscreen = () => {

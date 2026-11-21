@@ -802,11 +802,12 @@
         margin: 0;
         padding: 0;
         height: 100%;
+        overflow-x: clip;
         background: var(--bg-primary);
         color: var(--text-primary);
         font-family: var(--font-ui);
         -webkit-font-smoothing: antialiased;
-        transition: background-color 0.2s var(--ease-out), color 0.2s var(--ease-out);
+        transition: background-color 0.15s ease, color 0.15s ease;
       }
 
       #bg-fx-canvas {
@@ -1007,7 +1008,7 @@
         cursor: pointer;
         flex-shrink: 0;
         position: relative;
-        transition: transform 0.14s var(--ease-out), background-color 0.14s var(--ease-out), color 0.14s var(--ease-out), border-color 0.14s var(--ease-out);
+        transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
       }
 
       .browser-tab:hover {
@@ -1030,7 +1031,7 @@
         bottom: 2px;
         left: 50%;
         transform: translateX(-50%);
-        width: 14px;
+        width: 16px;
         height: 2.5px;
         border-radius: 99px;
         background: var(--accent);
@@ -1080,7 +1081,13 @@
         justify-content: center;
         cursor: pointer;
         flex-shrink: 0;
-        transition: background-color 0.14s, color 0.14s;
+        opacity: 0.45;
+        transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+      }
+
+      .browser-tab:hover .browser-tab-close,
+      .browser-tab.active .browser-tab-close {
+        opacity: 1;
       }
 
       .browser-tab-close:hover {
@@ -1296,7 +1303,7 @@
         width: 228px;
         flex-shrink: 0;
         background: color-mix(in srgb, var(--bg-sidebar) 88%, transparent);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
         border-right: 1px solid var(--border);
         display: flex;
         flex-direction: column;
@@ -1306,15 +1313,80 @@
         padding: 14px 12px 76px;
         gap: 14px;
         overflow-y: auto;
+        overflow-x: hidden;
         scrollbar-width: thin;
+        transition: width 0.15s ease, padding 0.15s ease;
+      }
+
+      .sidebar.collapsed {
+        width: 68px;
+        padding: 14px 10px 76px;
       }
 
       .sidebar-brand {
-        padding: 4px 8px;
+        padding: 4px 6px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .sidebar-brand-main {
         display: flex;
         align-items: center;
         gap: 10px;
         min-width: 0;
+        flex: 1;
+      }
+
+      .sidebar-collapse-btn {
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border-radius: 7px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+      }
+
+      .sidebar-collapse-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--bg-card-hover);
+      }
+
+      .sidebar.collapsed .sidebar-brand {
+        flex-direction: column;
+        padding: 2px 0;
+        gap: 8px;
+      }
+
+      .sidebar.collapsed .sidebar-brand-main {
+        justify-content: center;
+      }
+
+      .sidebar.collapsed .brand-wordmark,
+      .sidebar.collapsed .rail-group-label,
+      .sidebar.collapsed .rail-btn span,
+      .sidebar.collapsed .rail-footer {
+        display: none;
+      }
+
+      .sidebar.collapsed .sidebar-collapse-btn svg {
+        transform: rotate(180deg);
+      }
+
+      .sidebar.collapsed .rail-btn {
+        justify-content: center;
+        padding: 9px;
       }
 
       .brand-mark {
@@ -1464,9 +1536,28 @@
       .tab-pane-game,
       .tab-pane-gnmath {
         height: calc(100vh - 156px);
-        min-height: 440px;
+        min-height: 400px;
         margin-bottom: 62px;
         background: #000000;
+      }
+
+      body.theater-mode .browser-bar,
+      body.theater-mode .sidebar,
+      body.theater-mode .topbar,
+      body.theater-mode .os-dock-wrap {
+        display: none !important;
+      }
+
+      body.theater-mode .app-body,
+      body.theater-mode .main-area {
+        min-height: 100vh;
+      }
+
+      body.theater-mode .tab-pane-game,
+      body.theater-mode .tab-pane-gnmath {
+        height: 100vh;
+        min-height: 100vh;
+        margin-bottom: 0;
       }
 
       .gnmath-frame-mount {
@@ -1823,25 +1914,68 @@
       .ugs-loading-bar {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 12px;
-        padding: 40px 20px;
+        justify-content: flex-start;
+        gap: 10px;
+        margin-bottom: 14px;
+        padding: 10px 14px;
         background: var(--bg-elevated);
         border: 1px solid var(--border);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-sm);
         color: var(--text-secondary);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
       }
 
       .ugs-spinner {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         border-radius: 50%;
-        border: 2.5px solid var(--border);
+        border: 2px solid var(--border);
         border-top-color: var(--accent);
         animation: spinOnce 0.75s linear infinite;
         flex-shrink: 0;
+      }
+
+      .zone-skeleton-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .zone-skeleton-thumb {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: linear-gradient(110deg, var(--bg-elevated) 25%, var(--bg-card-hover) 45%, var(--bg-elevated) 65%);
+        background-size: 220% 100%;
+        animation: skeletonShimmer 1.3s ease-in-out infinite;
+      }
+
+      .zone-skeleton-body {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .zone-skeleton-line {
+        height: 11px;
+        border-radius: 5px;
+        background: linear-gradient(110deg, var(--bg-elevated) 25%, var(--bg-card-hover) 45%, var(--bg-elevated) 65%);
+        background-size: 220% 100%;
+        animation: skeletonShimmer 1.3s ease-in-out infinite;
+      }
+
+      .zone-skeleton-line.short {
+        width: 58%;
+        height: 9px;
+      }
+
+      @keyframes skeletonShimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
       }
 
       .ugs-fallback-banner {
@@ -4570,6 +4704,22 @@
         word-break: break-all;
       }
 
+      @media (max-width: 1020px) {
+        .topbar-inner {
+          padding: 0 16px;
+          gap: 12px;
+        }
+        .topbar-sub {
+          display: none;
+        }
+        .workspace {
+          padding: 18px 16px 88px;
+        }
+        .os-env-badge {
+          display: none;
+        }
+      }
+
       @media (max-width: 740px) {
         .browser-bar {
           padding: 0 8px;
@@ -4602,7 +4752,8 @@
         .app-body {
           flex-direction: column;
         }
-        .sidebar {
+        .sidebar,
+        .sidebar.collapsed {
           width: 100%;
           height: auto;
           position: static;
@@ -4611,8 +4762,17 @@
           padding: 10px 12px;
           gap: 10px;
         }
+        .sidebar-collapse-btn,
         .rail-group-label {
           display: none;
+        }
+        .sidebar.collapsed .brand-wordmark,
+        .sidebar.collapsed .rail-btn span {
+          display: inline;
+        }
+        .sidebar.collapsed .sidebar-brand {
+          flex-direction: row;
+          justify-content: flex-start;
         }
         .topbar {
           top: 36px;
@@ -4651,7 +4811,7 @@
         .tab-pane-game,
         .tab-pane-gnmath {
           height: calc(100vh - 156px);
-          min-height: 380px;
+          min-height: 360px;
           margin-bottom: 58px;
         }
         .calc-layout,
@@ -4710,8 +4870,9 @@
         <div class="browser-bar-controls">
           <span id="tab-count-pill" class="tab-count-pill" title="Open Windows / Max 8">1 / 8</span>
           <span id="os-menu-clock" class="os-menu-clock">12:00 PM</span>
+          <button type="button" id="close-other-tabs-btn" class="browser-ctl-btn hidden" title="Close all other closable tabs" aria-label="Close Other Tabs">Close Others</button>
           <button type="button" id="reload-active-tab-btn" class="browser-ctl-btn" title="Reload Active Window" aria-label="Reload Active Window">&#8635; Reload</button>
-          <button type="button" id="fullscreen-active-tab-btn" class="browser-ctl-btn" title="Fullscreen Active Window" aria-label="Fullscreen Active Window">Fullscreen</button>
+          <button type="button" id="fullscreen-active-tab-btn" class="browser-ctl-btn" title="Fullscreen Active Window (Alt+F)" aria-label="Fullscreen Active Window">Fullscreen</button>
         </div>
       </div>
 
@@ -4805,12 +4966,17 @@
       <div id="tab-limit-toast" class="tab-limit-toast hidden" role="status" aria-live="polite"></div>
 
       <div class="app-body">
-        <aside class="sidebar" aria-label="Workspace Navigation">
+        <aside id="workspace-sidebar" class="sidebar" aria-label="Workspace Navigation">
           <div class="sidebar-brand">
-            <span class="brand-mark" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
-            </span>
-            <h1 class="brand-wordmark" id="portal-brand">Desktop OS</h1>
+            <div class="sidebar-brand-main">
+              <span class="brand-mark" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>
+              </span>
+              <h1 class="brand-wordmark" id="portal-brand">Desktop OS</h1>
+            </div>
+            <button type="button" id="sidebar-collapse-btn" class="sidebar-collapse-btn" title="Collapse Sidebar" aria-label="Toggle Sidebar Width" aria-expanded="true">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
           </div>
 
           <nav class="rail-nav">
@@ -5321,17 +5487,18 @@
               </div>
             </div>
 
-            <!-- 5C. Dedicated GN-Math Browser Tab Pane -->
+            <!-- 5C. Dedicated GN-Math Local-Memory Browser Tab Pane -->
             <div id="pane-app-gnmath" class="tab-pane tab-pane-gnmath" data-pane-app="gnmath" style="display:none;">
               <div class="viewer-bar">
                 <div class="viewer-meta">
                   <div class="viewer-title-group">
                     <h3 class="zone-viewer-title">GN-Math</h3>
-                    <span class="zone-viewer-author">https://gn-math.dev</span>
+                    <span class="zone-viewer-author">Local Memory Container &middot; gn-math.dev</span>
                   </div>
                 </div>
                 <div class="viewer-controls">
-                  <button type="button" id="gnmath-reload-btn" class="viewer-btn" title="Reload Frame">&#8635; Reload Frame</button>
+                  <button type="button" id="gnmath-theater-btn" class="viewer-btn" title="Toggle Theater Mode (hide sidebar & dock)">Theater Mode</button>
+                  <button type="button" id="gnmath-reload-btn" class="viewer-btn" title="Reload Frame">&#8635; Reload</button>
                   <button type="button" id="gnmath-fullscreen-btn" class="viewer-btn viewer-btn-primary" title="Fullscreen Frame">&#9974; Fullscreen</button>
                   <button type="button" id="gnmath-newtab-btn" class="viewer-btn" title="Open GN-Math in a new browser tab">&#8599; Open in New Tab</button>
                 </div>
@@ -5850,7 +6017,8 @@
         bgFxIntensity: 'gn_portal_bg_fx_intensity',
         fcDeck: 'gn_portal_flashcards_v1',
         kanbanTasks: 'gn_portal_kanban_v1',
-        omniRecent: 'gn_portal_omni_recent_v1'
+        omniRecent: 'gn_portal_omni_recent_v1',
+        sidebarCollapsed: 'gn_portal_sidebar_collapsed'
       };
 
       const DEFAULT_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1512'/%3E%3Cpath d='M20 42V22h8l4 8 4-8h8v20h-6V31l-4 7h-4l-4-7v11h-6z' fill='%2334d399'/%3E%3C/svg%3E";
@@ -6312,6 +6480,11 @@
         if (tabCountPill) {
           tabCountPill.textContent = openTabs.length + ' / ' + MAX_OPEN_TABS;
         }
+        const closeOthersBtn = document.getElementById('close-other-tabs-btn');
+        if (closeOthersBtn) {
+          const closableOthers = openTabs.some(t => !t.pinned && t.id !== activeTabId);
+          closeOthersBtn.classList.toggle('hidden', !closableOthers);
+        }
       }
 
       function getPaneElementForTab(tab) {
@@ -6374,6 +6547,11 @@
         }
 
         if (typeof toggleOsLauncher === 'function') toggleOsLauncher(false);
+        if (target.type !== 'game' && !(target.type === 'app' && target.appKey === 'gnmath')) {
+          if (typeof setTheaterMode === 'function') setTheaterMode(false);
+        } else if (typeof syncTheaterButtons === 'function') {
+          syncTheaterButtons();
+        }
         renderTabStrip();
         syncTopbarAndSidebarForTab(target);
 
@@ -6387,6 +6565,30 @@
         } else if (target.type === 'app' && target.appKey === 'gnmath' && typeof ensureGnMathFrameMounted === 'function') {
           ensureGnMathFrameMounted();
         }
+      }
+
+      function setTheaterMode(enabled) {
+        const next = Boolean(enabled);
+        document.body.classList.toggle('theater-mode', next);
+        syncTheaterButtons();
+      }
+
+      function toggleTheaterMode() {
+        setTheaterMode(!document.body.classList.contains('theater-mode'));
+      }
+
+      function syncTheaterButtons() {
+        const isTheater = document.body.classList.contains('theater-mode');
+        document.querySelectorAll('[data-game-action="theater"], #gnmath-theater-btn').forEach(btn => {
+          btn.textContent = isTheater ? 'Exit Theater' : 'Theater Mode';
+          btn.classList.toggle('viewer-btn-primary', isTheater);
+          btn.setAttribute('aria-pressed', String(isTheater));
+        });
+      }
+
+      function closeOtherTabs() {
+        const toClose = openTabs.filter(t => !t.pinned && t.id !== activeTabId).map(t => t.id);
+        toClose.forEach(id => closeTab(id));
       }
 
       function closeTab(tabId) {
@@ -7490,7 +7692,20 @@
           if (loadingBarEl) loadingBarEl.classList.toggle('hidden', !isLoading);
           if (isLoading) {
             if (fallbackBannerEl) fallbackBannerEl.classList.add('hidden');
-            if (containerEl) containerEl.innerHTML = '';
+            if (containerEl) {
+              if (compactGrid) containerEl.classList.add('compact');
+              else containerEl.classList.remove('compact');
+              const skelFrag = document.createDocumentFragment();
+              for (let i = 0; i < 12; i++) {
+                const sk = document.createElement('div');
+                sk.className = 'zone-skeleton-card';
+                sk.setAttribute('aria-hidden', 'true');
+                sk.innerHTML = '<div class="zone-skeleton-thumb"></div><div class="zone-skeleton-body"><div class="zone-skeleton-line"></div><div class="zone-skeleton-line short"></div></div>';
+                skelFrag.appendChild(sk);
+              }
+              containerEl.innerHTML = '';
+              containerEl.appendChild(skelFrag);
+            }
             if (loadMoreWrapEl) loadMoreWrapEl.classList.add('hidden');
             if (emptyStateEl) emptyStateEl.classList.add('hidden');
             if (zoneCountNode) zoneCountNode.textContent = 'Loading catalog...';
@@ -7548,7 +7763,15 @@
             );
           }
 
-          baseList.sort(sortComparator(sortVal));
+          const baseComparator = sortComparator(sortVal);
+          baseList.sort((a, b) => {
+            if (localGamesTab !== 'favorites') {
+              const af = isFavorite(a.id) ? 1 : 0;
+              const bf = isFavorite(b.id) ? 1 : 0;
+              if (af !== bf) return bf - af;
+            }
+            return baseComparator(a, b);
+          });
           return baseList;
         }
 
@@ -7923,11 +8146,12 @@
             </div>
             <div class="viewer-controls">
               <button type="button" class="viewer-btn ${unlimitedFps ? 'viewer-btn-primary' : ''}" data-game-action="fps">${unlimitedFps ? 'FPS: Unlimited' : 'FPS: Native'}</button>
+              <button type="button" class="viewer-btn" data-game-action="theater">Theater Mode</button>
               <button type="button" class="viewer-btn" data-game-action="download">Download</button>
-              <button type="button" class="viewer-btn" data-game-action="reload">Reload</button>
-              <a class="viewer-btn" data-role="open-direct" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">Open Direct Link</a>
+              <button type="button" class="viewer-btn" data-game-action="reload">&#8635; Reload</button>
+              <a class="viewer-btn" data-role="open-direct" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">&#8599; Open in New Tab</a>
               <button type="button" class="viewer-btn" data-game-action="info">Info</button>
-              <button type="button" class="viewer-btn viewer-btn-primary" data-game-action="fullscreen">Fullscreen</button>
+              <button type="button" class="viewer-btn viewer-btn-primary" data-game-action="fullscreen">&#9974; Fullscreen</button>
             </div>
           </div>
           <div class="zone-player-wrap">
@@ -7973,6 +8197,7 @@
           setUnlimitedFps(!unlimitedFps);
           loadGameIntoTab(tab);
         });
+        paneEl.querySelector('[data-game-action="theater"]').addEventListener('click', () => toggleTheaterMode());
         paneEl.querySelector('[data-game-action="download"]').addEventListener('click', () => downloadZone(file));
         paneEl.querySelector('[data-game-action="info"]').addEventListener('click', () => showZoneInfo(file));
         paneEl.querySelector('[data-game-action="fullscreen"]').addEventListener('click', () => fullscreenActiveTab());
@@ -9999,11 +10224,69 @@
         const savedTitle = safeStorage.get(STORAGE_KEYS.cloakTitle, 'Desktop OS');
         const savedIcon = safeStorage.get(STORAGE_KEYS.cloakIcon, DEFAULT_FAVICON);
         applyCloak(savedTitle, savedIcon);
+
+        const sidebarEl = document.getElementById('workspace-sidebar');
+        const collapseBtn = document.getElementById('sidebar-collapse-btn');
+        const isCollapsed = safeStorage.get(STORAGE_KEYS.sidebarCollapsed, 'false') === 'true';
+        if (sidebarEl) sidebarEl.classList.toggle('collapsed', isCollapsed);
+        if (collapseBtn) {
+          collapseBtn.setAttribute('aria-expanded', String(!isCollapsed));
+          collapseBtn.title = isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+        }
+        document.querySelectorAll('.rail-btn').forEach(btn => {
+          const txt = btn.querySelector('span');
+          if (txt && txt.textContent) btn.title = txt.textContent.trim();
+        });
       }
 
-      // Browser Bar Actions
+      function toggleSidebarCollapse() {
+        const sidebarEl = document.getElementById('workspace-sidebar');
+        const collapseBtn = document.getElementById('sidebar-collapse-btn');
+        if (!sidebarEl) return;
+        const nextCollapsed = !sidebarEl.classList.contains('collapsed');
+        sidebarEl.classList.toggle('collapsed', nextCollapsed);
+        if (collapseBtn) {
+          collapseBtn.setAttribute('aria-expanded', String(!nextCollapsed));
+          collapseBtn.title = nextCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar';
+        }
+        safeStorage.set(STORAGE_KEYS.sidebarCollapsed, String(nextCollapsed));
+      }
+
+      // Browser Bar & Sidebar Actions
+      const closeOtherTabsBtn = document.getElementById('close-other-tabs-btn');
+      if (closeOtherTabsBtn) closeOtherTabsBtn.addEventListener('click', closeOtherTabs);
+      const sidebarCollapseBtnEl = document.getElementById('sidebar-collapse-btn');
+      if (sidebarCollapseBtnEl) sidebarCollapseBtnEl.addEventListener('click', toggleSidebarCollapse);
       document.getElementById('reload-active-tab-btn').addEventListener('click', reloadActiveTab);
       document.getElementById('fullscreen-active-tab-btn').addEventListener('click', fullscreenActiveTab);
+
+      // Global Desktop Keyboard Shortcuts (Alt+W, Alt+T, Alt+F, Escape for Theater Mode)
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && document.body.classList.contains('theater-mode')) {
+          e.preventDefault();
+          setTheaterMode(false);
+          return;
+        }
+        if (e.altKey && !e.ctrlKey && !e.metaKey) {
+          const k = (e.key || '').toLowerCase();
+          if (k === 'w') {
+            e.preventDefault();
+            const cur = getActiveTab();
+            if (cur && !cur.pinned) closeTab(cur.id);
+            return;
+          }
+          if (k === 't') {
+            e.preventDefault();
+            createLibraryTab();
+            return;
+          }
+          if (k === 'f') {
+            e.preventDefault();
+            fullscreenActiveTab();
+            return;
+          }
+        }
+      });
 
       // Navigation Rail
       document.querySelectorAll('.rail-btn').forEach(btn => {
@@ -10043,9 +10326,11 @@
       });
 
       document.addEventListener('keydown', e => {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
         const curTab = getActiveTab();
         if (!curTab || curTab.type !== 'app' || curTab.appKey !== 'calculator') return;
-        const tag = (document.activeElement?.tagName || '').toLowerCase();
+        const activeEl = document.activeElement;
+        const tag = (activeEl && activeEl.tagName ? activeEl.tagName : '').toLowerCase();
         if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
         if (/^[0-9.()+\-*/%^]$/.test(e.key)) {
           e.preventDefault();
@@ -10053,6 +10338,7 @@
           handleCalcInput(mapped);
         } else if (e.key === 'Enter' || e.key === '=') {
           e.preventDefault();
+          if (activeEl && activeEl.blur) activeEl.blur();
           handleCalcAction('equals');
         } else if (e.key === 'Backspace') {
           e.preventDefault();
@@ -11595,8 +11881,194 @@
         renderColorStudio();
       }
 
-      /* ---------------- DEDICATED GN-MATH TAB LIFECYCLE ---------------- */
+      /* ---------------- DEDICATED GN-MATH LOCAL-MEMORY BLOB CONTAINER ---------------- */
       const GNMATH_URL = 'https://gn-math.dev';
+      let gnMathBlobUrl = null;
+      let gnMathLoadToken = 0;
+
+      function revokeGnMathBlobUrl() {
+        if (gnMathBlobUrl) {
+          try { URL.revokeObjectURL(gnMathBlobUrl); } catch (e) {}
+          gnMathBlobUrl = null;
+        }
+      }
+
+      function buildInMemoryGnMathArcadeHtml() {
+        const gnItems = (Array.isArray(rawCatalogs && rawCatalogs.gn) && rawCatalogs.gn.length > 0)
+          ? rawCatalogs.gn
+          : (Array.isArray(zones) ? zones.filter(z => z && z.provider === 'gn') : []);
+        const compactItems = gnItems.slice(0, 260).map(item => ({
+          id: item.id,
+          name: item.name,
+          author: item.author || '',
+          cover: item.cover || '',
+          url: item.url,
+          baseUrl: item.baseUrl || (htmlURL + '/')
+        }));
+        const serializedItems = JSON.stringify(compactItems).replace(/<\/script>/gi, '<\\/script>');
+        const shimCode = getBlobStorageShimTag('gnmath-memory');
+        const styles = getComputedStyle(document.documentElement);
+        const bgPrimary = (styles.getPropertyValue('--bg-primary') || '#05070b').trim();
+        const bgCard = (styles.getPropertyValue('--bg-card') || '#121824').trim();
+        const bgElevated = (styles.getPropertyValue('--bg-secondary') || '#0b0f17').trim();
+        const textPrimary = (styles.getPropertyValue('--text-primary') || '#f1f5f9').trim();
+        const textMuted = (styles.getPropertyValue('--text-muted') || '#8a9bb0').trim();
+        const accent = (styles.getPropertyValue('--accent') || '#34d399').trim();
+        const accentContrast = (styles.getPropertyValue('--accent-contrast') || '#06281e').trim();
+        const border = (styles.getPropertyValue('--border') || '#1f2937').trim();
+
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GN-Math</title>
+${shimCode}
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: ${bgPrimary}; color: ${textPrimary}; font-family: system-ui, -apple-system, sans-serif; }
+  .shell { display: flex; flex-direction: column; height: 100vh; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: ${bgElevated}; border-bottom: 1px solid ${border}; flex-wrap: wrap; }
+  .brand { font-weight: 800; font-size: 14px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; border: 1px solid ${border}; color: ${accent}; background: rgba(52,211,153,0.12); font-weight: 700; }
+  .tools { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; min-width: 220px; }
+  .search { flex: 1; max-width: 300px; height: 32px; padding: 0 10px; border-radius: 7px; border: 1px solid ${border}; background: ${bgPrimary}; color: ${textPrimary}; font-size: 13px; outline: none; }
+  .search:focus { border-color: ${accent}; }
+  .btn { appearance: none; height: 32px; padding: 0 11px; border-radius: 7px; border: 1px solid ${border}; background: ${bgCard}; color: ${textPrimary}; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn:hover { border-color: ${accent}; color: ${accent}; }
+  .btn-primary { background: ${accent}; border-color: ${accent}; color: ${accentContrast}; font-weight: 700; }
+  .content { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .card { border: 1px solid ${border}; background: ${bgCard}; border-radius: 10px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; text-align: left; padding: 0; color: inherit; transition: transform 0.15s ease, border-color 0.15s ease; }
+  .card:hover { transform: translateY(-2px); border-color: ${accent}; }
+  .thumb { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: ${bgElevated}; display: block; }
+  .meta { padding: 9px 10px; font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+  .player { flex: 1; display: none; flex-direction: column; min-height: 0; background: #000; }
+  .player.active { display: flex; }
+  .player iframe { flex: 1; width: 100%; height: 100%; border: none; display: block; background: #000; }
+  .empty { padding: 36px 16px; text-align: center; color: ${textMuted}; font-size: 13.5px; border: 1px dashed ${border}; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="bar">
+    <div class="brand"><span>GN-Math</span><span class="badge">Local Memory</span></div>
+    <div class="tools">
+      <input type="text" id="gn-search" class="search" placeholder="Search GN-Math catalog..." autocomplete="off" />
+      <button type="button" id="gn-back-grid" class="btn" style="display:none;">&#8592; Catalog</button>
+      <button type="button" id="gn-site-btn" class="btn btn-primary">Load Live gn-math.dev</button>
+    </div>
+  </div>
+  <div id="gn-grid-wrap" class="content"><div id="gn-grid" class="grid"></div></div>
+  <div id="gn-player-wrap" class="player"><iframe id="gn-inner-frame" allow="autoplay; keyboard; gamepad; fullscreen" referrerpolicy="no-referrer"></iframe></div>
+</div>
+<script>
+  var ITEMS = ${serializedItems};
+  var gridWrap = document.getElementById('gn-grid-wrap');
+  var gridEl = document.getElementById('gn-grid');
+  var searchEl = document.getElementById('gn-search');
+  var playerWrap = document.getElementById('gn-player-wrap');
+  var innerFrame = document.getElementById('gn-inner-frame');
+  var backBtn = document.getElementById('gn-back-grid');
+  var siteBtn = document.getElementById('gn-site-btn');
+  var activeGameBlob = null;
+
+  function showCatalog() {
+    if (activeGameBlob) { try { URL.revokeObjectURL(activeGameBlob); } catch (e) {} activeGameBlob = null; }
+    try { innerFrame.src = 'about:blank'; } catch (e) {}
+    playerWrap.classList.remove('active');
+    gridWrap.style.display = 'block';
+    backBtn.style.display = 'none';
+  }
+
+  function launchItem(item) {
+    gridWrap.style.display = 'none';
+    playerWrap.classList.add('active');
+    backBtn.style.display = 'inline-block';
+    fetch(item.url).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function (html) {
+      var base = '<base href="' + item.baseUrl + '">';
+      var docHtml = /<head\\b[^>]*>/i.test(html) ? html.replace(/(<head\\b[^>]*>)/i, '$1' + base) : (base + html);
+      if (activeGameBlob) { try { URL.revokeObjectURL(activeGameBlob); } catch (e) {} }
+      activeGameBlob = URL.createObjectURL(new Blob([docHtml], { type: 'text/html' }));
+      innerFrame.src = activeGameBlob;
+    }).catch(function () {
+      innerFrame.src = item.url;
+    });
+  }
+
+  function renderGrid() {
+    var q = (searchEl.value || '').trim().toLowerCase();
+    var filtered = ITEMS.filter(function (it) {
+      return !q || (it.name && it.name.toLowerCase().indexOf(q) !== -1);
+    });
+    gridEl.innerHTML = '';
+    if (!filtered.length) {
+      gridEl.innerHTML = '<div class="empty">No matching GN-Math titles loaded yet. Click "Load Live gn-math.dev" above or wait a moment for the catalog to sync.</div>';
+      return;
+    }
+    filtered.forEach(function (it) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'card';
+      if (it.cover) {
+        var img = document.createElement('img');
+        img.className = 'thumb';
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.src = it.cover;
+        img.alt = it.name;
+        img.onerror = function () { img.style.display = 'none'; };
+        card.appendChild(img);
+      }
+      var meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = it.name;
+      card.appendChild(meta);
+      card.addEventListener('click', function () { launchItem(it); });
+      gridEl.appendChild(card);
+    });
+  }
+
+  searchEl.addEventListener('input', renderGrid);
+  backBtn.addEventListener('click', showCatalog);
+  siteBtn.addEventListener('click', function () {
+    gridWrap.style.display = 'none';
+    playerWrap.classList.add('active');
+    backBtn.style.display = 'inline-block';
+    innerFrame.src = '${GNMATH_URL}';
+  });
+  renderGrid();
+<\/script>
+</body>
+</html>`;
+      }
+
+      async function loadGnMathIntoMemory(frame) {
+        if (!frame) return;
+        const token = ++gnMathLoadToken;
+        revokeGnMathBlobUrl();
+        const shellHtml = buildInMemoryGnMathArcadeHtml();
+        gnMathBlobUrl = URL.createObjectURL(new Blob([shellHtml], { type: 'text/html' }));
+        frame.src = gnMathBlobUrl;
+
+        try {
+          const res = await fetchWithTimeout(GNMATH_URL, {}, 3500);
+          if (token !== gnMathLoadToken || !document.body.contains(frame) || !res.ok) return;
+          const remoteHtml = await res.text();
+          if (token !== gnMathLoadToken || !document.body.contains(frame)) return;
+          if (remoteHtml && /<(?:html|head|body|div|script)\b/i.test(remoteHtml) && remoteHtml.length > 200) {
+            const wrappedHtml = prepareZoneHtml(remoteHtml, GNMATH_URL + '/');
+            revokeGnMathBlobUrl();
+            gnMathBlobUrl = URL.createObjectURL(new Blob([wrappedHtml], { type: 'text/html' }));
+            frame.src = gnMathBlobUrl;
+          }
+        } catch (err) {
+          // Local-memory GN-Math blob arcade shell stays active cleanly when direct CORS fetch is blocked
+        }
+      }
 
       function ensureGnMathFrameMounted() {
         const mount = document.getElementById('gnmath-frame-mount');
@@ -11609,8 +12081,8 @@
           frame.title = 'GN-Math';
           frame.setAttribute('allow', 'autoplay; keyboard; gamepad; fullscreen');
           frame.referrerPolicy = 'no-referrer';
-          frame.src = GNMATH_URL;
           mount.appendChild(frame);
+          loadGnMathIntoMemory(frame);
         }
         return frame;
       }
@@ -11618,13 +12090,13 @@
       function reloadGnMathFrame() {
         const frame = ensureGnMathFrameMounted();
         if (frame) {
-          try {
-            frame.src = frame.src || GNMATH_URL;
-          } catch (e) {}
+          loadGnMathIntoMemory(frame);
         }
       }
 
       function unmountGnMathFrame() {
+        gnMathLoadToken++;
+        revokeGnMathBlobUrl();
         const mount = document.getElementById('gnmath-frame-mount');
         const frame = document.getElementById('gnmath-iframe');
         if (frame) {
@@ -11635,9 +12107,13 @@
       }
 
       function initGnMathTab() {
+        const theaterBtn = document.getElementById('gnmath-theater-btn');
         const reloadBtn = document.getElementById('gnmath-reload-btn');
         const fsBtn = document.getElementById('gnmath-fullscreen-btn');
         const newTabBtn = document.getElementById('gnmath-newtab-btn');
+        if (theaterBtn) {
+          theaterBtn.addEventListener('click', toggleTheaterMode);
+        }
         if (reloadBtn) {
           reloadBtn.addEventListener('click', reloadGnMathFrame);
         }
