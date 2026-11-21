@@ -1,102 +1,95 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  detectOmniIntent,
-  normalizeOmniUrl,
-  buildDuckDuckGoApiUrl,
-  buildWikipediaSearchApiUrl,
-  buildWikipediaExtractApiUrl,
-  buildDictionaryApiUrl,
-  buildExternalSearchUrls,
-  stripHtmlSnippet,
-  resolveDuckDuckGoImageUrl,
-  addRecentSearchItem,
-  searchMyPortalData
+  BUILTIN_UTILITY_APPS,
+  getHighlightSegments,
+  detectOfflineMathOrUnit,
+  searchLocalWorkspace,
+  addRecentSearchItem
 } from './omniSearch.js';
 
-test('normalizeOmniUrl prepends https:// to domains while ignoring decimals and search phrases', () => {
-  assert.equal(normalizeOmniUrl('en.m.wikipedia.org'), 'https://en.m.wikipedia.org/');
-  assert.equal(normalizeOmniUrl('https://example.com/docs'), 'https://example.com/docs');
-  assert.equal(normalizeOmniUrl('localhost:3000'), 'http://localhost:3000/');
-  assert.equal(normalizeOmniUrl('3.14159'), null);
-  assert.equal(normalizeOmniUrl('photosynthesis'), null);
-  assert.equal(normalizeOmniUrl('quantum physics basics'), null);
+test('detectOfflineMathOrUnit solves equations, functions, and unit conversions offline while ignoring plain numbers', () => {
+  const mul = detectOfflineMathOrUnit('48 * 19');
+  assert.equal(mul.matched, true);
+  assert.equal(mul.answer, '912');
+
+  const root = detectOfflineMathOrUnit('sqrt(256)');
+  assert.equal(root.matched, true);
+  assert.equal(root.answer, '16');
+
+  const miles = detectOfflineMathOrUnit('10 miles to km');
+  assert.equal(miles.matched, true);
+  assert.equal(miles.answer, '16.09344 km');
+
+  const temp = detectOfflineMathOrUnit('72 f to c');
+  assert.equal(temp.matched, true);
+  assert.ok((temp.answer || '').startsWith('22.222222'));
+  assert.ok((temp.answer || '').endsWith('°C'));
+
+  const plainNum = detectOfflineMathOrUnit('2026');
+  assert.equal(plainNum.matched, false);
 });
 
-test('detectOmniIntent classifies URLs, math expressions, single dictionary words, and multi-word searches', () => {
-  const urlIntent = detectOmniIntent('en.m.wikipedia.org');
-  assert.equal(urlIntent.type, 'url');
-  if (urlIntent.type === 'url') {
-    assert.equal(urlIntent.url, 'https://en.m.wikipedia.org/');
-  }
+test('getHighlightSegments splits text into safe matched and unmatched spans case-insensitively', () => {
+  const segs = getHighlightSegments('Chlorophyll absorbs sunlight for Photosynthesis', 'chloro sun');
+  const matchedTexts = segs.filter((s) => s.match).map((s) => s.text.toLowerCase());
+  assert.deepEqual(matchedTexts, ['chloro', 'sun']);
+  assert.equal(segs.map((s) => s.text).join(''), 'Chlorophyll absorbs sunlight for Photosynthesis');
 
-  const mathIntent = detectOmniIntent('(15 + 5) / 4');
-  assert.equal(mathIntent.type, 'math');
-  if (mathIntent.type === 'math') {
-    assert.equal(mathIntent.math.answer, '5');
-  }
-
-  const wordIntent = detectOmniIntent('Serendipity');
-  assert.equal(wordIntent.type, 'search');
-  if (wordIntent.type === 'search') {
-    assert.equal(wordIntent.isSingleWord, true);
-  }
-
-  const multiIntent = detectOmniIntent('how photosynthesis works');
-  assert.equal(multiIntent.type, 'search');
-  if (multiIntent.type === 'search') {
-    assert.equal(multiIntent.isSingleWord, false);
-  }
+  // Regex special characters should not throw or over-match
+  const regexSafe = getHighlightSegments('Evaluate (15 + 5)', '(15 + 5)');
+  assert.equal(regexSafe.some((s) => s.match && s.text === '(15 + 5)'), true);
 });
 
-test('API URL builders produce CORS-ready endpoints for DuckDuckGo, Wikipedia, Dictionary, and fallbacks', () => {
-  assert.equal(
-    buildDuckDuckGoApiUrl('albert einstein'),
-    'https://api.duckduckgo.com/?q=albert%20einstein&format=json&no_html=1&skip_disambig=1'
-  );
-  assert.equal(
-    buildWikipediaSearchApiUrl('solar system', 10),
-    'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=solar%20system&srlimit=10&format=json&origin=*'
-  );
-  assert.equal(
-    buildWikipediaExtractApiUrl('Solar System'),
-    'https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&titles=Solar%20System&format=json&origin=*'
-  );
-  assert.equal(
-    buildDictionaryApiUrl(' Ephemeral '),
-    'https://api.dictionaryapi.dev/api/v2/entries/en/ephemeral'
-  );
-  const ext = buildExternalSearchUrls('calculus derivatives');
-  assert.ok(ext.duckduckgo.startsWith('https://duckduckgo.com/?q='));
-  assert.ok(ext.google.startsWith('https://www.google.com/search?q='));
-  assert.ok(ext.images.includes('iax=images'));
-});
-
-test('stripHtmlSnippet and resolveDuckDuckGoImageUrl clean snippets and relative paths safely', () => {
-  assert.equal(
-    stripHtmlSnippet('<span class="searchmatch">Photosynthesis</span> &amp; plant &quot;energy&quot;'),
-    'Photosynthesis & plant "energy"'
-  );
-  assert.equal(
-    resolveDuckDuckGoImageUrl('/i/5c1a2f.png'),
-    'https://duckduckgo.com/i/5c1a2f.png'
-  );
-});
-
-test('addRecentSearchItem deduplicates case-insensitively and searchMyPortalData aggregates local hits', () => {
-  const updated = addRecentSearchItem(['Physics', 'Slope'], 'physics', 10);
-  assert.deepEqual(updated, ['physics', 'Slope']);
-
-  const portalHits = searchMyPortalData('slope', {
-    notes: [{ id: 'n1', title: 'Algebra Notes', body: 'Slope formula is rise over run.' }],
-    games: [{ id: 'g1', name: 'Slope 3D', provider: 'gn', author: 'Y8' }],
-    flashcards: [{ id: 'f1', front: 'Slope-Intercept', back: 'y = mx + b' }],
+test('searchLocalWorkspace indexes Notepad, Flashcards, Calculator History, Built-In Apps, Tasks, and Games in real time', () => {
+  const sources = {
+    notes: [
+      { id: 'n1', title: 'Biology Lab Notes', body: 'Chlorophyll absorbs blue and red light during photosynthesis.' },
+      { id: 'n2', title: 'Algebra Formulas', body: 'Slope formula is rise over run.' }
+    ],
+    flashcards: [
+      { id: 'f1', front: 'Photosynthesis', back: 'Plants convert sunlight and CO2 into glucose.' },
+      { id: 'f2', front: 'Slope-Intercept', back: 'y = mx + b' }
+    ],
+    calcHistory: [
+      { expr: '48*19', result: '912' },
+      { expr: 'sqrt(256)', result: '16' }
+    ],
     tasks: [{ id: 't1', title: 'Practice slope homework', col: 'todo' }],
-    calcHistory: [{ expr: '10/2', res: '5' }]
-  });
-  assert.equal(portalHits.length, 4);
+    games: [{ id: 'g1', name: 'Slope 3D', provider: 'gn', author: 'Y8' }]
+  };
+
+  // Query across notes + flashcards
+  const photoHits = searchLocalWorkspace('photosynthesis', sources);
   assert.deepEqual(
-    portalHits.map(h => h.source),
-    ['note', 'flashcard', 'task', 'game']
+    photoHits.map((h) => h.source),
+    ['flashcard', 'note']
   );
+
+  // Query across built-in utility apps by keyword alias
+  const pomoHits = searchLocalWorkspace('pomodoro', sources);
+  assert.equal(pomoHits[0]?.source, 'app');
+  assert.equal(pomoHits[0]?.actionPayload, 'timer');
+
+  // Query across calculator history result or expression
+  const calcHits = searchLocalWorkspace('912', sources);
+  assert.equal(calcHits.some((h) => h.source === 'calc' && h.title === '48*19 = 912'), true);
+
+  // Query matching notes, flashcards, tasks, and games
+  const slopeHits = searchLocalWorkspace('slope', sources);
+  assert.equal(slopeHits.some((h) => h.source === 'note'), true);
+  assert.equal(slopeHits.some((h) => h.source === 'flashcard'), true);
+  assert.equal(slopeHits.some((h) => h.source === 'task'), true);
+  assert.equal(slopeHits.some((h) => h.source === 'game'), true);
+
+  // Built-in catalog includes all key tools
+  assert.ok(BUILTIN_UTILITY_APPS.some((a) => a.key === 'calculator'));
+  assert.ok(BUILTIN_UTILITY_APPS.some((a) => a.key === 'notepad'));
+  assert.ok(BUILTIN_UTILITY_APPS.some((a) => a.key === 'flashcards'));
+  assert.ok(BUILTIN_UTILITY_APPS.some((a) => a.key === 'stopwatch'));
+});
+
+test('addRecentSearchItem deduplicates case-insensitively and preserves cap', () => {
+  const updated = addRecentSearchItem(['Physics', 'Slope', '48 * 19'], 'physics', 3);
+  assert.deepEqual(updated, ['physics', 'Slope', '48 * 19']);
 });
