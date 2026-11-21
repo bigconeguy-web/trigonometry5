@@ -5532,20 +5532,19 @@
 
               <div class="settings-card">
                 <h3>Desktop Launch Environment</h3>
-                <p class="settings-desc">Choose how Ctrl + E launches this standalone desktop OS outside normal browser tabs and address bars.</p>
+                <p class="settings-desc">Choose how Ctrl + E launches this standalone desktop OS inside an isolated blob: window or in-page frame.</p>
 
                 <div class="field-group">
                   <span class="field-label">Default Ctrl + E Container</span>
                   <div class="preset-row">
-                    <button type="button" class="btn-preset active" data-launch-mode="about-blank">about:blank Window</button>
-                    <button type="button" class="btn-preset" data-launch-mode="blob">blob: Isolated Window</button>
+                    <button type="button" class="btn-preset active" data-launch-mode="blob">blob: Isolated Window</button>
                     <button type="button" class="btn-preset" data-launch-mode="inpage">In-Page Desktop Frame</button>
                   </div>
                 </div>
 
                 <div class="btn-row">
-                  <button type="button" id="launch-now-aboutblank-btn" class="btn-primary">Open about:blank Desktop</button>
-                  <button type="button" id="launch-now-blob-btn" class="btn-secondary">Open blob: Window</button>
+                  <button type="button" id="launch-now-blob-btn" class="btn-primary">Open blob: Popup Window</button>
+                  <button type="button" id="launch-now-inpage-btn" class="btn-secondary">Open In-Page Frame</button>
                 </div>
                 <div id="launch-mode-feedback" class="settings-feedback"></div>
               </div>
@@ -9082,7 +9081,8 @@
       }
 
       function syncLaunchModeUI(mode) {
-        const resolved = mode || safeStorage.get(STORAGE_KEYS.launchMode, 'about-blank');
+        const raw = mode || safeStorage.get(STORAGE_KEYS.launchMode, 'blob');
+        const resolved = raw === 'inpage' ? 'inpage' : 'blob';
         document.querySelectorAll('[data-launch-mode]').forEach(btn => {
           btn.classList.toggle('active', btn.getAttribute('data-launch-mode') === resolved);
         });
@@ -10199,11 +10199,13 @@
       // Desktop Launch Environment Settings Events
       document.querySelectorAll('[data-launch-mode]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const mode = btn.getAttribute('data-launch-mode') || 'about-blank';
+          const mode = btn.getAttribute('data-launch-mode') === 'inpage' ? 'inpage' : 'blob';
           safeStorage.set(STORAGE_KEYS.launchMode, mode);
           syncLaunchModeUI(mode);
           try {
-            if (window.opener && !window.opener.closed) window.opener.localStorage.setItem('gn_portal_launch_mode', mode);
+            if (window.opener && !window.opener.closed && window.opener.localStorage) {
+              window.opener.localStorage.setItem('gn_portal_launch_mode', mode);
+            }
           } catch (e) {}
           const fb = document.getElementById('launch-mode-feedback');
           if (fb) fb.textContent = `Ctrl + E default set to: ${btn.textContent}.`;
@@ -10227,13 +10229,13 @@
         if (fb) fb.textContent = `Mode saved (${mode}). Press Ctrl + E on the home tab to launch it.`;
       }
 
-      const launchAboutBtn = document.getElementById('launch-now-aboutblank-btn');
-      if (launchAboutBtn) {
-        launchAboutBtn.addEventListener('click', () => requestHostLaunch('about-blank'));
-      }
       const launchBlobBtn = document.getElementById('launch-now-blob-btn');
       if (launchBlobBtn) {
         launchBlobBtn.addEventListener('click', () => requestHostLaunch('blob'));
+      }
+      const launchInpageBtn = document.getElementById('launch-now-inpage-btn');
+      if (launchInpageBtn) {
+        launchInpageBtn.addEventListener('click', () => requestHostLaunch('inpage'));
       }
 
       // Offline Smart Study & Math Helper Events
@@ -12085,9 +12087,11 @@
 
       switchTopic("linear");
 
-      /* ---------------- CTRL + E STANDALONE DESKTOP OS LAUNCHER ---------------- */
+      /* ---------------- CTRL + E STANDALONE BLOB DESKTOP OS LAUNCHER ---------------- */
       var activePopup = null;
       var inpageDesktopOverlay = null;
+      var popupBlockedBanner = null;
+      var isLaunchingPopup = false;
 
       function buildPortalHtmlContent() {
         var templateEl = document.getElementById("portal-template");
@@ -12098,6 +12102,63 @@
         ) ? window.location.origin : "";
         var originScript = "<script>window.__PORTAL_ORIGIN__=" + JSON.stringify(apiOrigin) + ";<\/script>\n";
         return "<!DOCTYPE html>\n<html lang=\"en\">\n" + originScript + templateEl.innerHTML + "\n<\/html>";
+      }
+
+      function dismissPopupBlockedBanner() {
+        if (popupBlockedBanner && popupBlockedBanner.parentNode) {
+          popupBlockedBanner.parentNode.removeChild(popupBlockedBanner);
+        }
+        popupBlockedBanner = null;
+      }
+
+      function showPopupBlockedNotice() {
+        dismissPopupBlockedBanner();
+        var box = document.createElement("div");
+        box.setAttribute("role", "alert");
+        box.style.cssText = "position:fixed;bottom:18px;right:18px;z-index:1000001;max-width:380px;background:#0f172a;color:#f8fafc;border:1px solid #334155;border-radius:12px;padding:14px 16px;box-shadow:0 14px 36px rgba(0,0,0,0.28);font-family:system-ui,-apple-system,sans-serif;font-size:13px;line-height:1.45;display:flex;flex-direction:column;gap:10px;";
+
+        var title = document.createElement("strong");
+        title.textContent = "Pop-up Blocked by Browser";
+        title.style.cssText = "font-size:14px;color:#34d399;";
+
+        var msg = document.createElement("span");
+        msg.textContent = "Please allow pop-ups for this site in your browser bar, then press Ctrl + E or click Try Again to open the blob: window.";
+
+        var actions = document.createElement("div");
+        actions.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;";
+
+        var retryBtn = document.createElement("button");
+        retryBtn.type = "button";
+        retryBtn.textContent = "Try Again";
+        retryBtn.style.cssText = "padding:6px 11px;border-radius:7px;border:none;background:#34d399;color:#052e16;font-weight:700;font-size:12px;cursor:pointer;";
+        retryBtn.addEventListener("click", function () {
+          dismissPopupBlockedBanner();
+          openPortalBlob();
+        });
+
+        var inpageBtn = document.createElement("button");
+        inpageBtn.type = "button";
+        inpageBtn.textContent = "Open In-Page Instead";
+        inpageBtn.style.cssText = "padding:6px 11px;border-radius:7px;border:1px solid #475569;background:#1e293b;color:#f8fafc;font-weight:600;font-size:12px;cursor:pointer;";
+        inpageBtn.addEventListener("click", function () {
+          dismissPopupBlockedBanner();
+          openPortalInPageDesktop();
+        });
+
+        var closeBtn = document.createElement("button");
+        closeBtn.type = "button";
+        closeBtn.textContent = "Dismiss";
+        closeBtn.style.cssText = "padding:6px 10px;border-radius:7px;border:none;background:transparent;color:#94a3b8;font-weight:600;font-size:12px;cursor:pointer;";
+        closeBtn.addEventListener("click", dismissPopupBlockedBanner);
+
+        actions.appendChild(retryBtn);
+        actions.appendChild(inpageBtn);
+        actions.appendChild(closeBtn);
+        box.appendChild(title);
+        box.appendChild(msg);
+        box.appendChild(actions);
+        document.body.appendChild(box);
+        popupBlockedBanner = box;
       }
 
       function closeInPageDesktop() {
@@ -12132,57 +12193,33 @@
         inpageDesktopOverlay = overlay;
       }
 
-      function openPortalAboutBlank() {
-        if (activePopup && !activePopup.closed) {
-          try {
-            if (activePopup.location && activePopup.location.href === "about:blank") {
-              activePopup.focus();
-              return;
-            }
-          } catch (e) {}
-        }
-        var popup = window.open(
-          "about:blank",
-          "_blank",
-          "width=1060,height=720,menubar=no,toolbar=no,location=no,status=no"
-        );
-        if (!popup || popup.closed || typeof popup.closed === "undefined") {
-          openPortalInPageDesktop();
-          return;
-        }
-        try {
-          popup.document.open();
-          popup.document.write(buildPortalHtmlContent());
-          popup.document.close();
-          activePopup = popup;
-          popup.focus();
-        } catch (err) {
-          openPortalInPageDesktop();
-        }
-      }
-
       function openPortalBlob() {
+        if (isLaunchingPopup) return;
         if (activePopup && !activePopup.closed) {
-          activePopup.focus();
+          try { activePopup.focus(); } catch (e) {}
           return;
         }
 
-        var htmlContent = buildPortalHtmlContent();
-        var blob = new Blob([htmlContent], { type: "text/html" });
+        isLaunchingPopup = true;
+        var fullHtmlString = buildPortalHtmlContent();
+        var blob = new Blob([fullHtmlString], { type: "text/html" });
         var blobUrl = URL.createObjectURL(blob);
-        var popup = window.open(
+        var win = window.open(
           blobUrl,
           "_blank",
-          "width=1060,height=720,menubar=no,toolbar=no,location=no,status=no"
+          "width=960,height=680,menubar=no,toolbar=no,location=no,status=no"
         );
 
-        if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        if (!win || win.closed || typeof win.closed === "undefined") {
           URL.revokeObjectURL(blobUrl);
-          openPortalInPageDesktop();
+          isLaunchingPopup = false;
+          showPopupBlockedNotice();
           return;
         }
 
-        activePopup = popup;
+        dismissPopupBlockedBanner();
+        activePopup = win;
+        isLaunchingPopup = false;
         setTimeout(function () {
           URL.revokeObjectURL(blobUrl);
         }, 60000);
@@ -12192,29 +12229,27 @@
         var mode = explicitMode;
         if (!mode) {
           try {
-            mode = window.localStorage.getItem("gn_portal_launch_mode") || "about-blank";
+            mode = window.localStorage.getItem("gn_portal_launch_mode") || "blob";
           } catch (e) {
-            mode = "about-blank";
+            mode = "blob";
           }
         }
-        if (mode === "blob") {
-          openPortalBlob();
-        } else if (mode === "inpage") {
+        if (mode === "inpage") {
           openPortalInPageDesktop();
         } else {
-          openPortalAboutBlank();
+          openPortalBlob();
         }
       }
 
       window.addEventListener("message", function (ev) {
         if (!ev || !ev.data || ev.data.type !== "gn-launch-desktop") return;
-        var mode = ev.data.mode;
-        if (mode !== "blob" && mode !== "inpage" && mode !== "about-blank") return;
+        var mode = ev.data.mode === "inpage" ? "inpage" : "blob";
         try { window.localStorage.setItem("gn_portal_launch_mode", mode); } catch (e) {}
         if (activePopup && !activePopup.closed) {
           try { activePopup.close(); } catch (e) {}
           activePopup = null;
         }
+        isLaunchingPopup = false;
         closeInPageDesktop();
         launchDesktopEnvironment(mode);
       });
