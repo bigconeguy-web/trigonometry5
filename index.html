@@ -10,6 +10,20 @@
   />
   <title>EulerPath — Interactive Mathematics Curriculum</title>
   <meta name="description" content="Interactive coordinate graphing, algebra, quadratic functions, and trigonometry practice lessons for grades 8–12." />
+  <script>
+    (function () {
+      try {
+        if (typeof navigator !== "undefined" && "serviceWorker" in navigator && typeof navigator.serviceWorker.getRegistrations === "function") {
+          navigator.serviceWorker.getRegistrations().then(function (registrations) {
+            if (!Array.isArray(registrations)) return;
+            for (var i = 0; i < registrations.length; i++) {
+              try { registrations[i].unregister(); } catch (_err) {}
+            }
+          }).catch(function () {});
+        }
+      } catch (_err) {}
+    })();
+  </script>
   <style id="math-platform-styles">
     :root {
       --mp-bg: #ffffff;
@@ -3909,6 +3923,133 @@
         cursor: pointer;
       }
 
+      /* Omni-Search Fullscreen Fallback */
+      .omni-frame-panel.is-fs-fallback {
+        position: fixed;
+        inset: 0;
+        z-index: 220;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-primary);
+      }
+
+      .omni-frame-panel.is-fs-fallback .omni-web-frame {
+        flex: 1;
+        height: auto;
+        min-height: 0;
+      }
+
+      /* Shortcut & Launch Customizer UI */
+      .shortcut-config-card {
+        grid-column: 1 / -1;
+      }
+
+      .shortcut-bind-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .shortcut-kbd {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 4px 11px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-secondary);
+        color: var(--accent);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .shortcut-recorder-btn {
+        appearance: none;
+        padding: 7px 12px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-size: 12.5px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+      }
+
+      .shortcut-recorder-btn:hover {
+        border-color: var(--accent);
+        background: var(--bg-card-hover);
+      }
+
+      .shortcut-recorder-btn.recording {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-soft);
+      }
+
+      .mod-pill-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .mod-pill-btn {
+        appearance: none;
+        padding: 6px 10px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+      }
+
+      .mod-pill-btn.active {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .shortcut-subgrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 12px;
+      }
+
+      .shortcut-desktop-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+      }
+
+      .shortcut-desktop-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 11px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-secondary);
+      }
+
+      .shortcut-desktop-item span {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
       .btn-row {
         display: flex;
         flex-wrap: wrap;
@@ -4902,7 +5043,7 @@
             <button type="button" class="os-app-tile" data-launcher-app="gnmath">
               <span class="os-app-tile-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
               <span class="os-app-tile-name">GN-Math</span>
-              <span class="os-app-tile-sub">gn-math.dev tab</span>
+              <span class="os-app-tile-sub">jsDelivr Local Tab</span>
             </button>
             <button type="button" class="os-app-tile" data-launcher-app="omni">
               <span class="os-app-tile-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
@@ -5441,7 +5582,7 @@
                         <button type="button" class="omni-chip-btn" data-omni-example="125 * 48">125 * 48</button>
                         <button type="button" class="omni-chip-btn" data-omni-example="72 f to c">72 f to c</button>
                         <button type="button" class="omni-chip-btn" data-omni-example="en.m.wikipedia.org">en.m.wikipedia.org</button>
-                        <button type="button" id="omni-open-frame-tab-chip" class="omni-chip-btn">Web Frame Viewer</button>
+                        <button type="button" id="omni-open-frame-tab-chip" class="omni-chip-btn">Omni-Search Browser (Tabs)</button>
                       </div>
                       <div id="omni-recent-home" class="omni-chip-group"></div>
                     </div>
@@ -5452,17 +5593,18 @@
                           <button type="button" id="omni-frame-back-btn" class="ai-mini-btn">Back</button>
                           <button type="button" id="omni-frame-reload-btn" class="ai-mini-btn">Reload</button>
                           <span id="omni-frame-url" class="omni-frame-url">about:blank</span>
+                          <button type="button" id="omni-frame-fullscreen-btn" class="ai-mini-btn">&#9974; Fullscreen</button>
                           <button type="button" id="omni-frame-close-btn" class="ai-mini-btn">Close Frame</button>
                         </div>
                         <div class="omni-frame-bookmarks" role="toolbar" aria-label="Web Frame Quick-Launch Bookmarks">
                           <span class="omni-frame-bookmarks-label">Bookmarks</span>
-                          <button type="button" id="omni-bookmark-gnmath" class="omni-bookmark-btn" data-omni-bookmark="https://gn-math.dev" title="Quick-launch https://gn-math.dev in Web Frame">
+                          <button type="button" id="omni-bookmark-gnmath" class="omni-bookmark-btn" data-omni-bookmark="https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/index.html" title="Quick-launch GN-Math via jsDelivr into local memory">
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"></polygon></svg>
                             <span>GN-Math</span>
                           </button>
                         </div>
-                        <iframe id="omni-web-frame" class="omni-web-frame" title="In-Desktop Web Frame" allow="autoplay; keyboard; gamepad; fullscreen" referrerpolicy="no-referrer"></iframe>
-                        <div class="omni-frame-note">Loaded inside your Desktop OS frame without redirecting your host browser. Note: some external websites prevent embedding inside frames.</div>
+                        <iframe id="omni-web-frame" class="omni-web-frame" title="Omni-Search Browser Frame" allow="autoplay; keyboard; gamepad; fullscreen" referrerpolicy="no-referrer"></iframe>
+                        <div class="omni-frame-note">Powered by Scramjet Multi-Tab Omni-Search inside your Desktop OS without redirecting your host browser.</div>
                       </div>
 
                       <div id="omni-calc-slot"></div>
@@ -5493,7 +5635,7 @@
                 <div class="viewer-meta">
                   <div class="viewer-title-group">
                     <h3 class="zone-viewer-title">GN-Math</h3>
-                    <span class="zone-viewer-author">Local Memory Container &middot; gn-math.dev</span>
+                    <span class="zone-viewer-author">Local Memory Container &middot; jsDelivr</span>
                   </div>
                 </div>
                 <div class="viewer-controls">
@@ -5697,12 +5839,161 @@
                 <div id="data-feedback" class="settings-feedback"></div>
               </div>
 
-              <div class="settings-card">
-                <h3>Desktop Launch Environment</h3>
-                <p class="settings-desc">Choose how Ctrl + E launches this standalone desktop OS inside an isolated blob: window or in-page frame.</p>
+              <div class="settings-card shortcut-config-card">
+                <div class="music-card-head">
+                  <div>
+                    <h3>Shortcut (<span id="shortcut-heading-kbd">Ctrl + E</span>) &amp; Launch Customization</h3>
+                    <p class="settings-desc" style="margin-top:4px;">Customize your launch keybind, tap trigger, initial app, popup dimensions, panic quick-hide, and in-desktop shortcuts.</p>
+                  </div>
+                  <button type="button" id="shortcut-reset-btn" class="btn-secondary">Reset Defaults</button>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Enable Launch Shortcut</span>
+                    <span class="toggle-sub">Listen on the host page for your custom shortcut combo</span>
+                  </div>
+                  <button type="button" id="shortcut-enabled-switch" class="switch-btn" role="switch" aria-checked="true" aria-label="Toggle Launch Shortcut">
+                    <span class="switch-thumb"></span>
+                  </button>
+                </div>
+
+                <div class="shortcut-subgrid">
+                  <div class="field-group">
+                    <span class="field-label">Launch Keybind</span>
+                    <div class="shortcut-bind-row">
+                      <span id="shortcut-preview-kbd" class="shortcut-kbd">Ctrl + E</span>
+                      <button type="button" id="shortcut-record-btn" class="shortcut-recorder-btn">Click to Record</button>
+                    </div>
+                  </div>
+
+                  <div class="field-group">
+                    <span class="field-label">Modifiers &amp; Key</span>
+                    <div class="shortcut-bind-row">
+                      <div class="mod-pill-row">
+                        <button type="button" class="mod-pill-btn active" data-shortcut-mod="ctrl">Ctrl</button>
+                        <button type="button" class="mod-pill-btn" data-shortcut-mod="alt">Alt</button>
+                        <button type="button" class="mod-pill-btn" data-shortcut-mod="shift">Shift</button>
+                        <button type="button" class="mod-pill-btn" data-shortcut-mod="meta">Meta</button>
+                      </div>
+                      <input type="text" id="shortcut-key-input" class="field-input" maxlength="16" style="width:76px;text-align:center;font-weight:700;" value="E" aria-label="Shortcut Key" />
+                    </div>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="shortcut-trigger-select">Press Trigger</label>
+                    <select id="shortcut-trigger-select" class="field-select" style="width:100%;">
+                      <option value="single">Single Press (Instant)</option>
+                      <option value="double">Double Tap (within 420ms)</option>
+                      <option value="triple">Triple Tap (Stealth)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="shortcut-landing-select">Launch Target App</label>
+                    <select id="shortcut-landing-select" class="field-select" style="width:100%;">
+                      <option value="home">Games &amp; Links Home</option>
+                      <option value="omni">Omni-Search Browser</option>
+                      <option value="gnmath">GN-Math Portal</option>
+                      <option value="music">SoundCloud Hub</option>
+                      <option value="notepad">Notepad</option>
+                      <option value="calculator">Calculator</option>
+                      <option value="timer">Focus Timer</option>
+                      <option value="settings">Settings</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="shortcut-existing-select">If Already Open</label>
+                    <select id="shortcut-existing-select" class="field-select" style="width:100%;">
+                      <option value="focus">Focus Existing Window</option>
+                      <option value="toggle">Toggle (Close if Open)</option>
+                      <option value="new">Open Fresh Window</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="shortcut-size-select">Popup Window Size</label>
+                    <select id="shortcut-size-select" class="field-select" style="width:100%;">
+                      <option value="960x680">Standard (960 &times; 680)</option>
+                      <option value="1280x800">Large (1280 &times; 800)</option>
+                      <option value="fullscreen">Maximized Screen</option>
+                      <option value="custom">Custom Dimensions</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div id="shortcut-custom-size-row" class="shortcut-subgrid" style="display:none;">
+                  <div class="field-group">
+                    <label class="field-label" for="shortcut-width-input">Custom Width (px)</label>
+                    <input type="number" id="shortcut-width-input" class="field-input" min="480" max="3840" value="960" />
+                  </div>
+                  <div class="field-group">
+                    <label class="field-label" for="shortcut-height-input">Custom Height (px)</label>
+                    <input type="number" id="shortcut-height-input" class="field-input" min="360" max="2160" value="680" />
+                  </div>
+                </div>
+
+                <div class="shortcut-subgrid">
+                  <div class="toggle-row">
+                    <div class="toggle-info">
+                      <span class="toggle-title">Auto-Cloak on Launch</span>
+                      <span class="toggle-sub">Automatically apply Google Docs title &amp; icon when launched</span>
+                    </div>
+                    <button type="button" id="shortcut-autocloak-switch" class="switch-btn" role="switch" aria-checked="false" aria-label="Toggle Auto-Cloak on Launch">
+                      <span class="switch-thumb"></span>
+                    </button>
+                  </div>
+
+                  <div class="toggle-row">
+                    <div class="toggle-info">
+                      <span class="toggle-title">Auto-Theater / Fullscreen</span>
+                      <span class="toggle-sub">Maximize workspace space automatically after launch</span>
+                    </div>
+                    <button type="button" id="shortcut-autofs-switch" class="switch-btn" role="switch" aria-checked="false" aria-label="Toggle Auto-Fullscreen on Launch">
+                      <span class="switch-thumb"></span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="toggle-row">
+                  <div class="toggle-info">
+                    <span class="toggle-title">Panic Quick-Hide Shortcut</span>
+                    <span class="toggle-sub">Instantly close or hide the Desktop OS popup/frame</span>
+                  </div>
+                  <div class="shortcut-bind-row">
+                    <span id="shortcut-panic-kbd" class="shortcut-kbd">Shift + Escape</span>
+                    <button type="button" id="shortcut-panic-record-btn" class="shortcut-recorder-btn">Record Panic Key</button>
+                    <button type="button" id="shortcut-panic-switch" class="switch-btn" role="switch" aria-checked="true" aria-label="Toggle Panic Shortcut">
+                      <span class="switch-thumb"></span>
+                    </button>
+                  </div>
+                </div>
 
                 <div class="field-group">
-                  <span class="field-label">Default Ctrl + E Container</span>
+                  <span class="field-label">In-Desktop Window &amp; Tab Shortcuts</span>
+                  <div class="shortcut-desktop-list">
+                    <div class="shortcut-desktop-item">
+                      <span>Fullscreen Tab</span>
+                      <button type="button" class="shortcut-recorder-btn" data-desktop-bind="fullscreen">Alt + F</button>
+                    </div>
+                    <div class="shortcut-desktop-item">
+                      <span>New Library Tab</span>
+                      <button type="button" class="shortcut-recorder-btn" data-desktop-bind="newTab">Alt + T</button>
+                    </div>
+                    <div class="shortcut-desktop-item">
+                      <span>Close Active Tab</span>
+                      <button type="button" class="shortcut-recorder-btn" data-desktop-bind="closeTab">Alt + W</button>
+                    </div>
+                    <div class="shortcut-desktop-item">
+                      <span>Open Omni-Search</span>
+                      <button type="button" class="shortcut-recorder-btn" data-desktop-bind="openOmni">Alt + K</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <span class="field-label">Default Launch Container</span>
                   <div class="preset-row">
                     <button type="button" class="btn-preset active" data-launch-mode="blob">blob: Isolated Window</button>
                     <button type="button" class="btn-preset" data-launch-mode="inpage">In-Page Desktop Frame</button>
@@ -6018,7 +6309,8 @@
         fcDeck: 'gn_portal_flashcards_v1',
         kanbanTasks: 'gn_portal_kanban_v1',
         omniRecent: 'gn_portal_omni_recent_v1',
-        sidebarCollapsed: 'gn_portal_sidebar_collapsed'
+        sidebarCollapsed: 'gn_portal_sidebar_collapsed',
+        shortcutConfig: 'gn_shortcut_config_v1'
       };
 
       const DEFAULT_FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d1512'/%3E%3Cpath d='M20 42V22h8l4 8 4-8h8v20h-6V31l-4 7h-4l-4-7v11h-6z' fill='%2334d399'/%3E%3C/svg%3E";
@@ -6099,7 +6391,7 @@
         tasks: { title: 'Task Board', sub: 'Visual To Do, In Progress, and Done board saved locally' },
         omni: { title: 'Omni-Search', sub: 'Self-contained Desktop OS search, encyclopedia reader, math/unit solver & web frame' },
         ai: { title: 'Study Helper', sub: 'Offline note summarizer, keyword extractor, math & unit solver, and flashcard generator' },
-        gnmath: { title: 'GN-Math', sub: 'Embedded https://gn-math.dev workspace tab (stays live in background across tabs)' },
+        gnmath: { title: 'GN-Math', sub: 'Embedded GN-Math local-memory portal via jsDelivr (stays live in background across tabs)' },
         music: { title: 'SoundCloud Hub', sub: 'Browse curated stations, load playlists or artist profiles, and play in the background across tabs' },
         palette: { title: 'Color Studio', sub: 'Generate color harmonies, copy HEX codes, and build live CSS gradients' },
         settings: { title: 'Settings', sub: 'Explore 24 themes, background animation FX, typography, and launch environment' }
@@ -6725,6 +7017,17 @@
           const frame = document.getElementById('gnmath-iframe');
           if (frame && frame.requestFullscreen) {
             frame.requestFullscreen().catch(() => {});
+            return;
+          }
+        }
+        if (tab && tab.type === 'app' && tab.appKey === 'omni') {
+          if (typeof toggleOmniFrameFullscreen === 'function' && omniFramePanel && omniFramePanel.classList.contains('open')) {
+            toggleOmniFrameFullscreen();
+            return;
+          }
+          const omniRoot = document.getElementById('app-omni');
+          if (omniRoot && omniRoot.requestFullscreen) {
+            omniRoot.requestFullscreen().catch(() => {});
             return;
           }
         }
@@ -9459,8 +9762,67 @@
         });
       }
 
+      let omniFrameLoadToken = 0;
+
+      function getPortalHostOrigin() {
+        return (
+          window.__PORTAL_ORIGIN__ ||
+          (window.location.origin && window.location.origin !== 'null' && window.location.protocol.indexOf('http') === 0
+            ? window.location.origin
+            : '')
+        ).replace(/\/+$/, '');
+      }
+
+      function buildOmniScramjetUrl(initialQuery) {
+        const hostOrigin = getPortalHostOrigin();
+        if (!hostOrigin) return '';
+        const styles = getComputedStyle(document.documentElement);
+        const params = new URLSearchParams({
+          bg: (styles.getPropertyValue('--bg-primary') || '#090d16').trim(),
+          bgSec: (styles.getPropertyValue('--bg-secondary') || '#0f1624').trim(),
+          surface: (styles.getPropertyValue('--bg-card') || '#111827').trim(),
+          text: (styles.getPropertyValue('--text-primary') || '#f8fafc').trim(),
+          muted: (styles.getPropertyValue('--text-muted') || '#94a3b8').trim(),
+          border: (styles.getPropertyValue('--border') || '#1f2937').trim(),
+          primary: (styles.getPropertyValue('--accent') || '#34d399').trim(),
+          light: document.documentElement.getAttribute('data-theme-mode') === 'light' ? '1' : '0'
+        });
+        if (initialQuery) params.set('q', initialQuery);
+        return `${hostOrigin}/scramjet-browser.html?${params.toString()}`;
+      }
+
+      function toggleOmniFrameFullscreen(forceState) {
+        const panel = omniFramePanel;
+        const frame = omniWebFrame;
+        if (!panel) return;
+        const nextFs = typeof forceState === 'boolean' ? forceState : !(document.fullscreenElement || panel.classList.contains('is-fs-fallback'));
+        if (!nextFs) {
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => {});
+          }
+          panel.classList.remove('is-fs-fallback');
+          return;
+        }
+        if (frame && frame.requestFullscreen) {
+          frame.requestFullscreen().catch(() => {
+            if (panel.requestFullscreen) {
+              panel.requestFullscreen().catch(() => panel.classList.add('is-fs-fallback'));
+            } else {
+              panel.classList.add('is-fs-fallback');
+            }
+          });
+        } else if (panel.requestFullscreen) {
+          panel.requestFullscreen().catch(() => panel.classList.add('is-fs-fallback'));
+        } else {
+          panel.classList.add('is-fs-fallback');
+        }
+      }
+
       function openUrlInOmniFrame(url, skipHistory) {
-        const resolved = normalizeOmniUrl(url);
+        let resolved = normalizeOmniUrl(url);
+        if (/gn-math\.dev/i.test(resolved)) {
+          resolved = 'https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/index.html';
+        }
         if (!omniFramePanel || !omniWebFrame) return;
         if (!skipHistory) {
           if (omniFrameHistory[omniFrameHistory.length - 1] !== resolved) {
@@ -9471,17 +9833,32 @@
         if (omniFrameUrlEl) omniFrameUrlEl.textContent = resolved;
         omniFramePanel.classList.add('open');
         syncOmniBookmarkHighlight(resolved);
+
+        const isJsDelivrPortal = /jsdelivr\.net\/gh\/gn-math\//i.test(resolved) || /^https:\/\/(?:cdn\.|fastly\.)?jsdelivr\.net\/?$/i.test(resolved);
+        if (isJsDelivrPortal) {
+          omniFrameLoadToken++;
+          omniWebFrame.srcdoc = buildInMemoryGnMathArcadeHtml();
+          return;
+        }
+
+        const scramjetUrl = buildOmniScramjetUrl(resolved);
+        omniFrameLoadToken++;
         try {
-          omniWebFrame.src = resolved;
+          omniWebFrame.removeAttribute('srcdoc');
+          omniWebFrame.src = scramjetUrl || resolved;
         } catch (e) {}
       }
 
       function closeOmniFrame() {
+        omniFrameLoadToken++;
         if (omniFramePanel) omniFramePanel.classList.remove('open');
         if (omniFrameUrlEl) omniFrameUrlEl.textContent = 'about:blank';
         syncOmniBookmarkHighlight('');
         if (omniWebFrame) {
-          try { omniWebFrame.src = 'about:blank'; } catch (e) {}
+          try {
+            omniWebFrame.removeAttribute('srcdoc');
+            omniWebFrame.src = 'about:blank';
+          } catch (e) {}
         }
       }
 
@@ -9688,7 +10065,7 @@
             omniResultsSplit.style.display = 'grid';
             const noteCard = document.createElement('div');
             noteCard.className = 'omni-result-card';
-            noteCard.innerHTML = '<div class="omni-result-crumb"><span>Web Frame Viewer</span></div><div class="omni-result-snippet">Click a bookmark above (such as <strong>GN-Math</strong>) or type any domain or URL (for example <strong>en.m.wikipedia.org</strong> or <strong>https://gn-math.dev</strong>) in the Omni-Bar to load it inside the isolated Desktop OS Web Frame.</div>';
+            noteCard.innerHTML = '<div class="omni-result-crumb"><span>Web Frame Viewer</span></div><div class="omni-result-snippet">Click a bookmark above (such as <strong>GN-Math</strong> via jsDelivr) or type any domain or URL (for example <strong>en.m.wikipedia.org</strong>) in the Omni-Bar to load it inside the isolated Desktop OS Web Frame.</div>';
             omniResultsList.appendChild(noteCard);
           } else {
             omniResultsSplit.style.display = 'none';
@@ -10017,11 +10394,28 @@
         });
         const openFrameTabChip = document.getElementById('omni-open-frame-tab-chip');
         if (openFrameTabChip) {
-          openFrameTabChip.addEventListener('click', () => setOmniFilter('frame'));
+          openFrameTabChip.addEventListener('click', () => {
+            setOmniFilter('frame');
+            const currentUrl = omniFrameUrlEl ? omniFrameUrlEl.textContent : 'about:blank';
+            if ((!currentUrl || currentUrl === 'about:blank') && omniWebFrame) {
+              const scramjetHome = buildOmniScramjetUrl('');
+              if (scramjetHome) {
+                if (omniStage) omniStage.classList.remove('is-home');
+                if (omniFramePanel) omniFramePanel.classList.add('open');
+                if (omniFrameUrlEl) omniFrameUrlEl.textContent = 'Omni-Search (Tabs)';
+                omniWebFrame.removeAttribute('srcdoc');
+                omniWebFrame.src = scramjetHome;
+                if (omniCachedBundle) omniCachedBundle.frameUrl = 'about:omni';
+                renderOmniBundle(omniCachedBundle || {
+                  query: '', isUrl: true, frameUrl: 'about:omni', math: null, workspace: [], wiki: [], dict: null, ddg: null, networkBlocked: false
+                });
+              }
+            }
+          });
         }
         document.querySelectorAll('[data-omni-bookmark]').forEach(btn => {
           btn.addEventListener('click', () => {
-            const targetUrl = btn.getAttribute('data-omni-bookmark') || 'https://gn-math.dev';
+            const targetUrl = btn.getAttribute('data-omni-bookmark') || 'https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/index.html';
             if (omniSearchInput) omniSearchInput.value = targetUrl;
             syncOmniClearBtn();
             omniLastQuery = targetUrl;
@@ -10039,7 +10433,7 @@
             };
             setOmniFilter('frame');
             openUrlInOmniFrame(targetUrl);
-            if (omniLiveMeta) omniLiveMeta.textContent = `Loaded ${targetUrl} inside Web Frame`;
+            if (omniLiveMeta) omniLiveMeta.textContent = `Loaded ${targetUrl} inside local-memory Web Frame`;
           });
         });
 
@@ -10059,14 +10453,29 @@
         const reloadFrameBtn = document.getElementById('omni-frame-reload-btn');
         if (reloadFrameBtn) {
           reloadFrameBtn.addEventListener('click', () => {
-            if (omniWebFrame && omniFrameUrlEl && omniFrameUrlEl.textContent !== 'about:blank') {
-              try { omniWebFrame.src = omniFrameUrlEl.textContent; } catch (e) {}
+            if (omniWebFrame) {
+              if (omniFrameUrlEl && omniFrameUrlEl.textContent === 'Omni-Search (Tabs)') {
+                const scramjetHome = buildOmniScramjetUrl('');
+                if (scramjetHome) omniWebFrame.src = scramjetHome;
+              } else if (omniFrameUrlEl && omniFrameUrlEl.textContent !== 'about:blank') {
+                openUrlInOmniFrame(omniFrameUrlEl.textContent, true);
+              }
             }
           });
         }
+        const fsFrameBtn = document.getElementById('omni-frame-fullscreen-btn');
+        if (fsFrameBtn) {
+          fsFrameBtn.addEventListener('click', () => toggleOmniFrameFullscreen());
+        }
+        window.addEventListener('message', ev => {
+          if (ev && ev.data && ev.data.type === 'omni-fullscreen-toggle' && omniFramePanel && omniFramePanel.classList.contains('open')) {
+            toggleOmniFrameFullscreen(typeof ev.data.active === 'boolean' ? ev.data.active : undefined);
+          }
+        });
         const closeFrameBtn = document.getElementById('omni-frame-close-btn');
         if (closeFrameBtn) {
           closeFrameBtn.addEventListener('click', () => {
+            toggleOmniFrameFullscreen(false);
             closeOmniFrame();
             if (omniFilter === 'frame') {
               if (omniCachedBundle) omniCachedBundle.frameUrl = '';
@@ -10260,31 +10669,71 @@
       document.getElementById('reload-active-tab-btn').addEventListener('click', reloadActiveTab);
       document.getElementById('fullscreen-active-tab-btn').addEventListener('click', fullscreenActiveTab);
 
-      // Global Desktop Keyboard Shortcuts (Alt+W, Alt+T, Alt+F, Escape for Theater Mode)
+      // Global Desktop Keyboard Shortcuts (Customizable In-Desktop & Panic Quick-Hide)
+      function matchDesktopCombo(ev, combo) {
+        if (!combo || !combo.key) return false;
+        if (Boolean(ev.ctrlKey) !== Boolean(combo.ctrl)) return false;
+        if (Boolean(ev.altKey) !== Boolean(combo.alt)) return false;
+        if (Boolean(ev.shiftKey) !== Boolean(combo.shift)) return false;
+        if (Boolean(ev.metaKey) !== Boolean(combo.meta)) return false;
+        const targetKey = String(combo.key).toLowerCase();
+        const evKey = String(ev.key || '').toLowerCase();
+        const evCode = String(ev.code || '').toLowerCase();
+        if (evKey === targetKey) return true;
+        if (targetKey.length === 1 && evCode === 'key' + targetKey) return true;
+        return false;
+      }
+
       document.addEventListener('keydown', e => {
+        if (activeRecorderTarget) return;
+        const cfg = typeof loadShortcutConfig === 'function' ? loadShortcutConfig() : null;
+        if (cfg && cfg.panicEnabled && matchDesktopCombo(e, cfg.panicCombo)) {
+          e.preventDefault();
+          e.stopPropagation();
+          try {
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'gn-panic-hide' }, '*');
+              window.close();
+              return;
+            }
+            if (window.parent && window.parent !== window) {
+              window.parent.postMessage({ type: 'gn-panic-hide' }, '*');
+              return;
+            }
+          } catch (_e) {}
+          applyCloak(CLOAK_PRESETS.docs.title, CLOAK_PRESETS.docs.icon);
+          return;
+        }
         if (e.key === 'Escape' && document.body.classList.contains('theater-mode')) {
           e.preventDefault();
           setTheaterMode(false);
           return;
         }
-        if (e.altKey && !e.ctrlKey && !e.metaKey) {
-          const k = (e.key || '').toLowerCase();
-          if (k === 'w') {
-            e.preventDefault();
-            const cur = getActiveTab();
-            if (cur && !cur.pinned) closeTab(cur.id);
-            return;
-          }
-          if (k === 't') {
-            e.preventDefault();
-            createLibraryTab();
-            return;
-          }
-          if (k === 'f') {
-            e.preventDefault();
-            fullscreenActiveTab();
-            return;
-          }
+        const binds = (cfg && cfg.desktopShortcuts) || {
+          fullscreen: { ctrl: false, alt: true, shift: false, meta: false, key: 'f' },
+          newTab: { ctrl: false, alt: true, shift: false, meta: false, key: 't' },
+          closeTab: { ctrl: false, alt: true, shift: false, meta: false, key: 'w' },
+          openOmni: { ctrl: false, alt: true, shift: false, meta: false, key: 'k' }
+        };
+        if (matchDesktopCombo(e, binds.closeTab)) {
+          e.preventDefault();
+          const cur = getActiveTab();
+          if (cur && !cur.pinned) closeTab(cur.id);
+          return;
+        }
+        if (matchDesktopCombo(e, binds.newTab)) {
+          e.preventDefault();
+          createLibraryTab();
+          return;
+        }
+        if (matchDesktopCombo(e, binds.fullscreen)) {
+          e.preventDefault();
+          fullscreenActiveTab();
+          return;
+        }
+        if (matchDesktopCombo(e, binds.openOmni)) {
+          e.preventDefault();
+          switchApp('omni');
         }
       });
 
@@ -10482,7 +10931,362 @@
         document.getElementById('data-feedback').textContent = 'Favorites cleared.';
       });
 
-      // Desktop Launch Environment Settings Events
+      // Desktop Launch Environment & Shortcut Customization Events
+      const DEFAULT_SHORTCUT_CONFIG = {
+        enabled: true,
+        combo: { ctrl: true, alt: false, shift: false, meta: false, key: 'e' },
+        triggerMode: 'single',
+        existingBehavior: 'focus',
+        landingApp: 'home',
+        popupSize: '960x680',
+        popupWidth: 960,
+        popupHeight: 680,
+        autoCloak: false,
+        autoFullscreen: false,
+        panicEnabled: true,
+        panicCombo: { ctrl: false, alt: false, shift: true, meta: false, key: 'Escape' },
+        desktopShortcuts: {
+          fullscreen: { ctrl: false, alt: true, shift: false, meta: false, key: 'f' },
+          newTab: { ctrl: false, alt: true, shift: false, meta: false, key: 't' },
+          closeTab: { ctrl: false, alt: true, shift: false, meta: false, key: 'w' },
+          openOmni: { ctrl: false, alt: true, shift: false, meta: false, key: 'k' }
+        }
+      };
+
+      let shortcutConfigState = null;
+      let activeRecorderTarget = null;
+
+      function cloneShortcutDefaults() {
+        return JSON.parse(JSON.stringify(DEFAULT_SHORTCUT_CONFIG));
+      }
+
+      function normalizeShortcutCombo(raw, fallback) {
+        const base = fallback || { ctrl: false, alt: false, shift: false, meta: false, key: 'e' };
+        if (!raw || typeof raw !== 'object') return { ...base };
+        const cleanKey = String(raw.key || base.key || 'e').trim() || 'e';
+        return {
+          ctrl: Boolean(raw.ctrl),
+          alt: Boolean(raw.alt),
+          shift: Boolean(raw.shift),
+          meta: Boolean(raw.meta),
+          key: cleanKey.length === 1 ? cleanKey.toLowerCase() : cleanKey
+        };
+      }
+
+      function loadShortcutConfig() {
+        if (shortcutConfigState) return shortcutConfigState;
+        const def = cloneShortcutDefaults();
+        try {
+          const parsed = JSON.parse(safeStorage.get(STORAGE_KEYS.shortcutConfig, 'null'));
+          if (parsed && typeof parsed === 'object') {
+            def.enabled = parsed.enabled !== false;
+            def.combo = normalizeShortcutCombo(parsed.combo, def.combo);
+            if (!def.combo.ctrl && !def.combo.alt && !def.combo.shift && !def.combo.meta) def.combo.ctrl = true;
+            def.triggerMode = ['single', 'double', 'triple'].includes(parsed.triggerMode) ? parsed.triggerMode : 'single';
+            def.existingBehavior = ['focus', 'toggle', 'new'].includes(parsed.existingBehavior) ? parsed.existingBehavior : 'focus';
+            def.landingApp = APP_META[parsed.landingApp] || parsed.landingApp === 'home' ? parsed.landingApp : 'home';
+            def.popupSize = ['960x680', '1280x800', 'fullscreen', 'custom'].includes(parsed.popupSize) ? parsed.popupSize : '960x680';
+            def.popupWidth = Math.max(480, Math.min(3840, Number(parsed.popupWidth) || 960));
+            def.popupHeight = Math.max(360, Math.min(2160, Number(parsed.popupHeight) || 680));
+            def.autoCloak = Boolean(parsed.autoCloak);
+            def.autoFullscreen = Boolean(parsed.autoFullscreen);
+            def.panicEnabled = parsed.panicEnabled !== false;
+            def.panicCombo = normalizeShortcutCombo(parsed.panicCombo, def.panicCombo);
+            if (parsed.desktopShortcuts && typeof parsed.desktopShortcuts === 'object') {
+              Object.keys(def.desktopShortcuts).forEach(k => {
+                def.desktopShortcuts[k] = normalizeShortcutCombo(parsed.desktopShortcuts[k], def.desktopShortcuts[k]);
+              });
+            }
+          }
+        } catch (_e) {}
+        shortcutConfigState = def;
+        return shortcutConfigState;
+      }
+
+      function formatShortcutComboLabel(combo) {
+        if (!combo) return 'Unset';
+        const parts = [];
+        if (combo.ctrl) parts.push('Ctrl');
+        if (combo.alt) parts.push('Alt');
+        if (combo.shift) parts.push('Shift');
+        if (combo.meta) parts.push('Meta');
+        let k = String(combo.key || '');
+        if (k === ' ') k = 'Space';
+        else if (k.length === 1) k = k.toUpperCase();
+        parts.push(k || '?');
+        return parts.join(' + ');
+      }
+
+      function broadcastShortcutConfig(cfg, noteText) {
+        const serialized = JSON.stringify(cfg);
+        safeStorage.set(STORAGE_KEYS.shortcutConfig, serialized);
+        try {
+          if (window.opener && !window.opener.closed && window.opener.localStorage) {
+            window.opener.localStorage.setItem(STORAGE_KEYS.shortcutConfig, serialized);
+          }
+        } catch (_e) {}
+        try {
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ type: 'gn-shortcut-config-update', config: cfg }, '*');
+          }
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'gn-shortcut-config-update', config: cfg }, '*');
+          }
+        } catch (_e) {}
+        const fb = document.getElementById('launch-mode-feedback');
+        if (fb && noteText) fb.textContent = noteText;
+      }
+
+      function syncShortcutSettingsUI() {
+        const cfg = loadShortcutConfig();
+        const label = formatShortcutComboLabel(cfg.combo);
+        const headingEl = document.getElementById('shortcut-heading-kbd');
+        const previewEl = document.getElementById('shortcut-preview-kbd');
+        const enabledSw = document.getElementById('shortcut-enabled-switch');
+        const keyInput = document.getElementById('shortcut-key-input');
+        const triggerSel = document.getElementById('shortcut-trigger-select');
+        const landingSel = document.getElementById('shortcut-landing-select');
+        const existingSel = document.getElementById('shortcut-existing-select');
+        const sizeSel = document.getElementById('shortcut-size-select');
+        const customRow = document.getElementById('shortcut-custom-size-row');
+        const wInput = document.getElementById('shortcut-width-input');
+        const hInput = document.getElementById('shortcut-height-input');
+        const cloakSw = document.getElementById('shortcut-autocloak-switch');
+        const fsSw = document.getElementById('shortcut-autofs-switch');
+        const panicSw = document.getElementById('shortcut-panic-switch');
+        const panicKbd = document.getElementById('shortcut-panic-kbd');
+
+        if (headingEl) headingEl.textContent = label;
+        if (previewEl) previewEl.textContent = label;
+        if (enabledSw) enabledSw.setAttribute('aria-checked', String(cfg.enabled));
+        if (keyInput) keyInput.value = cfg.combo.key.length === 1 ? cfg.combo.key.toUpperCase() : cfg.combo.key;
+        if (triggerSel) triggerSel.value = cfg.triggerMode;
+        if (landingSel) landingSel.value = cfg.landingApp;
+        if (existingSel) existingSel.value = cfg.existingBehavior;
+        if (sizeSel) sizeSel.value = cfg.popupSize;
+        if (customRow) customRow.style.display = cfg.popupSize === 'custom' ? 'grid' : 'none';
+        if (wInput) wInput.value = String(cfg.popupWidth);
+        if (hInput) hInput.value = String(cfg.popupHeight);
+        if (cloakSw) cloakSw.setAttribute('aria-checked', String(cfg.autoCloak));
+        if (fsSw) fsSw.setAttribute('aria-checked', String(cfg.autoFullscreen));
+        if (panicSw) panicSw.setAttribute('aria-checked', String(cfg.panicEnabled));
+        if (panicKbd) panicKbd.textContent = formatShortcutComboLabel(cfg.panicCombo);
+
+        document.querySelectorAll('[data-shortcut-mod]').forEach(btn => {
+          const mod = btn.getAttribute('data-shortcut-mod');
+          btn.classList.toggle('active', Boolean(cfg.combo[mod]));
+        });
+        document.querySelectorAll('[data-desktop-bind]').forEach(btn => {
+          const action = btn.getAttribute('data-desktop-bind');
+          if (cfg.desktopShortcuts[action]) {
+            btn.textContent = formatShortcutComboLabel(cfg.desktopShortcuts[action]);
+          }
+        });
+      }
+
+      function saveAndSyncShortcutConfig(noteText) {
+        const cfg = loadShortcutConfig();
+        syncShortcutSettingsUI();
+        broadcastShortcutConfig(cfg, noteText);
+      }
+
+      function initShortcutSettingsEvents() {
+        syncShortcutSettingsUI();
+
+        const enabledSw = document.getElementById('shortcut-enabled-switch');
+        if (enabledSw) {
+          enabledSw.addEventListener('click', () => {
+            const cfg = loadShortcutConfig();
+            cfg.enabled = !cfg.enabled;
+            saveAndSyncShortcutConfig(cfg.enabled ? 'Launch shortcut enabled.' : 'Launch shortcut disabled.');
+          });
+        }
+
+        const recordBtn = document.getElementById('shortcut-record-btn');
+        if (recordBtn) {
+          recordBtn.addEventListener('click', () => {
+            if (activeRecorderTarget === 'launch') {
+              activeRecorderTarget = null;
+              recordBtn.classList.remove('recording');
+              recordBtn.textContent = 'Click to Record';
+              return;
+            }
+            document.querySelectorAll('.shortcut-recorder-btn').forEach(b => b.classList.remove('recording'));
+            activeRecorderTarget = 'launch';
+            recordBtn.classList.add('recording');
+            recordBtn.textContent = 'Press any key combo...';
+          });
+        }
+
+        const panicRecBtn = document.getElementById('shortcut-panic-record-btn');
+        if (panicRecBtn) {
+          panicRecBtn.addEventListener('click', () => {
+            if (activeRecorderTarget === 'panic') {
+              activeRecorderTarget = null;
+              panicRecBtn.classList.remove('recording');
+              panicRecBtn.textContent = 'Record Panic Key';
+              return;
+            }
+            document.querySelectorAll('.shortcut-recorder-btn').forEach(b => b.classList.remove('recording'));
+            activeRecorderTarget = 'panic';
+            panicRecBtn.classList.add('recording');
+            panicRecBtn.textContent = 'Press Panic Combo...';
+          });
+        }
+
+        document.querySelectorAll('[data-desktop-bind]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-desktop-bind');
+            if (activeRecorderTarget === 'desktop:' + action) {
+              activeRecorderTarget = null;
+              syncShortcutSettingsUI();
+              btn.classList.remove('recording');
+              return;
+            }
+            document.querySelectorAll('.shortcut-recorder-btn').forEach(b => b.classList.remove('recording'));
+            activeRecorderTarget = 'desktop:' + action;
+            btn.classList.add('recording');
+            btn.textContent = 'Press Combo...';
+          });
+        });
+
+        window.addEventListener('keydown', ev => {
+          if (!activeRecorderTarget) return;
+          const k = ev.key || '';
+          if (k === 'Control' || k === 'Alt' || k === 'Shift' || k === 'Meta') return;
+          ev.preventDefault();
+          ev.stopPropagation();
+
+          const combo = {
+            ctrl: Boolean(ev.ctrlKey),
+            alt: Boolean(ev.altKey),
+            shift: Boolean(ev.shiftKey),
+            meta: Boolean(ev.metaKey),
+            key: k.length === 1 ? k.toLowerCase() : k
+          };
+          const cfg = loadShortcutConfig();
+
+          if (activeRecorderTarget === 'launch') {
+            if (!combo.ctrl && !combo.alt && !combo.shift && !combo.meta) combo.ctrl = true;
+            cfg.combo = combo;
+            if (recordBtn) {
+              recordBtn.classList.remove('recording');
+              recordBtn.textContent = 'Click to Record';
+            }
+            activeRecorderTarget = null;
+            saveAndSyncShortcutConfig('Launch shortcut updated to ' + formatShortcutComboLabel(combo) + '.');
+          } else if (activeRecorderTarget === 'panic') {
+            cfg.panicCombo = combo;
+            if (panicRecBtn) {
+              panicRecBtn.classList.remove('recording');
+              panicRecBtn.textContent = 'Record Panic Key';
+            }
+            activeRecorderTarget = null;
+            saveAndSyncShortcutConfig('Panic quick-hide updated to ' + formatShortcutComboLabel(combo) + '.');
+          } else if (activeRecorderTarget.startsWith('desktop:')) {
+            const act = activeRecorderTarget.slice(8);
+            if (!combo.ctrl && !combo.alt && !combo.shift && !combo.meta) combo.alt = true;
+            cfg.desktopShortcuts[act] = combo;
+            document.querySelectorAll('[data-desktop-bind]').forEach(b => b.classList.remove('recording'));
+            activeRecorderTarget = null;
+            saveAndSyncShortcutConfig('Desktop shortcut updated to ' + formatShortcutComboLabel(combo) + '.');
+          }
+        }, true);
+
+        document.querySelectorAll('[data-shortcut-mod]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const mod = btn.getAttribute('data-shortcut-mod');
+            const cfg = loadShortcutConfig();
+            cfg.combo[mod] = !cfg.combo[mod];
+            if (!cfg.combo.ctrl && !cfg.combo.alt && !cfg.combo.shift && !cfg.combo.meta) {
+              cfg.combo[mod] = true;
+              return;
+            }
+            saveAndSyncShortcutConfig('Launch shortcut updated to ' + formatShortcutComboLabel(cfg.combo) + '.');
+          });
+        });
+
+        const keyInput = document.getElementById('shortcut-key-input');
+        if (keyInput) {
+          keyInput.addEventListener('change', () => {
+            const val = keyInput.value.trim();
+            if (!val) {
+              syncShortcutSettingsUI();
+              return;
+            }
+            const cfg = loadShortcutConfig();
+            cfg.combo.key = val.length === 1 ? val.toLowerCase() : val;
+            saveAndSyncShortcutConfig('Launch shortcut updated to ' + formatShortcutComboLabel(cfg.combo) + '.');
+          });
+        }
+
+        const bindSelect = (id, field, labelPrefix) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('change', () => {
+            const cfg = loadShortcutConfig();
+            cfg[field] = el.value;
+            saveAndSyncShortcutConfig(labelPrefix + ': ' + el.options[el.selectedIndex].textContent + '.');
+          });
+        };
+        bindSelect('shortcut-trigger-select', 'triggerMode', 'Trigger mode saved');
+        bindSelect('shortcut-landing-select', 'landingApp', 'Launch target app saved');
+        bindSelect('shortcut-existing-select', 'existingBehavior', 'Already-open behavior saved');
+        bindSelect('shortcut-size-select', 'popupSize', 'Popup window size saved');
+
+        const wInput = document.getElementById('shortcut-width-input');
+        const hInput = document.getElementById('shortcut-height-input');
+        if (wInput) {
+          wInput.addEventListener('change', () => {
+            const cfg = loadShortcutConfig();
+            cfg.popupWidth = Math.max(480, Math.min(3840, Number(wInput.value) || 960));
+            saveAndSyncShortcutConfig('Custom width set to ' + cfg.popupWidth + 'px.');
+          });
+        }
+        if (hInput) {
+          hInput.addEventListener('change', () => {
+            const cfg = loadShortcutConfig();
+            cfg.popupHeight = Math.max(360, Math.min(2160, Number(hInput.value) || 680));
+            saveAndSyncShortcutConfig('Custom height set to ' + cfg.popupHeight + 'px.');
+          });
+        }
+
+        const cloakSw = document.getElementById('shortcut-autocloak-switch');
+        if (cloakSw) {
+          cloakSw.addEventListener('click', () => {
+            const cfg = loadShortcutConfig();
+            cfg.autoCloak = !cfg.autoCloak;
+            saveAndSyncShortcutConfig(cfg.autoCloak ? 'Auto-Cloak on launch enabled.' : 'Auto-Cloak on launch disabled.');
+          });
+        }
+        const fsSw = document.getElementById('shortcut-autofs-switch');
+        if (fsSw) {
+          fsSw.addEventListener('click', () => {
+            const cfg = loadShortcutConfig();
+            cfg.autoFullscreen = !cfg.autoFullscreen;
+            saveAndSyncShortcutConfig(cfg.autoFullscreen ? 'Auto-Theater/Fullscreen on launch enabled.' : 'Auto-Theater/Fullscreen on launch disabled.');
+          });
+        }
+        const panicSw = document.getElementById('shortcut-panic-switch');
+        if (panicSw) {
+          panicSw.addEventListener('click', () => {
+            const cfg = loadShortcutConfig();
+            cfg.panicEnabled = !cfg.panicEnabled;
+            saveAndSyncShortcutConfig(cfg.panicEnabled ? 'Panic quick-hide shortcut enabled.' : 'Panic quick-hide shortcut disabled.');
+          });
+        }
+
+        const resetBtn = document.getElementById('shortcut-reset-btn');
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            shortcutConfigState = cloneShortcutDefaults();
+            safeStorage.set(STORAGE_KEYS.launchMode, 'blob');
+            syncLaunchModeUI('blob');
+            saveAndSyncShortcutConfig('Restored default Ctrl + E and Desktop OS shortcuts.');
+          });
+        }
+      }
+
       document.querySelectorAll('[data-launch-mode]').forEach(btn => {
         btn.addEventListener('click', () => {
           const mode = btn.getAttribute('data-launch-mode') === 'inpage' ? 'inpage' : 'blob';
@@ -10494,7 +11298,7 @@
             }
           } catch (e) {}
           const fb = document.getElementById('launch-mode-feedback');
-          if (fb) fb.textContent = `Ctrl + E default set to: ${btn.textContent}.`;
+          if (fb) fb.textContent = `Default launch container set to: ${btn.textContent}.`;
         });
       });
 
@@ -10512,7 +11316,8 @@
             return;
           }
         } catch (e) {}
-        if (fb) fb.textContent = `Mode saved (${mode}). Press Ctrl + E on the home tab to launch it.`;
+        const label = formatShortcutComboLabel(loadShortcutConfig().combo);
+        if (fb) fb.textContent = `Mode saved (${mode}). Press ${label} on the home tab to launch it.`;
       }
 
       const launchBlobBtn = document.getElementById('launch-now-blob-btn');
@@ -11881,10 +12686,9 @@
         renderColorStudio();
       }
 
-      /* ---------------- DEDICATED GN-MATH LOCAL-MEMORY BLOB CONTAINER ---------------- */
-      const GNMATH_URL = 'https://gn-math.dev';
+      /* ---------------- DEDICATED GN-MATH EMBEDDED SITE (LOCAL-MEMORY SRCDOC) ---------------- */
       let gnMathBlobUrl = null;
-      let gnMathLoadToken = 0;
+      let gnMathLastRawHtml = '';
 
       function revokeGnMathBlobUrl() {
         if (gnMathBlobUrl) {
@@ -11894,180 +12698,1553 @@
       }
 
       function buildInMemoryGnMathArcadeHtml() {
-        const gnItems = (Array.isArray(rawCatalogs && rawCatalogs.gn) && rawCatalogs.gn.length > 0)
-          ? rawCatalogs.gn
-          : (Array.isArray(zones) ? zones.filter(z => z && z.provider === 'gn') : []);
-        const compactItems = gnItems.slice(0, 260).map(item => ({
-          id: item.id,
-          name: item.name,
-          author: item.author || '',
-          cover: item.cover || '',
-          url: item.url,
-          baseUrl: item.baseUrl || (htmlURL + '/')
-        }));
-        const serializedItems = JSON.stringify(compactItems).replace(/<\/script>/gi, '<\\/script>');
-        const shimCode = getBlobStorageShimTag('gnmath-memory');
+        const shimCode = getBlobStorageShimTag(htmlURL + '/');
         const styles = getComputedStyle(document.documentElement);
-        const bgPrimary = (styles.getPropertyValue('--bg-primary') || '#05070b').trim();
-        const bgCard = (styles.getPropertyValue('--bg-card') || '#121824').trim();
-        const bgElevated = (styles.getPropertyValue('--bg-secondary') || '#0b0f17').trim();
-        const textPrimary = (styles.getPropertyValue('--text-primary') || '#f1f5f9').trim();
-        const textMuted = (styles.getPropertyValue('--text-muted') || '#8a9bb0').trim();
-        const accent = (styles.getPropertyValue('--accent') || '#34d399').trim();
-        const accentContrast = (styles.getPropertyValue('--accent-contrast') || '#06281e').trim();
-        const border = (styles.getPropertyValue('--border') || '#1f2937').trim();
+        const siteBg = (styles.getPropertyValue('--bg-primary') || '#090d16').trim();
+        const siteBgSec = (styles.getPropertyValue('--bg-secondary') || '#0f1624').trim();
+        const siteSurface = (styles.getPropertyValue('--bg-card') || '#111827').trim();
+        const siteText = (styles.getPropertyValue('--text-primary') || '#f8fafc').trim();
+        const siteMuted = (styles.getPropertyValue('--text-muted') || '#94a3b8').trim();
+        const siteBorder = (styles.getPropertyValue('--border') || '#1f2937').trim();
+        const siteAccent = (styles.getPropertyValue('--accent') || '#8b5cf6').trim();
+        const isLightTheme = document.documentElement.getAttribute('data-theme-mode') === 'light';
+        let scramjetBrowserUrl = '';
+        try {
+          const hostOrigin = (
+            window.__PORTAL_ORIGIN__ ||
+            (window.location.origin && window.location.origin !== 'null' && window.location.protocol.indexOf('http') === 0
+              ? window.location.origin
+              : '')
+          ).replace(/\/+$/, '');
+          if (hostOrigin) {
+            const scramjetParams = new URLSearchParams({
+              bg: siteBg,
+              bgSec: siteBgSec,
+              surface: siteSurface,
+              text: siteText,
+              muted: siteMuted,
+              border: siteBorder,
+              primary: '#fc2651',
+              light: isLightTheme ? '1' : '0'
+            });
+            scramjetBrowserUrl = `${hostOrigin}/scramjet-browser.html?${scramjetParams.toString()}`;
+          }
+        } catch (_e) {
+          scramjetBrowserUrl = '';
+        }
+        const safeScramjetUrl = scramjetBrowserUrl.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 
         return `<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GN-Math</title>
-${shimCode}
-<style>
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; height: 100%; background: ${bgPrimary}; color: ${textPrimary}; font-family: system-ui, -apple-system, sans-serif; }
-  .shell { display: flex; flex-direction: column; height: 100vh; }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: ${bgElevated}; border-bottom: 1px solid ${border}; flex-wrap: wrap; }
-  .brand { font-weight: 800; font-size: 14px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
-  .badge { font-size: 11px; padding: 2px 8px; border-radius: 6px; border: 1px solid ${border}; color: ${accent}; background: rgba(52,211,153,0.12); font-weight: 700; }
-  .tools { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: flex-end; min-width: 220px; }
-  .search { flex: 1; max-width: 300px; height: 32px; padding: 0 10px; border-radius: 7px; border: 1px solid ${border}; background: ${bgPrimary}; color: ${textPrimary}; font-size: 13px; outline: none; }
-  .search:focus { border-color: ${accent}; }
-  .btn { appearance: none; height: 32px; padding: 0 11px; border-radius: 7px; border: 1px solid ${border}; background: ${bgCard}; color: ${textPrimary}; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .btn:hover { border-color: ${accent}; color: ${accent}; }
-  .btn-primary { background: ${accent}; border-color: ${accent}; color: ${accentContrast}; font-weight: 700; }
-  .content { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-  .card { border: 1px solid ${border}; background: ${bgCard}; border-radius: 10px; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; text-align: left; padding: 0; color: inherit; transition: transform 0.15s ease, border-color 0.15s ease; }
-  .card:hover { transform: translateY(-2px); border-color: ${accent}; }
-  .thumb { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: ${bgElevated}; display: block; }
-  .meta { padding: 9px 10px; font-size: 12.5px; font-weight: 700; line-height: 1.3; }
-  .player { flex: 1; display: none; flex-direction: column; min-height: 0; background: #000; }
-  .player.active { display: flex; }
-  .player iframe { flex: 1; width: 100%; height: 100%; border: none; display: block; background: #000; }
-  .empty { padding: 36px 16px; text-align: center; color: ${textMuted}; font-size: 13.5px; border: 1px dashed ${border}; border-radius: 10px; }
-</style>
-</head>
-<body>
-<div class="shell">
-  <div class="bar">
-    <div class="brand"><span>GN-Math</span><span class="badge">Local Memory</span></div>
-    <div class="tools">
-      <input type="text" id="gn-search" class="search" placeholder="Search GN-Math catalog..." autocomplete="off" />
-      <button type="button" id="gn-back-grid" class="btn" style="display:none;">&#8592; Catalog</button>
-      <button type="button" id="gn-site-btn" class="btn btn-primary">Load Live gn-math.dev</button>
-    </div>
-  </div>
-  <div id="gn-grid-wrap" class="content"><div id="gn-grid" class="grid"></div></div>
-  <div id="gn-player-wrap" class="player"><iframe id="gn-inner-frame" allow="autoplay; keyboard; gamepad; fullscreen" referrerpolicy="no-referrer"></iframe></div>
-</div>
-<script>
-  var ITEMS = ${serializedItems};
-  var gridWrap = document.getElementById('gn-grid-wrap');
-  var gridEl = document.getElementById('gn-grid');
-  var searchEl = document.getElementById('gn-search');
-  var playerWrap = document.getElementById('gn-player-wrap');
-  var innerFrame = document.getElementById('gn-inner-frame');
-  var backBtn = document.getElementById('gn-back-grid');
-  var siteBtn = document.getElementById('gn-site-btn');
-  var activeGameBlob = null;
-
-  function showCatalog() {
-    if (activeGameBlob) { try { URL.revokeObjectURL(activeGameBlob); } catch (e) {} activeGameBlob = null; }
-    try { innerFrame.src = 'about:blank'; } catch (e) {}
-    playerWrap.classList.remove('active');
-    gridWrap.style.display = 'block';
-    backBtn.style.display = 'none';
-  }
-
-  function launchItem(item) {
-    gridWrap.style.display = 'none';
-    playerWrap.classList.add('active');
-    backBtn.style.display = 'inline-block';
-    fetch(item.url).then(function (r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    }).then(function (html) {
-      var base = '<base href="' + item.baseUrl + '">';
-      var docHtml = /<head\\b[^>]*>/i.test(html) ? html.replace(/(<head\\b[^>]*>)/i, '$1' + base) : (base + html);
-      if (activeGameBlob) { try { URL.revokeObjectURL(activeGameBlob); } catch (e) {} }
-      activeGameBlob = URL.createObjectURL(new Blob([docHtml], { type: 'text/html' }));
-      innerFrame.src = activeGameBlob;
-    }).catch(function () {
-      innerFrame.src = item.url;
-    });
-  }
-
-  function renderGrid() {
-    var q = (searchEl.value || '').trim().toLowerCase();
-    var filtered = ITEMS.filter(function (it) {
-      return !q || (it.name && it.name.toLowerCase().indexOf(q) !== -1);
-    });
-    gridEl.innerHTML = '';
-    if (!filtered.length) {
-      gridEl.innerHTML = '<div class="empty">No matching GN-Math titles loaded yet. Click "Load Live gn-math.dev" above or wait a moment for the catalog to sync.</div>';
-      return;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gn-math</title>
+  ${shimCode}
+  <style>
+    :root {
+      --primary: #fc2651;
+      --primary-hover: #e91e47;
+      --primary-glow: rgba(252, 38, 81, 0.18);
+      --accent: ${siteAccent};
+      --bg: ${siteBg};
+      --bg-secondary: ${siteBgSec};
+      --surface: ${siteSurface};
+      --surface-hover: rgba(255, 255, 255, 0.06);
+      --text: ${siteText};
+      --text-muted: ${siteMuted};
+      --border: ${siteBorder};
+      --glass: rgba(17, 24, 39, 0.78);
+      --radius: 12px;
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.22);
+      --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.38);
+      --gradient-primary: linear-gradient(135deg, #fc2651 0%, #e91e47 100%);
     }
-    filtered.forEach(function (it) {
-      var card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'card';
-      if (it.cover) {
-        var img = document.createElement('img');
-        img.className = 'thumb';
-        img.loading = 'lazy';
-        img.referrerPolicy = 'no-referrer';
-        img.src = it.cover;
-        img.alt = it.name;
-        img.onerror = function () { img.style.display = 'none'; };
-        card.appendChild(img);
-      }
-      var meta = document.createElement('div');
-      meta.className = 'meta';
-      meta.textContent = it.name;
-      card.appendChild(meta);
-      card.addEventListener('click', function () { launchItem(it); });
-      gridEl.appendChild(card);
-    });
-  }
 
-  searchEl.addEventListener('input', renderGrid);
-  backBtn.addEventListener('click', showCatalog);
-  siteBtn.addEventListener('click', function () {
-    gridWrap.style.display = 'none';
-    playerWrap.classList.add('active');
-    backBtn.style.display = 'inline-block';
-    innerFrame.src = '${GNMATH_URL}';
-  });
-  renderGrid();
-<\/script>
+    body.light-mode {
+      --bg: #f8fafc;
+      --bg-secondary: #eef2f7;
+      --surface: #ffffff;
+      --surface-hover: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --glass: rgba(255, 255, 255, 0.9);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 24px rgba(15, 23, 42, 0.1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    header {
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      backdrop-filter: blur(14px);
+    }
+
+    .nav-wrap {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      box-shadow: 0 0 12px var(--primary);
+    }
+
+    .brand span.pink {
+      color: var(--primary);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.35rem;
+      background: var(--surface);
+      padding: 0.28rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.48rem 0.92rem;
+      border-radius: 9px;
+      font-weight: 600;
+      font-size: 0.87rem;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-btn:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    .nav-btn.active {
+      background: var(--gradient-primary);
+      color: #fff;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.48rem 0.78rem;
+      border-radius: 9px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--primary);
+      background: var(--surface-hover);
+    }
+
+    main {
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.35rem 1.25rem 4rem;
+      flex: 1;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; animation: fadeIn 0.16s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.95rem 1.15rem;
+      margin-bottom: 1.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-banner h2 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .section-banner p {
+      color: var(--text-muted);
+      font-size: 0.84rem;
+      margin-top: 0.15rem;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input[type="text"], input[type="range"], select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.65rem 0.95rem;
+      border-radius: 10px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    input[type="text"] { flex: 1; min-width: 220px; }
+    input[type="text"]:focus, select:focus { border-color: var(--primary); }
+
+    .btn {
+      background: var(--gradient-primary);
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.1rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .btn.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn.secondary:hover {
+      border-color: var(--primary);
+      background: var(--surface-hover);
+    }
+
+    .btn.chip {
+      padding: 0.42rem 0.82rem;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+
+    .btn.chip.active {
+      background: var(--gradient-primary);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .status-text {
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      font-weight: 500;
+      margin-bottom: 0.95rem;
+    }
+
+    /* Cards & Grids */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 1rem;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: var(--bg-secondary);
+      display: block;
+    }
+
+    .movie-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      background: var(--bg-secondary);
+      display: block;
+    }
+
+    .card-body {
+      padding: 0.72rem 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.45rem;
+    }
+
+    .card-meta-col {
+      padding: 0.8rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .star {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.05rem;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .star.fav { color: #fbbf24; }
+
+    /* Music View */
+    .music-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.15rem;
+    }
+
+    @media (max-width: 860px) { .music-grid { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel h3 {
+      font-size: 1.02rem;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+
+    .synth-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .synth-field label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .synth-field input[type="range"] {
+      width: 100%;
+      padding: 0;
+      accent-color: var(--primary);
+    }
+
+    /* Books & Search Results */
+    .result-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .result-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.15rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      transition: border-color 0.15s ease;
+    }
+
+    .result-item:hover { border-color: var(--primary); }
+
+    .book-cover-sm {
+      width: 64px;
+      height: 92px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      flex-shrink: 0;
+    }
+
+    .result-main { flex: 1; min-width: 0; }
+
+    .result-item h4 {
+      color: var(--text);
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+    }
+
+    .result-item h4:hover { color: var(--primary); }
+
+    .result-meta {
+      font-size: 0.78rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .result-item p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .scramjet-frame-shell {
+      width: 100%;
+      height: calc(100vh - 190px);
+      min-height: 540px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .scramjet-frame-shell.is-fs-fallback {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 300;
+      border-radius: 0;
+      border: none;
+    }
+
+    #scramjetPortalFrame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: var(--bg);
+    }
+
+    .scramjet-fallback {
+      padding: 2rem 1.25rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    /* Unified Overlay Player / Cinema / Browser Frame / Book Reader */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 250;
+      display: none;
+      flex-direction: column;
+    }
+
+    .overlay-bar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .overlay-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      min-width: 0;
+    }
+
+    .overlay-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 6px;
+      background: var(--primary-glow);
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    #overlayTitle {
+      font-weight: 700;
+      font-size: 0.96rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 55vw;
+    }
+
+    .overlay-actions {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #overlayFrame {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000;
+      display: none;
+    }
+
+    #movieBox {
+      flex: 1;
+      width: 100%;
+      background: #05070b;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      gap: 0.75rem;
+    }
+
+    #movieVideo {
+      max-width: 1100px;
+      width: 100%;
+      max-height: calc(100vh - 150px);
+      border-radius: 12px;
+      background: #000;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    #readerBox {
+      flex: 1;
+      width: 100%;
+      overflow-y: auto;
+      display: none;
+      padding: 2rem 1.25rem;
+      background: var(--bg);
+    }
+
+    .reader-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      line-height: 1.82;
+      font-size: 1.06rem;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+
+    .reader-inner h1, .reader-inner h2 {
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+  </style>
+</head>
+<body class="${isLightTheme ? 'light-mode' : ''}">
+
+  <header>
+    <div class="nav-wrap">
+      <div class="nav-left">
+        <div class="brand" onclick="switchTab('games', document.querySelector('[data-nav=games]'))">
+          <span class="brand-dot"></span>
+          <span>gn<span class="pink">-math</span></span>
+        </div>
+        <nav class="nav-tabs" aria-label="Portal sections">
+          <button type="button" class="nav-btn active" data-nav="games" onclick="switchTab('games', this)">Games</button>
+          <button type="button" class="nav-btn" data-nav="music" onclick="switchTab('music', this)">Music</button>
+          <button type="button" class="nav-btn" data-nav="books" onclick="switchTab('books', this)">Books &amp; Manga</button>
+          <button type="button" class="nav-btn" data-nav="movies" onclick="switchTab('movies', this)">Movies</button>
+          <button type="button" class="nav-btn" data-nav="search" onclick="switchTab('search', this)">Omni-Search</button>
+        </nav>
+      </div>
+      <div class="nav-right">
+        <button type="button" class="icon-btn" onclick="switchTab('movies', document.querySelector('[data-nav=movies]'))" title="Switch to Movies Cinema">&#127916; Movies</button>
+        <button type="button" class="icon-btn" onclick="switchTab('search', document.querySelector('[data-nav=search]'))" title="Open Omni-Search Browser">&#128269; Omni-Search</button>
+        <button type="button" class="icon-btn" id="themeToggle" title="Toggle Dark/Light Mode" onclick="toggleTheme()">&#127763;</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. GAMES VIEW -->
+    <section id="view-games" class="view active">
+      <div class="section-banner">
+        <div>
+          <h2>Arcade Library</h2>
+          <p>Loaded in local memory from jsDelivr CDN with zero external redirects</p>
+        </div>
+        <button type="button" class="btn secondary chip" onclick="resetGameFilters()">Reset Filters</button>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="gameSearch" placeholder="Search games..." oninput="renderGames()">
+        <select id="gameSort" onchange="renderGames()">
+          <option value="default">Featured</option>
+          <option value="az">A - Z</option>
+          <option value="za">Z - A</option>
+          <option value="fav">Favorites</option>
+        </select>
+      </div>
+      <div id="gameStatus" class="status-text">Loading catalog...</div>
+      <div id="gameGrid" class="grid"></div>
+    </section>
+
+    <!-- 2. MUSIC VIEW -->
+    <section id="view-music" class="view">
+      <div class="section-banner">
+        <div>
+          <h2>Music &amp; Offline Synth Studio</h2>
+          <p>Stream SoundCloud stations, generate Web Audio lo-fi beats offline, or play local audio files</p>
+        </div>
+      </div>
+      <div class="music-grid">
+        <div class="panel">
+          <h3>SoundCloud Playlist &amp; Track Player</h3>
+          <div class="toolbar">
+            <input type="text" id="scUrl" placeholder="Paste any SoundCloud track or playlist URL...">
+            <button type="button" class="btn" onclick="loadSoundCloud()">Load</button>
+          </div>
+          <div class="pill-row">
+            <button type="button" class="btn secondary chip" onclick="setSC('https://soundcloud.com/lofi-girl-music/sets/lofi-hip-hop-beats')">Lo-Fi Beats</button>
+            <button type="button" class="btn secondary chip" onclick="setSC('https://soundcloud.com/synthwave-radio/sets/synthwave')">Synthwave</button>
+            <button type="button" class="btn secondary chip" onclick="setSC('https://soundcloud.com/nocopyrightsounds/sets/ncs-best-of')">Game OST / Electronic</button>
+          </div>
+          <iframe id="scFrame" width="100%" height="320" scrolling="no" frameborder="no" allow="autoplay"
+            src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fsoundcloud.com%2Flofi-girl-music%2Fsets%2Flofi-hip-hop-beats&color=%23fc2651&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=true">
+          </iframe>
+        </div>
+
+        <div class="panel">
+          <h3>Offline Lo-Fi Synth &amp; Local Audio Player</h3>
+          <p class="status-text" style="margin-bottom:0.75rem;">100% offline Web Audio lo-fi beat &amp; chord generator + local .mp3/.wav playback:</p>
+          <div class="pill-row">
+            <button type="button" class="btn" id="synthBtn" onclick="toggleSynth()">&#9654; Start Lo-Fi Beat &amp; Chords</button>
+          </div>
+          <div class="synth-controls">
+            <div class="synth-field">
+              <label for="synthBpm"><span>Tempo (BPM)</span><span id="synthBpmVal">76 BPM</span></label>
+              <input type="range" id="synthBpm" min="60" max="110" value="76" oninput="updateSynthParams()">
+            </div>
+            <div class="synth-field">
+              <label for="synthTone"><span>Warmth Filter</span><span id="synthToneVal">1100 Hz</span></label>
+              <input type="range" id="synthTone" min="350" max="2800" value="1100" oninput="updateSynthParams()">
+            </div>
+          </div>
+          <div style="margin-top:1.15rem; padding-top:1rem; border-top:1px solid var(--border);">
+            <p class="status-text" style="margin-bottom:0.55rem;">Play local audio file from device (.mp3, .wav, .ogg):</p>
+            <div class="toolbar" style="margin-bottom:0.65rem;">
+              <input type="file" id="audioFile" accept="audio/*" onchange="playLocalAudio(this)" style="color:var(--text-muted);font-size:0.86rem;">
+            </div>
+            <audio id="localPlayer" controls style="width: 100%;"></audio>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. BOOKS & MANGA VIEW -->
+    <section id="view-books" class="view">
+      <div class="section-banner">
+        <div>
+          <h2>Books &amp; Manga Reader</h2>
+          <p>Search 70,000+ public-domain classics &amp; illustrated editions via Gutendex (no API key needed)</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="bookQuery" placeholder="Search books or authors (e.g., Sherlock Holmes, Dracula, Jules Verne)..." onkeydown="if(event.key==='Enter') searchBooks()">
+        <button type="button" class="btn" onclick="searchBooks()">Search Books</button>
+      </div>
+      <div class="pill-row">
+        <button type="button" class="btn secondary chip" onclick="quickBookSearch('Sherlock Holmes')">Sherlock Holmes</button>
+        <button type="button" class="btn secondary chip" onclick="quickBookSearch('Dracula')">Dracula</button>
+        <button type="button" class="btn secondary chip" onclick="quickBookSearch('Frankenstein')">Frankenstein</button>
+        <button type="button" class="btn secondary chip" onclick="quickBookSearch('Alice')">Alice in Wonderland</button>
+        <button type="button" class="btn secondary chip" onclick="quickBookSearch('illustrated')">Illustrated / Graphic</button>
+      </div>
+      <div id="bookStatus" class="status-text">Search or pick a classic above to read right inside the built-in reader.</div>
+      <div id="bookResults" class="result-list"></div>
+    </section>
+
+    <!-- 4. MOVIES CINEMA VIEW -->
+    <section id="view-movies" class="view">
+      <div class="section-banner">
+        <div>
+          <h2>Movies &amp; Cinema Stream</h2>
+          <p>Stream classic public-domain films, animations &amp; sci-fi directly in the custom theater player</p>
+        </div>
+        <button type="button" class="btn secondary chip" onclick="switchTab('search', document.querySelector('[data-nav=search]'))">&#128269; Switch to Omni-Search</button>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="movieQuery" placeholder="Search classic movies, cartoons, sci-fi, or noir..." onkeydown="if(event.key==='Enter') searchMovies()">
+        <button type="button" class="btn" onclick="searchMovies()">Find Movies</button>
+      </div>
+      <div class="pill-row" id="movieGenres">
+        <button type="button" class="btn secondary chip active" onclick="filterMoviePreset('featured', this)">Featured Cinema</button>
+        <button type="button" class="btn secondary chip" onclick="filterMoviePreset('sci-fi', this)">Sci-Fi</button>
+        <button type="button" class="btn secondary chip" onclick="filterMoviePreset('animation', this)">Animation</button>
+        <button type="button" class="btn secondary chip" onclick="filterMoviePreset('noir', this)">Film Noir</button>
+        <button type="button" class="btn secondary chip" onclick="filterMoviePreset('comedy', this)">Comedy</button>
+      </div>
+      <div id="movieStatus" class="status-text">Featured public-domain cinema ready to stream.</div>
+      <div id="movieGrid" class="movie-grid"></div>
+    </section>
+
+    <!-- 5. OMNI-SEARCH MULTI-TAB BROWSER -->
+    <section id="view-search" class="view">
+      <div class="section-banner">
+        <div>
+          <h2>Omni-Search Browser</h2>
+          <p>Multi-tab fullscreen web browser powered by Scramjet v2 + BareMux + Epoxy Wisp</p>
+        </div>
+        <div style="display:flex;gap:0.45rem;flex-wrap:wrap;">
+          <button type="button" class="btn chip" onclick="fullscreenOmniSearch()">&#9974; Fullscreen</button>
+          <button type="button" class="btn secondary chip" onclick="switchTab('movies', document.querySelector('[data-nav=movies]'))">&#127916; Movies</button>
+          <button type="button" class="btn secondary chip" onclick="switchTab('books', document.querySelector('[data-nav=books]'))">&#128214; Books</button>
+          <button type="button" class="btn secondary chip" onclick="switchTab('games', document.querySelector('[data-nav=games]'))">&#127918; Games</button>
+        </div>
+      </div>
+
+      <div id="omniShellWrap" class="scramjet-frame-shell">
+        ${
+          safeScramjetUrl
+            ? `<iframe id="scramjetPortalFrame" title="Omni-Search Browser" src="${safeScramjetUrl}" allow="autoplay; keyboard; gamepad; fullscreen" referrerpolicy="no-referrer"></iframe>`
+            : `<div class="scramjet-fallback">Launch this workspace from the hosted server URL so Omni-Search Service Worker &amp; Wisp transport can register cleanly.</div>`
+        }
+      </div>
+    </section>
+  </main>
+
+  <!-- UNIFIED OVERLAY (Game Player / Framed Browser / Book Reader / Movie Theater) -->
+  <div id="overlay">
+    <div class="overlay-bar">
+      <div class="overlay-title-wrap">
+        <span class="overlay-badge" id="overlayKind">Portal</span>
+        <span id="overlayTitle">Viewing</span>
+      </div>
+      <div class="overlay-actions">
+        <button type="button" class="btn secondary chip" id="readerSmallerBtn" style="display:none;" onclick="adjustReaderFont(-1)">A-</button>
+        <button type="button" class="btn secondary chip" id="readerLargerBtn" style="display:none;" onclick="adjustReaderFont(1)">A+</button>
+        <button type="button" class="btn secondary chip" id="overlayMovieBtn" onclick="closeOverlay(); switchTab('movies', document.querySelector('[data-nav=movies]'));">&#127916; Movies</button>
+        <button type="button" class="btn secondary chip" id="overlayReloadBtn" onclick="reloadOverlay()">&#8635; Reload</button>
+        <button type="button" class="btn secondary chip" id="overlayFsBtn" onclick="fullscreenOverlay()">&#9974; Fullscreen</button>
+        <button type="button" class="btn chip" onclick="closeOverlay()">&#10005; Close</button>
+      </div>
+    </div>
+    <iframe id="overlayFrame" allow="autoplay; keyboard; gamepad; fullscreen" referrerpolicy="no-referrer"></iframe>
+    <div id="movieBox">
+      <video id="movieVideo" controls playsinline></video>
+      <div id="movieMetaLine" class="status-text" style="margin:0;"></div>
+    </div>
+    <div id="readerBox"><div id="readerInner" class="reader-inner"></div></div>
+  </div>
+
+  <script>
+    /* ---------------- SAFE STORAGE WRAPPER ---------------- */
+    var memStore = {};
+    var safeLS = {
+      get: function(key, fallback) {
+        try {
+          var v = localStorage.getItem(key);
+          if (v !== null) { memStore[key] = v; return v; }
+        } catch (e) {}
+        return Object.prototype.hasOwnProperty.call(memStore, key) ? memStore[key] : fallback;
+      },
+      set: function(key, val) {
+        var s = String(val);
+        memStore[key] = s;
+        try { localStorage.setItem(key, s); } catch (e) {}
+      }
+    };
+
+    /* ---------------- TAB SWITCHING & THEME ---------------- */
+    function switchTab(tabKey, btnEl) {
+      document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+      document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+      var targetView = document.getElementById('view-' + tabKey);
+      if (targetView) targetView.classList.add('active');
+      if (btnEl) {
+        btnEl.classList.add('active');
+      } else {
+        var matchBtn = document.querySelector('.nav-btn[data-nav="' + tabKey + '"]');
+        if (matchBtn) matchBtn.classList.add('active');
+      }
+      if (tabKey === 'books' && !booksLoadedOnce) {
+        booksLoadedOnce = true;
+        searchBooks('classic');
+      }
+      if (tabKey === 'movies' && !moviesLoadedOnce) {
+        moviesLoadedOnce = true;
+        renderFeaturedMovies('featured');
+      }
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+      var sjFrame = document.getElementById('scramjetPortalFrame');
+      if (sjFrame && sjFrame.contentWindow) {
+        try {
+          sjFrame.contentWindow.postMessage(
+            { type: 'scramjet-theme', light: document.body.classList.contains('light-mode') },
+            '*'
+          );
+        } catch (e) {}
+      }
+    }
+
+    /* ---------------- 1. GAMES TAB (JSDELIVR CDN) ---------------- */
+    var ZONES_URLS = [
+      'https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json',
+      'https://fastly.jsdelivr.net/gh/freebuisness/assets@main/zones.json',
+      'https://gcore.jsdelivr.net/gh/freebuisness/assets@master/zones.json'
+    ];
+    var COVER_BASE = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@main';
+    var HTML_BASE = 'https://cdn.jsdelivr.net/gh/freebuisness/html@main';
+
+    var allGames = [];
+    var gameFavs = [];
+    try { gameFavs = JSON.parse(safeLS.get('gn_favs', '[]')); } catch (e) { gameFavs = []; }
+    var currentGame = null;
+    var activeOverlayMode = 'frame';
+    var currentOverlayUrl = '';
+    var readerFontSize = 17;
+
+    function saveGameFavs() {
+      safeLS.set('gn_favs', JSON.stringify(gameFavs));
+    }
+
+    function toggleGameFav(e, name) {
+      e.stopPropagation();
+      if (gameFavs.indexOf(name) !== -1) {
+        gameFavs = gameFavs.filter(function(f) { return f !== name; });
+      } else {
+        gameFavs.push(name);
+      }
+      saveGameFavs();
+      renderGames();
+    }
+
+    function resetGameFilters() {
+      document.getElementById('gameSearch').value = '';
+      document.getElementById('gameSort').value = 'default';
+      renderGames();
+    }
+
+    async function loadGames() {
+      var statusEl = document.getElementById('gameStatus');
+      for (var i = 0; i < ZONES_URLS.length; i++) {
+        try {
+          var res = await fetch(ZONES_URLS[i]);
+          if (!res.ok) continue;
+          var data = await res.json();
+          if (!Array.isArray(data)) continue;
+          allGames = data
+            .filter(function(z) {
+              return z && z.url && !z.url.startsWith('http') && !/suggest games|discord/i.test(z.name || '');
+            })
+            .map(function(z) {
+              return {
+                name: z.name || 'Untitled',
+                cover: (z.cover || '').replace('{COVER_URL}', COVER_BASE).replace('{HTML_URL}', HTML_BASE),
+                url: (z.url || '').replace('{HTML_URL}', HTML_BASE).replace('{COVER_URL}', COVER_BASE)
+              };
+            });
+          renderGames();
+          return;
+        } catch (err) {}
+      }
+      statusEl.textContent = 'Could not load game catalog from jsDelivr CDN.';
+    }
+
+    function renderGames() {
+      var q = document.getElementById('gameSearch').value.toLowerCase().trim();
+      var sort = document.getElementById('gameSort').value;
+      var grid = document.getElementById('gameGrid');
+      var statusEl = document.getElementById('gameStatus');
+
+      var list = allGames.filter(function(g) {
+        return g.name.toLowerCase().indexOf(q) !== -1;
+      });
+      if (sort === 'fav') {
+        list = list.filter(function(g) { return gameFavs.indexOf(g.name) !== -1; });
+      } else if (sort === 'az') {
+        list.sort(function(a, b) { return a.name.localeCompare(b.name); });
+      } else if (sort === 'za') {
+        list.sort(function(a, b) { return b.name.localeCompare(a.name); });
+      }
+
+      statusEl.textContent = 'Showing ' + list.length + ' games';
+      grid.innerHTML = '';
+
+      list.forEach(function(g) {
+        var isFav = gameFavs.indexOf(g.name) !== -1;
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = function() { openGamePlayer(g); };
+
+        var img = document.createElement('img');
+        img.className = 'card-thumb';
+        img.src = g.cover;
+        img.alt = g.name;
+        img.loading = 'lazy';
+        img.onerror = function() { img.style.opacity = '0.25'; };
+
+        var body = document.createElement('div');
+        body.className = 'card-body';
+
+        var title = document.createElement('span');
+        title.className = 'card-title';
+        title.title = g.name;
+        title.textContent = g.name;
+
+        var star = document.createElement('button');
+        star.type = 'button';
+        star.className = 'star' + (isFav ? ' fav' : '');
+        star.title = 'Favorite';
+        star.textContent = '\\u2605';
+        star.onclick = function(e) { toggleGameFav(e, g.name); };
+
+        body.appendChild(title);
+        body.appendChild(star);
+        card.appendChild(img);
+        card.appendChild(body);
+        grid.appendChild(card);
+      });
+    }
+
+    function openGamePlayer(game) {
+      currentGame = game;
+      currentOverlayUrl = game.url;
+      showOverlay('frame', 'Game', game.name);
+      var frame = document.getElementById('overlayFrame');
+      frame.removeAttribute('srcdoc');
+      frame.src = 'about:blank';
+      fetch(game.url)
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        .then(function(html) {
+          if (!currentGame || currentGame.url !== game.url) return;
+          var baseTag = '<base href="' + HTML_BASE + '/">';
+          var doc = /<head\\b[^>]*>/i.test(html) ? html.replace(/(<head\\b[^>]*>)/i, '$1' + baseTag) : (baseTag + html);
+          frame.srcdoc = doc;
+        })
+        .catch(function() {
+          if (currentGame && currentGame.url === game.url) {
+            frame.removeAttribute('srcdoc');
+            frame.src = game.url;
+          }
+        });
+    }
+
+    /* ---------------- 2. MUSIC TAB (SOUNDCLOUD + OFFLINE LO-FI SYNTH + MP3) ---------------- */
+    function setSC(url) {
+      var input = document.getElementById('scUrl');
+      if (input) input.value = url;
+      var scFrame = document.getElementById('scFrame');
+      if (scFrame) {
+        scFrame.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(url) + '&color=%23fc2651&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=true';
+      }
+    }
+
+    function loadSoundCloud() {
+      var val = (document.getElementById('scUrl').value || '').trim();
+      if (!val) return;
+      if (!/^https?:\\/\\//i.test(val)) val = 'https://' + val;
+      setSC(val);
+    }
+
+    var localAudioBlobUrl = null;
+    function playLocalAudio(input) {
+      var file = input.files && input.files[0];
+      if (!file) return;
+      if (localAudioBlobUrl) {
+        try { URL.revokeObjectURL(localAudioBlobUrl); } catch (e) {}
+      }
+      localAudioBlobUrl = URL.createObjectURL(file);
+      var player = document.getElementById('localPlayer');
+      player.src = localAudioBlobUrl;
+      player.play().catch(function() {});
+    }
+
+    var synthCtx = null;
+    var synthFilter = null;
+    var synthMaster = null;
+    var synthTimer = null;
+    var synthRunning = false;
+    var synthStep = 0;
+    var synthBpm = 76;
+    var synthCutoff = 1100;
+
+    var LOFI_CHORDS = [
+      [261.63, 329.63, 392.00, 493.88], // Cmaj7
+      [220.00, 261.63, 329.63, 392.00], // Am7
+      [174.61, 220.00, 261.63, 329.63], // Fmaj7
+      [196.00, 246.94, 293.66, 349.23]  // G7
+    ];
+
+    function updateSynthParams() {
+      var bpmEl = document.getElementById('synthBpm');
+      var toneEl = document.getElementById('synthTone');
+      if (bpmEl) {
+        synthBpm = Number(bpmEl.value) || 76;
+        document.getElementById('synthBpmVal').textContent = synthBpm + ' BPM';
+        if (synthRunning) {
+          clearInterval(synthTimer);
+          synthTimer = setInterval(runSynthTick, Math.round((60 / synthBpm / 2) * 1000));
+        }
+      }
+      if (toneEl) {
+        synthCutoff = Number(toneEl.value) || 1100;
+        document.getElementById('synthToneVal').textContent = synthCutoff + ' Hz';
+        if (synthFilter && synthCtx) {
+          synthFilter.frequency.setTargetAtTime(synthCutoff, synthCtx.currentTime, 0.05);
+        }
+      }
+    }
+
+    function playChordPad(freqs, durSec) {
+      if (!synthCtx || !synthFilter) return;
+      var now = synthCtx.currentTime;
+      freqs.forEach(function(freq) {
+        var osc = synthCtx.createOscillator();
+        var gain = synthCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.045, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + durSec);
+        osc.connect(gain);
+        gain.connect(synthFilter);
+        osc.start(now);
+        osc.stop(now + durSec + 0.05);
+      });
+    }
+
+    function playDrumHit(type) {
+      if (!synthCtx || !synthMaster) return;
+      var now = synthCtx.currentTime;
+      if (type === 'kick') {
+        var osc = synthCtx.createOscillator();
+        var g = synthCtx.createGain();
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAtTime(42, now + 0.14);
+        g.gain.setValueAtTime(0.28, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+        osc.connect(g);
+        g.connect(synthMaster);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else {
+        var bufSize = Math.floor(synthCtx.sampleRate * (type === 'snare' ? 0.12 : 0.045));
+        var buf = synthCtx.createBuffer(1, bufSize, synthCtx.sampleRate);
+        var data = buf.getChannelData(0);
+        for (var i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+        var noise = synthCtx.createBufferSource();
+        noise.buffer = buf;
+        var flt = synthCtx.createBiquadFilter();
+        flt.type = type === 'snare' ? 'bandpass' : 'highpass';
+        flt.frequency.setValueAtTime(type === 'snare' ? 1400 : 5200, now);
+        var g = synthCtx.createGain();
+        g.gain.setValueAtTime(type === 'snare' ? 0.09 : 0.035, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + (type === 'snare' ? 0.12 : 0.045));
+        noise.connect(flt);
+        flt.connect(g);
+        g.connect(synthMaster);
+        noise.start(now);
+      }
+    }
+
+    function runSynthTick() {
+      var barStep = synthStep % 8;
+      if (barStep === 0) {
+        var chordIdx = Math.floor(synthStep / 8) % LOFI_CHORDS.length;
+        playChordPad(LOFI_CHORDS[chordIdx], (60 / synthBpm) * 3.8);
+      }
+      if (barStep === 0 || barStep === 3) playDrumHit('kick');
+      if (barStep === 4) playDrumHit('snare');
+      if (barStep % 2 === 1) playDrumHit('hat');
+      synthStep++;
+    }
+
+    function toggleSynth() {
+      var btn = document.getElementById('synthBtn');
+      if (synthRunning) {
+        synthRunning = false;
+        clearInterval(synthTimer);
+        synthTimer = null;
+        if (synthCtx && synthCtx.state === 'running') synthCtx.suspend().catch(function() {});
+        btn.textContent = '\\u25B6 Start Lo-Fi Beat & Chords';
+        return;
+      }
+      var AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      if (!synthCtx) {
+        synthCtx = new AudioCtx();
+        synthMaster = synthCtx.createGain();
+        synthMaster.gain.value = 0.7;
+        synthFilter = synthCtx.createBiquadFilter();
+        synthFilter.type = 'lowpass';
+        synthFilter.frequency.value = synthCutoff;
+        synthFilter.connect(synthMaster);
+        synthMaster.connect(synthCtx.destination);
+      }
+      synthCtx.resume().catch(function() {});
+      synthRunning = true;
+      synthStep = 0;
+      runSynthTick();
+      synthTimer = setInterval(runSynthTick, Math.round((60 / synthBpm / 2) * 1000));
+      btn.textContent = '\\u23F8 Stop Lo-Fi Synth';
+    }
+
+    /* ---------------- 3. BOOKS & MANGA TAB (GUTENDEX API + READER) ---------------- */
+    var booksLoadedOnce = false;
+
+    function quickBookSearch(term) {
+      document.getElementById('bookQuery').value = term;
+      searchBooks(term);
+    }
+
+    async function searchBooks(overrideQuery) {
+      var q = typeof overrideQuery === 'string' ? overrideQuery : (document.getElementById('bookQuery').value || '').trim();
+      var statusEl = document.getElementById('bookStatus');
+      var listEl = document.getElementById('bookResults');
+      if (!q) q = 'classic';
+      statusEl.textContent = 'Searching Gutendex catalog for "' + q + '"...';
+      listEl.innerHTML = '';
+
+      try {
+        var res = await fetch('https://gutendex.com/books?search=' + encodeURIComponent(q));
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        var books = Array.isArray(data.results) ? data.results.slice(0, 18) : [];
+        if (!books.length) {
+          statusEl.textContent = 'No public-domain books matched "' + q + '".';
+          return;
+        }
+        statusEl.textContent = 'Found ' + books.length + ' readable titles from Gutendex';
+        books.forEach(function(book) {
+          var item = document.createElement('div');
+          item.className = 'result-item';
+          var coverUrl = book.formats && book.formats['image/jpeg'] ? book.formats['image/jpeg'] : '';
+          var authors = (book.authors || []).map(function(a) { return a.name; }).join(', ') || 'Unknown Author';
+          var subjects = (book.subjects || []).slice(0, 3).join(' · ');
+          var textUrl = (book.formats && (book.formats['text/plain; charset=utf-8'] || book.formats['text/plain; charset=us-ascii'] || book.formats['text/plain'])) || '';
+          var htmlUrl = (book.formats && (book.formats['text/html'] || book.formats['text/html; charset=utf-8'])) || '';
+
+          if (coverUrl) {
+            var img = document.createElement('img');
+            img.className = 'book-cover-sm';
+            img.src = coverUrl;
+            img.alt = book.title;
+            img.loading = 'lazy';
+            img.onerror = function() { img.style.display = 'none'; };
+            item.appendChild(img);
+          }
+
+          var main = document.createElement('div');
+          main.className = 'result-main';
+
+          var h4 = document.createElement('h4');
+          h4.textContent = book.title;
+          h4.onclick = function() { openBookReader(book.title, textUrl, htmlUrl); };
+
+          var meta = document.createElement('div');
+          meta.className = 'result-meta';
+          meta.textContent = authors + ' · ' + (book.download_count || 0).toLocaleString() + ' reads';
+
+          var desc = document.createElement('p');
+          desc.textContent = subjects || 'Public domain classic available for in-app reading.';
+
+          var actions = document.createElement('div');
+          actions.style.cssText = 'margin-top:0.65rem;display:flex;gap:0.5rem;flex-wrap:wrap;';
+
+          var readBtn = document.createElement('button');
+          readBtn.type = 'button';
+          readBtn.className = 'btn chip';
+          readBtn.textContent = 'Read in App';
+          readBtn.onclick = function() { openBookReader(book.title, textUrl, htmlUrl); };
+          actions.appendChild(readBtn);
+
+          main.appendChild(h4);
+          main.appendChild(meta);
+          main.appendChild(desc);
+          main.appendChild(actions);
+          item.appendChild(main);
+          listEl.appendChild(item);
+        });
+      } catch (err) {
+        statusEl.textContent = 'Unable to reach Gutendex API right now (' + err.message + ').';
+      }
+    }
+
+    async function fetchTextWithCorsFallback(url) {
+      var attempts = [
+        url,
+        'https://corsproxy.io/?' + encodeURIComponent(url),
+        'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
+      ];
+      for (var i = 0; i < attempts.length; i++) {
+        try {
+          var res = await fetch(attempts[i]);
+          if (res.ok) {
+            var txt = await res.text();
+            if (txt && txt.length > 80) return txt;
+          }
+        } catch (e) {}
+      }
+      return '';
+    }
+
+    async function openBookReader(title, textUrl, htmlUrl) {
+      showOverlay('reader', 'Reader', title);
+      var inner = document.getElementById('readerInner');
+      inner.textContent = 'Loading book text into local reader...';
+      if (textUrl) {
+        var text = await fetchTextWithCorsFallback(textUrl);
+        if (text) {
+          inner.textContent = text.slice(0, 180000);
+          return;
+        }
+      }
+      if (htmlUrl) {
+        openUrlOverlay(htmlUrl, title);
+        return;
+      }
+      inner.textContent = 'No plain-text edition was provided for this title.';
+    }
+
+    function adjustReaderFont(delta) {
+      readerFontSize = Math.max(13, Math.min(26, readerFontSize + delta));
+      var inner = document.getElementById('readerInner');
+      if (inner) inner.style.fontSize = readerFontSize + 'px';
+    }
+
+    /* ---------------- 4. MOVIES CINEMA TAB (ARCHIVE.ORG PUBLIC DOMAIN) ---------------- */
+    var moviesLoadedOnce = false;
+    var CURATED_MOVIES = [
+      { id: 'night_of_the_living_dead', title: 'Night of the Living Dead (1968)', genre: 'sci-fi', desc: 'Classic horror sci-fi feature directed by George A. Romero.', thumb: 'https://archive.org/services/img/night_of_the_living_dead' },
+      { id: 'SteamboatWillie', title: 'Steamboat Willie (1928)', genre: 'animation', desc: 'Historic classic black-and-white animated short.', thumb: 'https://archive.org/services/img/SteamboatWillie' },
+      { id: 'superman_1941', title: 'Superman: The Mad Scientist (1941)', genre: 'animation', desc: 'Fleischer Studios classic animated sci-fi short.', thumb: 'https://archive.org/services/img/superman_1941' },
+      { id: 'House_on_Haunted_Hill_1959', title: 'House on Haunted Hill (1959)', genre: 'noir', desc: 'Vincent Price stars in this classic suspense mystery.', thumb: 'https://archive.org/services/img/House_on_Haunted_Hill_1959' },
+      { id: 'The_General_1926', title: 'The General (1926)', genre: 'comedy', desc: 'Buster Keaton silent comedy action masterpiece.', thumb: 'https://archive.org/services/img/The_General_1926' },
+      { id: 'Charade_1963', title: 'Charade (1963)', genre: 'noir', desc: 'Cary Grant & Audrey Hepburn classic thriller.', thumb: 'https://archive.org/services/img/Charade_1963' },
+      { id: 'Plan_9_from_Outer_Space_1959', title: 'Plan 9 from Outer Space (1959)', genre: 'sci-fi', desc: 'Cult classic retro sci-fi space adventure.', thumb: 'https://archive.org/services/img/Plan_9_from_Outer_Space_1959' },
+      { id: 'GulliversTravels1939', title: "Gulliver's Travels (1939)", genre: 'animation', desc: 'Full-length Fleischer Studios Technicolor animated feature.', thumb: 'https://archive.org/services/img/GulliversTravels1939' }
+    ];
+
+    function filterMoviePreset(genre, btnEl) {
+      document.querySelectorAll('#movieGenres .chip').forEach(function(b) { b.classList.remove('active'); });
+      if (btnEl) btnEl.classList.add('active');
+      renderFeaturedMovies(genre);
+    }
+
+    function renderFeaturedMovies(genre) {
+      var list = genre === 'featured' ? CURATED_MOVIES : CURATED_MOVIES.filter(function(m) { return m.genre === genre; });
+      renderMovieCards(list, 'Showing ' + list.length + ' public-domain films (' + genre + ')');
+    }
+
+    async function searchMovies() {
+      var q = (document.getElementById('movieQuery').value || '').trim();
+      var statusEl = document.getElementById('movieStatus');
+      if (!q) {
+        renderFeaturedMovies('featured');
+        return;
+      }
+      statusEl.textContent = 'Searching public-domain movies for "' + q + '"...';
+      try {
+        var apiUrl = 'https://archive.org/advancedsearch.php?q=' + encodeURIComponent(q + ' AND mediatype:movies AND (collection:feature_films OR collection:classic_cartoons OR collection:SciFi_Horror)') + '&fl[]=identifier,title,description&rows=24&page=1&output=json';
+        var res = await fetch(apiUrl);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        var docs = (data.response && data.response.docs) || [];
+        var mapped = docs.map(function(d) {
+          return {
+            id: d.identifier,
+            title: d.title || d.identifier,
+            genre: 'cinema',
+            desc: Array.isArray(d.description) ? d.description[0] : (d.description || 'Public domain film on Internet Archive.'),
+            thumb: 'https://archive.org/services/img/' + encodeURIComponent(d.identifier)
+          };
+        });
+        renderMovieCards(mapped, mapped.length ? ('Found ' + mapped.length + ' movies for "' + q + '"') : 'No movies found for "' + q + '".');
+      } catch (err) {
+        statusEl.textContent = 'Archive search unavailable; showing featured cinema instead.';
+        renderFeaturedMovies('featured');
+      }
+    }
+
+    function renderMovieCards(list, statusText) {
+      var grid = document.getElementById('movieGrid');
+      document.getElementById('movieStatus').textContent = statusText;
+      grid.innerHTML = '';
+      list.forEach(function(m) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = function() { openMovieTheater(m); };
+
+        var img = document.createElement('img');
+        img.className = 'movie-thumb';
+        img.src = m.thumb;
+        img.alt = m.title;
+        img.loading = 'lazy';
+        img.onerror = function() { img.style.opacity = '0.25'; };
+
+        var body = document.createElement('div');
+        body.className = 'card-meta-col';
+
+        var title = document.createElement('div');
+        title.className = 'card-title';
+        title.title = m.title;
+        title.textContent = m.title;
+
+        var desc = document.createElement('div');
+        desc.className = 'card-sub';
+        desc.textContent = String(m.desc || '').replace(/<[^>]+>/g, '');
+
+        body.appendChild(title);
+        body.appendChild(desc);
+        card.appendChild(img);
+        card.appendChild(body);
+        grid.appendChild(card);
+      });
+    }
+
+    async function openMovieTheater(movie) {
+      currentGame = null;
+      currentOverlayUrl = 'https://archive.org/embed/' + encodeURIComponent(movie.id);
+      showOverlay('movie', 'Cinema', movie.title);
+      var video = document.getElementById('movieVideo');
+      var metaLine = document.getElementById('movieMetaLine');
+      video.pause();
+      video.removeAttribute('src');
+      metaLine.textContent = 'Loading MP4 stream for "' + movie.title + '"...';
+
+      try {
+        var res = await fetch('https://archive.org/metadata/' + encodeURIComponent(movie.id));
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var meta = await res.json();
+        var files = Array.isArray(meta.files) ? meta.files : [];
+        var mp4 = files.find(function(f) { return f && f.name && /\\.mp4$/i.test(f.name) && !/_archive\\.mp4$/i.test(f.name); }) ||
+                  files.find(function(f) { return f && f.name && /\\.mp4$/i.test(f.name); });
+        if (mp4) {
+          var streamUrl = 'https://archive.org/download/' + encodeURIComponent(movie.id) + '/' + mp4.name.split('/').map(encodeURIComponent).join('/');
+          video.src = streamUrl;
+          metaLine.textContent = movie.title + ' · Streaming direct MP4';
+          video.play().catch(function() {});
+          return;
+        }
+      } catch (e) {}
+
+      // Fallback to embed iframe if direct mp4 not listed
+      openUrlOverlay(currentOverlayUrl, movie.title);
+    }
+
+    /* ---------------- 5. OMNI-SEARCH BROWSER BRIDGE ---------------- */
+    function fullscreenOmniSearch(forceState) {
+      var wrap = document.getElementById('omniShellWrap');
+      var frame = document.getElementById('scramjetPortalFrame');
+      var nextFs = typeof forceState === 'boolean' ? forceState : !(document.fullscreenElement || (wrap && wrap.classList.contains('is-fs-fallback')));
+      if (!nextFs) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(function() {});
+        }
+        if (wrap) wrap.classList.remove('is-fs-fallback');
+        return;
+      }
+      if (frame && frame.requestFullscreen) {
+        frame.requestFullscreen().catch(function() {
+          if (wrap && wrap.requestFullscreen) {
+            wrap.requestFullscreen().catch(function() { wrap.classList.add('is-fs-fallback'); });
+          } else if (wrap) {
+            wrap.classList.add('is-fs-fallback');
+          }
+        });
+      } else if (wrap && wrap.requestFullscreen) {
+        wrap.requestFullscreen().catch(function() { wrap.classList.add('is-fs-fallback'); });
+      } else if (wrap) {
+        wrap.classList.add('is-fs-fallback');
+      }
+    }
+
+    window.addEventListener('message', function(ev) {
+      if (!ev || !ev.data) return;
+      if (ev.data.type === 'gn-switch-tab' && typeof ev.data.tab === 'string') {
+        switchTab(ev.data.tab);
+      } else if (ev.data.type === 'omni-fullscreen-toggle') {
+        fullscreenOmniSearch(typeof ev.data.active === 'boolean' ? ev.data.active : undefined);
+      }
+    });
+
+    /* ---------------- OVERLAY CONTROLLER ---------------- */
+    function showOverlay(mode, badgeText, titleText) {
+      activeOverlayMode = mode;
+      document.getElementById('overlayKind').textContent = badgeText;
+      document.getElementById('overlayTitle').textContent = titleText;
+
+      var frame = document.getElementById('overlayFrame');
+      var movieBox = document.getElementById('movieBox');
+      var readerBox = document.getElementById('readerBox');
+      var smallerBtn = document.getElementById('readerSmallerBtn');
+      var largerBtn = document.getElementById('readerLargerBtn');
+      var reloadBtn = document.getElementById('overlayReloadBtn');
+
+      frame.style.display = mode === 'frame' ? 'block' : 'none';
+      movieBox.style.display = mode === 'movie' ? 'flex' : 'none';
+      readerBox.style.display = mode === 'reader' ? 'block' : 'none';
+      smallerBtn.style.display = mode === 'reader' ? 'inline-block' : 'none';
+      largerBtn.style.display = mode === 'reader' ? 'inline-block' : 'none';
+      reloadBtn.style.display = mode === 'frame' ? 'inline-block' : 'none';
+
+      document.getElementById('overlay').style.display = 'flex';
+    }
+
+    function openUrlOverlay(url, title) {
+      currentGame = null;
+      currentOverlayUrl = url;
+      showOverlay('frame', 'Web Frame', title || url);
+      var frame = document.getElementById('overlayFrame');
+      frame.removeAttribute('srcdoc');
+      frame.src = url;
+    }
+
+    function closeOverlay() {
+      currentGame = null;
+      var frame = document.getElementById('overlayFrame');
+      var video = document.getElementById('movieVideo');
+      try { video.pause(); video.removeAttribute('src'); } catch (e) {}
+      try { frame.removeAttribute('srcdoc'); frame.src = 'about:blank'; } catch (e) {}
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    function reloadOverlay() {
+      if (currentGame) {
+        openGamePlayer(currentGame);
+      } else if (activeOverlayMode === 'frame' && currentOverlayUrl) {
+        openUrlOverlay(currentOverlayUrl, document.getElementById('overlayTitle').textContent);
+      }
+    }
+
+    function fullscreenOverlay() {
+      var target = activeOverlayMode === 'movie' ? document.getElementById('movieVideo') :
+                   activeOverlayMode === 'reader' ? document.getElementById('readerBox') :
+                   document.getElementById('overlayFrame');
+      if (target && target.requestFullscreen) {
+        target.requestFullscreen().catch(function() {});
+      }
+    }
+
+    loadGames();
+  <\/script>
 </body>
 </html>`;
       }
 
-      async function loadGnMathIntoMemory(frame) {
+      function loadGnMathIntoMemory(frame) {
         if (!frame) return;
-        const token = ++gnMathLoadToken;
         revokeGnMathBlobUrl();
-        const shellHtml = buildInMemoryGnMathArcadeHtml();
-        gnMathBlobUrl = URL.createObjectURL(new Blob([shellHtml], { type: 'text/html' }));
-        frame.src = gnMathBlobUrl;
-
-        try {
-          const res = await fetchWithTimeout(GNMATH_URL, {}, 3500);
-          if (token !== gnMathLoadToken || !document.body.contains(frame) || !res.ok) return;
-          const remoteHtml = await res.text();
-          if (token !== gnMathLoadToken || !document.body.contains(frame)) return;
-          if (remoteHtml && /<(?:html|head|body|div|script)\b/i.test(remoteHtml) && remoteHtml.length > 200) {
-            const wrappedHtml = prepareZoneHtml(remoteHtml, GNMATH_URL + '/');
-            revokeGnMathBlobUrl();
-            gnMathBlobUrl = URL.createObjectURL(new Blob([wrappedHtml], { type: 'text/html' }));
-            frame.src = gnMathBlobUrl;
-          }
-        } catch (err) {
-          // Local-memory GN-Math blob arcade shell stays active cleanly when direct CORS fetch is blocked
-        }
+        const embeddedSiteHtml = buildInMemoryGnMathArcadeHtml();
+        gnMathLastRawHtml = embeddedSiteHtml;
+        frame.srcdoc = embeddedSiteHtml;
       }
 
       function ensureGnMathFrameMounted() {
@@ -12078,7 +14255,7 @@ ${shimCode}
           frame = document.createElement('iframe');
           frame.id = 'gnmath-iframe';
           frame.className = 'gnmath-iframe';
-          frame.title = 'GN-Math';
+          frame.title = 'Embedded Portal';
           frame.setAttribute('allow', 'autoplay; keyboard; gamepad; fullscreen');
           frame.referrerPolicy = 'no-referrer';
           mount.appendChild(frame);
@@ -12095,12 +14272,14 @@ ${shimCode}
       }
 
       function unmountGnMathFrame() {
-        gnMathLoadToken++;
         revokeGnMathBlobUrl();
         const mount = document.getElementById('gnmath-frame-mount');
         const frame = document.getElementById('gnmath-iframe');
         if (frame) {
-          try { frame.src = 'about:blank'; } catch (e) {}
+          try {
+            frame.removeAttribute('srcdoc');
+            frame.src = 'about:blank';
+          } catch (e) {}
           if (frame.parentNode) frame.parentNode.removeChild(frame);
         }
         if (mount) mount.innerHTML = '';
@@ -12132,7 +14311,10 @@ ${shimCode}
         }
         if (newTabBtn) {
           newTabBtn.addEventListener('click', () => {
-            window.open(GNMATH_URL, '_blank');
+            const htmlPayload = gnMathLastRawHtml || buildInMemoryGnMathArcadeHtml();
+            revokeGnMathBlobUrl();
+            gnMathBlobUrl = URL.createObjectURL(new Blob([htmlPayload], { type: 'text/html' }));
+            window.open(gnMathBlobUrl, '_blank');
           });
         }
       }
@@ -12143,6 +14325,7 @@ ${shimCode}
       initOmniSearch();
       initGnMathTab();
       initDesktopShell();
+      initShortcutSettingsEvents();
       loadScPlaylist();
       renderCalcHistory();
       renderTimer();
@@ -12152,7 +14335,21 @@ ${shimCode}
       initFlashcards();
       initKanbanTasks();
       initColorStudio();
-      activateTab('home');
+      const launchInitCfg = window.__PORTAL_INITIAL_CONFIG__ || null;
+      if (launchInitCfg && launchInitCfg.autoCloak) {
+        applyCloak(CLOAK_PRESETS.docs.title, CLOAK_PRESETS.docs.icon);
+      }
+      const startApp = launchInitCfg && launchInitCfg.landingApp && launchInitCfg.landingApp !== 'home' && APP_META[launchInitCfg.landingApp]
+        ? launchInitCfg.landingApp
+        : 'home';
+      if (startApp === 'home') {
+        activateTab('home');
+      } else {
+        switchApp(startApp);
+      }
+      if (launchInitCfg && launchInitCfg.autoFullscreen) {
+        setTheaterMode(true);
+      }
       listZones();
     </script>
   </template>
@@ -12563,11 +14760,85 @@ ${shimCode}
 
       switchTopic("linear");
 
-      /* ---------------- CTRL + E STANDALONE BLOB DESKTOP OS LAUNCHER ---------------- */
+      /* ---------------- CUSTOMIZABLE LAUNCH SHORTCUT & BLOB DESKTOP OS LAUNCHER ---------------- */
       var activePopup = null;
       var inpageDesktopOverlay = null;
       var popupBlockedBanner = null;
       var isLaunchingPopup = false;
+      var SHORTCUT_CFG_KEY = "gn_shortcut_config_v1";
+      var DEFAULT_HOST_SHORTCUT_CFG = {
+        enabled: true,
+        combo: { ctrl: true, alt: false, shift: false, meta: false, key: "e" },
+        triggerMode: "single",
+        existingBehavior: "focus",
+        landingApp: "home",
+        popupSize: "960x680",
+        popupWidth: 960,
+        popupHeight: 680,
+        autoCloak: false,
+        autoFullscreen: false,
+        panicEnabled: true,
+        panicCombo: { ctrl: false, alt: false, shift: true, meta: false, key: "Escape" }
+      };
+      var hostShortcutConfig = null;
+      var tapTimestamps = [];
+
+      function getHostShortcutConfig() {
+        if (hostShortcutConfig) return hostShortcutConfig;
+        var out = JSON.parse(JSON.stringify(DEFAULT_HOST_SHORTCUT_CFG));
+        try {
+          var raw = window.localStorage.getItem(SHORTCUT_CFG_KEY);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === "object") {
+              out.enabled = parsed.enabled !== false;
+              if (parsed.combo && typeof parsed.combo === "object") {
+                out.combo = {
+                  ctrl: Boolean(parsed.combo.ctrl),
+                  alt: Boolean(parsed.combo.alt),
+                  shift: Boolean(parsed.combo.shift),
+                  meta: Boolean(parsed.combo.meta),
+                  key: String(parsed.combo.key || "e")
+                };
+              }
+              if (parsed.triggerMode === "double" || parsed.triggerMode === "triple") out.triggerMode = parsed.triggerMode;
+              if (parsed.existingBehavior === "toggle" || parsed.existingBehavior === "new") out.existingBehavior = parsed.existingBehavior;
+              if (typeof parsed.landingApp === "string" && parsed.landingApp) out.landingApp = parsed.landingApp;
+              if (["960x680", "1280x800", "fullscreen", "custom"].indexOf(parsed.popupSize) !== -1) out.popupSize = parsed.popupSize;
+              out.popupWidth = Math.max(480, Math.min(3840, Number(parsed.popupWidth) || 960));
+              out.popupHeight = Math.max(360, Math.min(2160, Number(parsed.popupHeight) || 680));
+              out.autoCloak = Boolean(parsed.autoCloak);
+              out.autoFullscreen = Boolean(parsed.autoFullscreen);
+              out.panicEnabled = parsed.panicEnabled !== false;
+              if (parsed.panicCombo && typeof parsed.panicCombo === "object") {
+                out.panicCombo = {
+                  ctrl: Boolean(parsed.panicCombo.ctrl),
+                  alt: Boolean(parsed.panicCombo.alt),
+                  shift: Boolean(parsed.panicCombo.shift),
+                  meta: Boolean(parsed.panicCombo.meta),
+                  key: String(parsed.panicCombo.key || "Escape")
+                };
+              }
+            }
+          }
+        } catch (e) {}
+        hostShortcutConfig = out;
+        return out;
+      }
+
+      function matchesHostCombo(ev, combo) {
+        if (!combo || !combo.key) return false;
+        if (Boolean(ev.ctrlKey) !== Boolean(combo.ctrl)) return false;
+        if (Boolean(ev.altKey) !== Boolean(combo.alt)) return false;
+        if (Boolean(ev.shiftKey) !== Boolean(combo.shift)) return false;
+        if (Boolean(ev.metaKey) !== Boolean(combo.meta)) return false;
+        var targetKey = String(combo.key).toLowerCase();
+        var evKey = String(ev.key || "").toLowerCase();
+        var evCode = String(ev.code || "").toLowerCase();
+        if (evKey === targetKey) return true;
+        if (targetKey.length === 1 && evCode === "key" + targetKey) return true;
+        return false;
+      }
 
       function buildPortalHtmlContent() {
         var templateEl = document.getElementById("portal-template");
@@ -12576,7 +14847,15 @@ ${shimCode}
           window.location.origin !== "null" &&
           window.location.protocol.indexOf("http") === 0
         ) ? window.location.origin : "";
-        var originScript = "<script>window.__PORTAL_ORIGIN__=" + JSON.stringify(apiOrigin) + ";<\/script>\n";
+        var cfg = getHostShortcutConfig();
+        var initCfg = {
+          landingApp: cfg.landingApp || "home",
+          autoCloak: Boolean(cfg.autoCloak),
+          autoFullscreen: Boolean(cfg.autoFullscreen)
+        };
+        var originScript =
+          "<script>window.__PORTAL_ORIGIN__=" + JSON.stringify(apiOrigin) +
+          ";window.__PORTAL_INITIAL_CONFIG__=" + JSON.stringify(initCfg) + ";<\/script>\n";
         return "<!DOCTYPE html>\n<html lang=\"en\">\n" + originScript + templateEl.innerHTML + "\n<\/html>";
       }
 
@@ -12598,7 +14877,7 @@ ${shimCode}
         title.style.cssText = "font-size:14px;color:#34d399;";
 
         var msg = document.createElement("span");
-        msg.textContent = "Please allow pop-ups for this site in your browser bar, then press Ctrl + E or click Try Again to open the blob: window.";
+        msg.textContent = "Please allow pop-ups for this site in your browser bar, then press your launch shortcut or click Try Again to open the blob: window.";
 
         var actions = document.createElement("div");
         actions.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;";
@@ -12644,6 +14923,15 @@ ${shimCode}
         inpageDesktopOverlay = null;
       }
 
+      function panicHideDesktop() {
+        if (activePopup && !activePopup.closed) {
+          try { activePopup.close(); } catch (e) {}
+          activePopup = null;
+        }
+        isLaunchingPopup = false;
+        closeInPageDesktop();
+      }
+
       function openPortalInPageDesktop() {
         if (inpageDesktopOverlay && document.body.contains(inpageDesktopOverlay)) {
           return;
@@ -12669,11 +14957,36 @@ ${shimCode}
         inpageDesktopOverlay = overlay;
       }
 
+      function resolvePopupWindowFeatures() {
+        var cfg = getHostShortcutConfig();
+        var w = 960;
+        var h = 680;
+        if (cfg.popupSize === "1280x800") {
+          w = 1280;
+          h = 800;
+        } else if (cfg.popupSize === "fullscreen") {
+          w = Math.max(960, (window.screen && window.screen.availWidth) || 1440);
+          h = Math.max(680, (window.screen && window.screen.availHeight) || 900);
+        } else if (cfg.popupSize === "custom") {
+          w = cfg.popupWidth || 960;
+          h = cfg.popupHeight || 680;
+        }
+        return "width=" + w + ",height=" + h + ",menubar=no,toolbar=no,location=no,status=no";
+      }
+
       function openPortalBlob() {
         if (isLaunchingPopup) return;
+        var cfg = getHostShortcutConfig();
         if (activePopup && !activePopup.closed) {
-          try { activePopup.focus(); } catch (e) {}
-          return;
+          if (cfg.existingBehavior === "toggle") {
+            try { activePopup.close(); } catch (e) {}
+            activePopup = null;
+            return;
+          }
+          if (cfg.existingBehavior === "focus") {
+            try { activePopup.focus(); } catch (e) {}
+            return;
+          }
         }
 
         isLaunchingPopup = true;
@@ -12683,7 +14996,7 @@ ${shimCode}
         var win = window.open(
           blobUrl,
           "_blank",
-          "width=960,height=680,menubar=no,toolbar=no,location=no,status=no"
+          resolvePopupWindowFeatures()
         );
 
         if (!win || win.closed || typeof win.closed === "undefined") {
@@ -12702,6 +15015,7 @@ ${shimCode}
       }
 
       function launchDesktopEnvironment(explicitMode) {
+        var cfg = getHostShortcutConfig();
         var mode = explicitMode;
         if (!mode) {
           try {
@@ -12711,26 +15025,45 @@ ${shimCode}
           }
         }
         if (mode === "inpage") {
+          if (!explicitMode && inpageDesktopOverlay && cfg.existingBehavior === "toggle") {
+            closeInPageDesktop();
+            return;
+          }
           openPortalInPageDesktop();
         } else {
           openPortalBlob();
         }
       }
 
+      window.addEventListener("storage", function (ev) {
+        if (ev && ev.key === SHORTCUT_CFG_KEY) {
+          hostShortcutConfig = null;
+        }
+      });
+
       window.addEventListener("message", function (ev) {
-        if (!ev || !ev.data || ev.data.type !== "gn-launch-desktop") return;
+        if (!ev || !ev.data) return;
+        if (ev.data.type === "gn-shortcut-config-update" && ev.data.config) {
+          hostShortcutConfig = null;
+          try {
+            window.localStorage.setItem(SHORTCUT_CFG_KEY, JSON.stringify(ev.data.config));
+          } catch (e) {}
+          getHostShortcutConfig();
+          return;
+        }
+        if (ev.data.type === "gn-panic-hide") {
+          panicHideDesktop();
+          return;
+        }
+        if (ev.data.type !== "gn-launch-desktop") return;
         var mode = ev.data.mode === "inpage" ? "inpage" : "blob";
         try { window.localStorage.setItem("gn_portal_launch_mode", mode); } catch (e) {}
-        if (activePopup && !activePopup.closed) {
-          try { activePopup.close(); } catch (e) {}
-          activePopup = null;
-        }
-        isLaunchingPopup = false;
-        closeInPageDesktop();
+        panicHideDesktop();
         launchDesktopEnvironment(mode);
       });
 
       window.addEventListener("keydown", function (e) {
+        var cfg = getHostShortcutConfig();
         var isExitInPage = e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && (e.key === "e" || e.key === "E" || e.code === "KeyE");
         if (isExitInPage && inpageDesktopOverlay) {
           e.preventDefault();
@@ -12738,11 +15071,31 @@ ${shimCode}
           closeInPageDesktop();
           return;
         }
-        var isCtrlE = e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey && (e.key === "e" || e.key === "E" || e.code === "KeyE");
-        if (!isCtrlE) return;
+        if (cfg.panicEnabled && matchesHostCombo(e, cfg.panicCombo)) {
+          if ((activePopup && !activePopup.closed) || inpageDesktopOverlay) {
+            e.preventDefault();
+            e.stopPropagation();
+            panicHideDesktop();
+            return;
+          }
+        }
+        if (!cfg.enabled) return;
+        if (!matchesHostCombo(e, cfg.combo)) return;
         e.preventDefault();
         e.stopPropagation();
-        launchDesktopEnvironment();
+
+        var requiredTaps = cfg.triggerMode === "triple" ? 3 : cfg.triggerMode === "double" ? 2 : 1;
+        if (requiredTaps === 1) {
+          launchDesktopEnvironment();
+          return;
+        }
+        var now = Date.now();
+        tapTimestamps = tapTimestamps.filter(function (ts) { return now - ts <= 420; });
+        tapTimestamps.push(now);
+        if (tapTimestamps.length >= requiredTaps) {
+          tapTimestamps = [];
+          launchDesktopEnvironment();
+        }
       }, true);
     })();
   </script>

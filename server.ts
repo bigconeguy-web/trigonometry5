@@ -1,9 +1,13 @@
 import 'dotenv/config';
 import fs from 'node:fs';
+import http from 'node:http';
 import path from 'node:path';
 import express from 'express';
 import type { Request, Response } from 'express';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
+import { scramjetPath } from '@mercuryworkshop/scramjet/path';
+import { baremuxPath } from '@mercuryworkshop/bare-mux/node';
+import wisp from 'wisp-server-node';
 import {
   buildSystemInstruction,
   classifyGeminiError,
@@ -64,6 +68,29 @@ async function startServer() {
     }
     next();
   });
+
+  const epoxyPath = path.resolve(
+    process.cwd(),
+    'node_modules/@mercuryworkshop/epoxy-transport/dist'
+  );
+
+  app.get('/sw.js', (_req: Request, res: Response) => {
+    const publicSw = path.resolve(process.cwd(), 'public', 'sw.js');
+    const distSw = path.resolve(process.cwd(), 'dist', 'sw.js');
+    const targetSw = fs.existsSync(publicSw) ? publicSw : distSw;
+    if (fs.existsSync(targetSw)) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      res.setHeader('Service-Worker-Allowed', '/');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(targetSw);
+    } else {
+      res.status(404).end();
+    }
+  });
+
+  app.use('/scram', express.static(scramjetPath));
+  app.use('/baremux', express.static(baremuxPath));
+  app.use('/epoxy', express.static(epoxyPath));
 
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ ok: true, model: MODEL_NAME });
@@ -158,7 +185,27 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = http.createServer(app);
+  const routeWispRequest =
+    (
+      wisp as {
+        routeRequest?: (req: http.IncomingMessage, socket: unknown, head: Buffer) => void;
+        default?: { routeRequest: (req: http.IncomingMessage, socket: unknown, head: Buffer) => void };
+      }
+    ).routeRequest ||
+    (
+      wisp as {
+        default?: { routeRequest: (req: http.IncomingMessage, socket: unknown, head: Buffer) => void };
+      }
+    ).default?.routeRequest;
+
+  server.on('upgrade', (req, socket, head) => {
+    if (req.url && req.url.startsWith('/wisp/') && typeof routeWispRequest === 'function') {
+      routeWispRequest(req, socket, head);
+    }
+  });
+
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`Server listening on http://localhost:${PORT}`);
   });
 }

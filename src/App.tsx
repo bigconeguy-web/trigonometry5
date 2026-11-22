@@ -28,20 +28,24 @@ export default function App() {
 
       launchedRef.current = true;
 
-      if (!blobUrlRef.current) {
-        const menuHtml = buildDashboardBlobHtml(GAME_CATALOG);
-        const blob = new Blob([menuHtml], { type: 'text/html;charset=utf-8' });
-        blobUrlRef.current = URL.createObjectURL(blob);
-      }
+      try {
+        if (!blobUrlRef.current) {
+          const menuHtml = buildDashboardBlobHtml(GAME_CATALOG);
+          const blob = new Blob([menuHtml], { type: 'text/html;charset=utf-8' });
+          blobUrlRef.current = URL.createObjectURL(blob);
+        }
 
-      const blobUrl = blobUrlRef.current;
-      const win = window.open(blobUrl, '_blank');
+        const blobUrl = blobUrlRef.current;
+        const win = window.open(blobUrl, '_blank');
 
-      if (win) {
-        openedTabRef.current = win;
-      } else {
-        // Fallback only if popup blocking prevents opening a separate blob: tab
-        setFallbackUrl(blobUrl);
+        if (win) {
+          openedTabRef.current = win;
+        } else {
+          // Fallback only if popup blocking prevents opening a separate blob: tab
+          setFallbackUrl(blobUrl);
+        }
+      } catch {
+        launchedRef.current = false;
       }
     };
 
