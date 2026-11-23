@@ -192,11 +192,11 @@
   {
     "id": "connect-four",
     "courseCode": "LOGIC-215",
-    "title": "Combinatorial Game Theory & Binary Vertical Matrix",
+    "title": "Combinatorial Decision Theory & Binary Vertical Matrix",
     "department": "Algorithmic Logic",
     "level": "Undergraduate Colloquium",
     "estimatedDuration": "8 min debate",
-    "description": "Discrete game theory seminar exploring alpha-beta minimax heuristics, gravity drop constraints, and 4-tensor collinearity.",
+    "description": "Discrete decision theory seminar exploring alpha-beta minimax heuristics, gravity drop constraints, and 4-tensor collinearity.",
     "academicObjective": "Deploy gravitational tokens into a 7x6 matrix to achieve orthogonal or diagonal 4-element alignment prior to adversary completion.",
     "instrumentDirectives": "Click any column sector to release gravitational token. Select Minimax AI or Peer Mode in header.",
     "learningOutcomes": [
@@ -206,7 +206,7 @@
     ],
     "defaultHonorsIndex": 12,
     "iframeSrc": "./modules/connect_four.html",
-    "tags": ["Game Theory", "Minimax AI", "Combinatorics"]
+    "tags": ["Decision Theory", "Minimax AI", "Combinatorics"]
   },
   {
     "id": "sudoku-logic",
@@ -344,7 +344,7 @@
   {
     "id": "minimax-matrix",
     "courseCode": "MATH-204",
-    "title": "Minimax Adversarial Game Theory Matrix",
+    "title": "Minimax Adversarial Matrix & Nash Equilibrium",
     "department": "Algorithmic Logic",
     "level": "Foundational Seminar",
     "estimatedDuration": "5 min exercise",
@@ -352,12 +352,12 @@
     "academicObjective": "Achieve orthogonal or diagonal collinearity across the 3x3 matrix or force a Nash equilibrium zero-sum draw.",
     "instrumentDirectives": "Mouse Click: Place token X in any unoccupied matrix coordinate.",
     "learningOutcomes": [
-      "Zero-sum symmetric game theory equilibria",
+      "Zero-sum symmetric matrix equilibria",
       "Heuristic threat detection and defensive blocking",
       "Combinatorial matrix symmetry analysis"
     ],
     "defaultHonorsIndex": 10,
     "iframeSrc": "./modules/tic_tac_toe.html",
-    "tags": ["Game Theory", "Minimax", "Zero-Sum"]
+    "tags": ["Decision Theory", "Minimax", "Zero-Sum"]
   }
 ]

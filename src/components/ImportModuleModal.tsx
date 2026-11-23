@@ -38,14 +38,14 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
   const [showPreview, setShowPreview] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Handle Drag & Drop of .html / .ubg file
+  // Handle Drag & Drop of standalone HTML module file
   const handleFile = (file: File) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       const htmlContent = e.target?.result as string;
       if (htmlContent) {
-        // Create Data URI or Blob
+        // Create Data URI
         const dataUri = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
         setIframeInput(dataUri);
 
@@ -55,7 +55,7 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
           setTitle(`Practicum: ${cleanName.charAt(0).toUpperCase() + cleanName.slice(1)}`);
         }
         if (!courseCode) {
-          setCourseCode(`UBG-${Math.floor(100 + Math.random() * 900)}`);
+          setCourseCode(`LAB-${Math.floor(100 + Math.random() * 900)}`);
         }
         setError(null);
       }
@@ -74,12 +74,12 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
     e.preventDefault();
 
     if (!iframeInput.trim()) {
-      setError('Please provide an iframe source URL, embed code, or upload an HTML/UBG file.');
+      setError('Please provide an iframe source URL, embed code, or upload an HTML simulation file.');
       return;
     }
 
     let resolvedSrc = iframeInput.trim();
-    // If it's a data URI or blob URI or relative or http
+    // Resolve iframe embed code if pasted directly
     if (resolvedSrc.startsWith('<iframe')) {
       const match = resolvedSrc.match(/src=["']([^"']+)["']/i);
       if (match) resolvedSrc = match[1];
@@ -87,7 +87,7 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
 
     const newModule: AcademicModule = {
       id: `custom-${Date.now()}`,
-      courseCode: (courseCode.trim() || 'UBG-201').toUpperCase(),
+      courseCode: (courseCode.trim() || 'LAB-201').toUpperCase(),
       title: title.trim() || 'Custom Curriculum Practicum',
       department,
       level,
@@ -101,7 +101,7 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
       ],
       defaultHonorsIndex: 1000,
       iframeSrc: resolvedSrc,
-      tags: [department, 'UBG Practicum', 'Custom Module'],
+      tags: [department, 'Imported Practicum', 'Custom Module'],
       isCustom: true,
     };
 
@@ -115,7 +115,7 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
       setCourseCode('BIO-240');
       setTitle('Conway Cellular Automata & Emergent Complexity');
       setDepartment('Algorithmic Logic');
-      setDescription('Zero-player mathematical game modeling population dynamics and emergent structural complexity on an infinite toroidal 2D grid.');
+      setDescription('Zero-player cellular automaton modeling population dynamics and emergent structural complexity on an infinite toroidal 2D grid.');
       setAcademicObjective('Observe oscillating gliders, beacons, and stable block clusters under the 4 foundational transition rules.');
       setIframeInput(`data:text/html;charset=utf-8,${encodeURIComponent(`<!DOCTYPE html><html><head><style>body{margin:0;background:#09090b;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;padding:12px;}canvas{background:#111;border:1px solid #333;border-radius:8px;}button{background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-weight:bold;margin:8px;cursor:pointer;}</style></head><body><h3 style="margin:4px 0;">BIO-240: Cellular Automata</h3><canvas id="c" width="400" height="300"></canvas><div><button id="step">Step</button><button id="rand">Randomize Seed</button></div><script>const c=document.getElementById('c'),x=c.getContext('2d'),w=50,h=38,s=8;let g=Array.from({length:h},()=>Array(w).fill(0));function rnd(){for(let r=0;r<h;r++)for(let c=0;c<w;c++)g[r][c]=Math.random()>0.75?1:0;drw();}function drw(){x.clearRect(0,0,400,300);x.fillStyle='#10b981';for(let r=0;r<h;r++)for(let c=0;c<w;c++)if(g[r][c])x.fillRect(c*s,r*s,s-1,s-1);}function nxt(){let ng=g.map(row=>[...row]);for(let r=0;r<h;r++)for(let c=0;c<w;c++){let n=0;for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if((dr||dc)&&g[(r+dr+h)%h][(c+dc+w)%w])n++;if(g[r][c]&&(n===2||n===3))ng[r][c]=1;else if(!g[r][c]&&n===3)ng[r][c]=1;else ng[r][c]=0;}g=ng;drw();}document.getElementById('step').onclick=nxt;document.getElementById('rand').onclick=rnd;rnd();setInterval(nxt,150);<\/script></body></html>`)}`);
     } else {
@@ -136,13 +136,13 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
         <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
           <div>
             <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-              <span>Import External Practicum / UBG File</span>
+              <span>Import External HTML5 Practicum</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">
                 HTML5 / Canvas
               </span>
             </h2>
             <p className="text-xs text-zinc-500">
-              Drop any standalone .html / .ubg game file or paste an iframe sandbox URL
+              Drop any standalone .html simulation file or paste an iframe sandbox URL
             </p>
           </div>
           <button
@@ -174,16 +174,16 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
           >
             <FileCode className="w-6 h-6 mx-auto mb-2 text-indigo-600" />
             <span className="font-bold text-zinc-800 block text-xs mb-1">
-              Drag &amp; Drop Standalone HTML / UBG File Here
+              Drag &amp; Drop Standalone HTML5 File Here
             </span>
             <span className="text-[11px] text-zinc-500 block mb-3">
-              Automatically encodes self-contained Canvas / JS game files into sandboxed practicums
+              Automatically encodes self-contained Canvas / JS simulation files into sandboxed practicums
             </span>
 
             <div className="flex items-center justify-center gap-2">
               <label className="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-800 font-semibold rounded-lg shadow-2xs hover:bg-zinc-50 cursor-pointer inline-flex items-center gap-1.5">
                 <Upload className="w-3.5 h-3.5" />
-                <span>Select .html or .ubg File</span>
+                <span>Select .html Simulation File</span>
                 <input
                   type="file"
                   accept=".html,.htm,.ubg"
@@ -271,7 +271,7 @@ export const ImportModuleModal: React.FC<ImportModuleModalProps> = ({
             <textarea
               value={iframeInput}
               onChange={(e) => setIframeInput(e.target.value)}
-              placeholder='e.g. ./modules/my_game.html or https://example.org/sim or data:text/html,...'
+              placeholder='e.g. ./modules/matrix_lab.html or https://example.org/sim or data:text/html,...'
               rows={2}
               className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-zinc-900 font-mono text-xs"
               required

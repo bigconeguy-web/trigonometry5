@@ -606,11 +606,11 @@ export const CurriculumActivitiesView: React.FC<CurriculumActivitiesViewProps> =
 
             <div className="space-y-2">
               <div className="flex items-center justify-between font-mono font-semibold">
-                <span className={theme.textPrimary}>Release 2.2.0 — Custom UBG Import &amp; JSON Portability</span>
+                <span className={theme.textPrimary}>Release 2.2.0 — Custom Module Import &amp; JSON Portability</span>
                 <span className={theme.textMuted}>Prior Release</span>
               </div>
               <ul className={`list-disc list-inside space-y-1 ${theme.textSecondary} pl-1`}>
-                <li>Universal HTML5 / UBG module importer with instant schema validation and local persistence.</li>
+                <li>Universal HTML5 / Canvas module importer with instant schema validation and local persistence.</li>
                 <li>Export and import full curriculum backups in JSON format.</li>
                 <li>Dual-view layout: Interactive Card Grid and Academic Course Syllabus listing.</li>
               </ul>

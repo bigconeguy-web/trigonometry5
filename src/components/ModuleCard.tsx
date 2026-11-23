@@ -28,7 +28,9 @@ export const ModuleCard: React.FC<ModuleCardProps> = ({
   const cardBg = theme?.cardBg || 'bg-white';
   const cardBorder = theme?.cardBorder || 'border-zinc-200/90';
   const cardHover = theme?.cardHover || 'hover:border-zinc-300 hover:shadow-xs';
-  const primaryBtn = theme?.primaryBtn || 'bg-zinc-900 hover:bg-zinc-800 text-white';
+  const primaryBtn = theme
+    ? `${theme.primaryBtn} ${theme.primaryBtnText}`
+    : 'bg-zinc-900 hover:bg-zinc-800 text-white';
   const accentBadge = theme?.accentBadge || 'bg-zinc-100 text-zinc-900 border-zinc-200';
   const textPrimary = theme?.textPrimary || 'text-zinc-900';
   const textSecondary = theme?.textSecondary || 'text-zinc-600';

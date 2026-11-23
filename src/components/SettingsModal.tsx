@@ -152,7 +152,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       Emergency Instant Screen Flip
                     </h3>
                     <p className={`text-xs leading-relaxed ${theme.textSecondary}`}>
-                      Hitting your panic hotkey instantly masks all games and practicums behind high-fidelity university lecture notes, complete with formulas, Cornell outlines, and syllabus exam checklists.
+                      Hitting your panic hotkey instantly masks all active laboratory practicums behind high-fidelity university lecture notes, complete with formulas, Cornell outlines, and syllabus exam checklists.
                     </p>
                   </div>
                 </div>

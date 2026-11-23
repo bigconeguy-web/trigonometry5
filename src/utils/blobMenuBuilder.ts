@@ -4,6 +4,7 @@ import {
   AD_SCRIPT_SRC_BLOCKLIST,
   INLINE_AD_SCRIPT_PATTERNS,
 } from './adBlockerProxy';
+export { buildValBrowseBlobHtml } from './valbrowseBlobHtml';
 
 function serializeForInlineScript(value: unknown): string {
   return JSON.stringify(value).replace(/<\//g, '<\\/');

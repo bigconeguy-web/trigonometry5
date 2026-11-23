@@ -12,6 +12,10 @@ export default defineConfig(() => {
       alias: {
         '@': rootDir,
       },
+      dedupe: ['react', 'react-dom'],
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-dom/client', 'lucide-react', 'motion/react'],
     },
     build: {
       outDir: 'dist',
