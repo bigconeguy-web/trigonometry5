@@ -14,12 +14,12 @@ import {
   normalizeWispUrl,
   resolveInitialWispUrl,
   isScramjetScope,
-  mergeAllGamesCatalog,
-  filterAndSortGames,
+  mergeAllStudyCatalog,
+  filterAndSortModules,
   triggerPanicRedirect,
-  type UnifiedPortalGame,
+  type UnifiedStudyModule,
 } from './valbrowseConfig.js';
-import { GAME_CATALOG } from '../data/gamesCatalog.js';
+import { EULER_STUDY_CATALOG } from '../data/studyCatalog.js';
 
 test('DEFAULT_WISP_URL uses wss:// and ends with /wisp/', () => {
   assert.equal(DEFAULT_WISP_URL, 'wss://my-wisp-server-ocnq.onrender.com/wisp/');
@@ -63,8 +63,8 @@ test('isScramjetScope preserves /scram/ service worker scope during root cleanup
   assert.equal(isScramjetScope('', 'https://example.com'), false);
 });
 
-test('mergeAllGamesCatalog combines gn-math, UGS, CKV, and built-in catalog without duplicates', () => {
-  const gn: UnifiedPortalGame[] = [
+test('mergeAllStudyCatalog combines gn-math, UGS, CKV, and built-in catalog without duplicates', () => {
+  const gn: UnifiedStudyModule[] = [
     {
       id: 'gn:1',
       numericId: 1,
@@ -76,7 +76,7 @@ test('mergeAllGamesCatalog combines gn-math, UGS, CKV, and built-in catalog with
       featured: true,
     },
   ];
-  const ugs: UnifiedPortalGame[] = [
+  const ugs: UnifiedStudyModule[] = [
     {
       id: 'ugs:slope',
       provider: 'ugs',
@@ -96,21 +96,21 @@ test('mergeAllGamesCatalog combines gn-math, UGS, CKV, and built-in catalog with
       featured: true,
     },
   ];
-  const merged = mergeAllGamesCatalog(gn, ugs, [], GAME_CATALOG);
-  const slopes = merged.filter((g) => g.name.toLowerCase() === 'slope');
+  const merged = mergeAllStudyCatalog(gn, ugs, [], EULER_STUDY_CATALOG);
+  const slopes = merged.filter((m) => m.name.toLowerCase() === 'slope');
   assert.equal(slopes.length, 1);
   assert.equal(slopes[0].provider, 'gn');
-  assert.ok(merged.some((g) => g.id === 'ugs:3dash'));
-  assert.ok(merged.some((g) => g.provider === 'builtin'));
+  assert.ok(merged.some((m) => m.id === 'ugs:3dash'));
+  assert.ok(merged.some((m) => m.provider === 'builtin'));
 });
 
-test('filterAndSortGames filters by provider, favorites, query, and sorts popularity', () => {
-  const list: UnifiedPortalGame[] = [
+test('filterAndSortModules filters by provider, favorites, query, and sorts popularity', () => {
+  const list: UnifiedStudyModule[] = [
     {
       id: 'gn:1',
       numericId: 1,
       provider: 'gn',
-      name: 'Alpha Game',
+      name: 'Alpha Module',
       url: 'https://example.com/1.html',
       baseUrl: 'https://example.com/',
       cover: null,
@@ -119,7 +119,7 @@ test('filterAndSortGames filters by provider, favorites, query, and sorts popula
     {
       id: 'ugs:2',
       provider: 'ugs',
-      name: 'Beta Game',
+      name: 'Beta Module',
       url: 'https://example.com/2.html',
       baseUrl: 'https://example.com/',
       cover: null,
@@ -137,19 +137,19 @@ test('filterAndSortGames filters by provider, favorites, query, and sorts popula
     },
   ];
 
-  const onlyGn = filterAndSortGames(list, { provider: 'gn', sort: 'popular', popularityMap: { 1: 5000, 3: 100 } });
+  const onlyGn = filterAndSortModules(list, { provider: 'gn', sort: 'popular', popularityMap: { 1: 5000, 3: 100 } });
   assert.deepEqual(
-    onlyGn.map((g) => g.id),
+    onlyGn.map((m) => m.id),
     ['gn:1', 'gn:3']
   );
 
-  const favOnly = filterAndSortGames(list, { provider: 'favorites', favorites: ['ugs:2'] });
+  const favOnly = filterAndSortModules(list, { provider: 'favorites', favorites: ['ugs:2'] });
   assert.deepEqual(
-    favOnly.map((g) => g.id),
+    favOnly.map((m) => m.id),
     ['ugs:2']
   );
 
-  const searchRes = filterAndSortGames(list, { query: 'drift' });
+  const searchRes = filterAndSortModules(list, { query: 'drift' });
   assert.equal(searchRes.length, 1);
   assert.equal(searchRes[0].id, 'gn:3');
 });

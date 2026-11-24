@@ -191,7 +191,7 @@ export function getBaseHrefDirectory(sourceUrl: string): string {
   return cleanUrl.slice(0, lastSlash + 1);
 }
 
-export function sanitizeGameHtml(rawHtml: string, sourceUrl: string): string {
+export function sanitizeStudyModuleHtml(rawHtml: string, sourceUrl: string): string {
   let html = rawHtml || '';
 
   // 1. Strip ad rail templates & ins.adsbygoogle blocks

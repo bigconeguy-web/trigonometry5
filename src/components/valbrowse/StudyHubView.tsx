@@ -2,23 +2,23 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Search, Star, RefreshCw, Play } from 'lucide-react';
 import {
-  filterAndSortGames,
-  type GamesFilterProvider,
-  type GamesSortOrder,
-  type UnifiedPortalGame,
+  filterAndSortModules,
+  type StudyFilterProvider,
+  type StudySortOrder,
+  type UnifiedStudyModule,
 } from '../../utils/valbrowseConfig';
 
-interface GamesHubViewProps {
-  games: UnifiedPortalGame[];
+interface StudyHubViewProps {
+  modules: UnifiedStudyModule[];
   loading: boolean;
   favorites: string[];
   popularityMap: Record<number, number>;
-  onToggleFavorite: (gameId: string) => void;
-  onPlayGame: (game: UnifiedPortalGame) => void;
+  onToggleFavorite: (moduleId: string) => void;
+  onLaunchModule: (modItem: UnifiedStudyModule) => void;
   onRefresh: () => void;
 }
 
-const PROVIDER_TABS: Array<{ id: GamesFilterProvider; label: string }> = [
+const PROVIDER_TABS: Array<{ id: StudyFilterProvider; label: string }> = [
   { id: 'all', label: 'All Games' },
   { id: 'gn', label: 'gn-math' },
   { id: 'ugs', label: 'UGS' },
@@ -34,32 +34,32 @@ function getInitials(title: string): string {
   return String(title || 'GM').slice(0, 2).toUpperCase();
 }
 
-export const GamesHubView: React.FC<GamesHubViewProps> = ({
-  games,
+export const StudyHubView: React.FC<StudyHubViewProps> = ({
+  modules,
   loading,
   favorites,
   popularityMap,
   onToggleFavorite,
-  onPlayGame,
+  onLaunchModule,
   onRefresh,
 }) => {
   const [query, setQuery] = useState('');
-  const [provider, setProvider] = useState<GamesFilterProvider>('all');
-  const [sort, setSort] = useState<GamesSortOrder>('featured');
+  const [provider, setProvider] = useState<StudyFilterProvider>('all');
+  const [sort, setSort] = useState<StudySortOrder>('featured');
   const [visibleCount, setVisibleCount] = useState(72);
 
   const favSet = useMemo(() => new Set(favorites), [favorites]);
 
   const filtered = useMemo(
     () =>
-      filterAndSortGames(games, {
+      filterAndSortModules(modules, {
         query,
         provider,
         sort,
         favorites,
         popularityMap,
       }),
-    [games, query, provider, sort, favorites, popularityMap]
+    [modules, query, provider, sort, favorites, popularityMap]
   );
 
   const displayed = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
@@ -85,7 +85,7 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
 
           <div className="flex items-center gap-3">
             <span className="font-mono text-xs tabular-nums text-slate-400">
-              {loading && games.length === 0 ? 'Syncing libraries...' : `${filtered.length} titles`}
+              {loading && modules.length === 0 ? 'Syncing libraries...' : `${filtered.length} titles`}
             </span>
             <button
               type="button"
@@ -141,7 +141,7 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
 
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as GamesSortOrder)}
+              onChange={(e) => setSort(e.target.value as StudySortOrder)}
               aria-label="Sort games"
               className="h-9 px-3 rounded-lg bg-[#0d121c] border border-white/[0.08] text-xs font-semibold text-slate-200 focus:outline-none focus:border-indigo-500"
             >
@@ -154,7 +154,7 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
         </div>
 
         {/* Grid */}
-        {loading && games.length === 0 ? (
+        {loading && modules.length === 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3.5">
             {Array.from({ length: 12 }).map((_, i) => (
               <div
@@ -192,18 +192,18 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3.5">
-              {displayed.map((game) => {
-                const isFav = favSet.has(game.id) || favSet.has(game.name);
+              {displayed.map((modItem) => {
+                const isFav = favSet.has(modItem.id) || favSet.has(modItem.name);
                 return (
                   <div
-                    key={game.id}
-                    onClick={() => onPlayGame(game)}
+                    key={modItem.id}
+                    onClick={() => onLaunchModule(modItem)}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        onPlayGame(game);
+                        onLaunchModule(modItem);
                       }
                     }}
                     className="group relative rounded-xl bg-[#0e131e] hover:bg-[#141b2b] border border-white/[0.07] hover:border-indigo-500/45 overflow-hidden transition-all duration-150 cursor-pointer flex flex-col"
@@ -211,14 +211,14 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
                     <div className="relative aspect-[16/10] bg-[#080b12] overflow-hidden">
                       <div className="absolute inset-0 z-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#121828] to-[#0a0e17] text-slate-400">
                         <span className="text-lg font-extrabold tracking-tight text-slate-200">
-                          {getInitials(game.name)}
+                          {getInitials(modItem.name)}
                         </span>
                       </div>
 
-                      {game.cover ? (
+                      {modItem.cover ? (
                         <img
-                          src={game.cover}
-                          alt={game.name}
+                          src={modItem.cover}
+                          alt={modItem.name}
                           loading="lazy"
                           referrerPolicy="no-referrer"
                           onError={(e) => {
@@ -238,9 +238,9 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onToggleFavorite(game.id);
+                          onToggleFavorite(modItem.id);
                         }}
-                        aria-label={isFav ? `Unfavorite ${game.name}` : `Favorite ${game.name}`}
+                        aria-label={isFav ? `Unfavorite ${modItem.name}` : `Favorite ${modItem.name}`}
                         className={`absolute top-2 right-2 z-20 w-7 h-7 rounded-md flex items-center justify-center border transition-colors cursor-pointer ${
                           isFav
                             ? 'bg-amber-400/20 border-amber-400/40 text-amber-300'
@@ -253,17 +253,17 @@ export const GamesHubView: React.FC<GamesHubViewProps> = ({
 
                     <div className="p-2.5 flex-1 flex flex-col justify-between gap-1 bg-[#0e131e]">
                       <h3 className="text-[13px] font-semibold text-slate-100 truncate">
-                        {game.name}
+                        {modItem.name}
                       </h3>
                       <div className="text-[11px] font-mono text-slate-500 truncate">
-                        {game.provider === 'gn'
+                        {modItem.provider === 'gn'
                           ? 'gn-math'
-                          : game.provider === 'ugs'
+                          : modItem.provider === 'ugs'
                             ? 'UGS'
-                            : game.provider === 'ckv'
+                            : modItem.provider === 'ckv'
                               ? 'CKV'
-                              : game.category || 'Arcade'}
-                        {game.author ? ` · ${game.author}` : ''}
+                              : modItem.category || 'Arcade'}
+                        {modItem.author ? ` · ${modItem.author}` : ''}
                       </div>
                     </div>
                   </div>

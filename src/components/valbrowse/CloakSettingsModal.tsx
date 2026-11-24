@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Download, Upload, Shield, ExternalLink } from 'lucide-react';
-import { DEFAULT_WISP_URL, VALBROWSE_FAVS_KEY, VALBROWSE_WISP_STORAGE_KEY } from '../../utils/valbrowseConfig';
+import { DEFAULT_WISP_URL, EULER_FAVS_KEY, VALBROWSE_WISP_STORAGE_KEY } from '../../utils/valbrowseConfig';
 
 interface CloakSettingsModalProps {
   open: boolean;
@@ -105,7 +105,7 @@ export const CloakSettingsModal: React.FC<CloakSettingsModalProps> = ({
       try {
         const parsed = JSON.parse(String(reader.result || '{}'));
         if (Array.isArray(parsed.favorites)) {
-          localStorage.setItem(VALBROWSE_FAVS_KEY, JSON.stringify(parsed.favorites));
+          localStorage.setItem(EULER_FAVS_KEY, JSON.stringify(parsed.favorites));
           onImportFavorites(parsed.favorites);
         }
         if (typeof parsed.wispUrl === 'string' && parsed.wispUrl.trim()) {

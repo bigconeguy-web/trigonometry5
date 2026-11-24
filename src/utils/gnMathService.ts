@@ -1,9 +1,9 @@
 import {
   ensureBaseHref,
-  buildFallbackGameFetchUrls,
+  buildFallbackModuleFetchUrls,
   getBlobStorageShimTag,
   getSafePerformanceTag,
-} from './gameRuntime';
+} from './studyRuntime';
 import {
   parseUgsTree,
   getFallbackUgsCatalog,
@@ -17,7 +17,7 @@ import {
   deserializeCkvCache,
   CKV_CDN_BASE,
 } from './ckvCatalog';
-import type { UnifiedPortalGame } from './valbrowseConfig';
+import type { UnifiedStudyModule } from './valbrowseConfig';
 
 export const GN_COVER_URL = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@main';
 export const GN_HTML_URL = 'https://cdn.jsdelivr.net/gh/freebuisness/html@main';
@@ -132,7 +132,7 @@ function cleanAuthor(raw: unknown): string | undefined {
   return val;
 }
 
-export async function fetchGnMathZones(): Promise<{ ok: boolean; items: UnifiedPortalGame[] }> {
+export async function fetchGnMathZones(): Promise<{ ok: boolean; items: UnifiedStudyModule[] }> {
   const mirrors = [...GN_ZONES_MIRRORS];
 
   try {
@@ -173,7 +173,7 @@ export async function fetchGnMathZones(): Promise<{ ok: boolean; items: UnifiedP
       const json = await res.json();
       if (!Array.isArray(json)) continue;
 
-      const items: UnifiedPortalGame[] = json
+      const items: UnifiedStudyModule[] = json
         .filter(
           (z) =>
             z &&
@@ -215,7 +215,7 @@ export async function fetchGnMathPopularity(
   return {};
 }
 
-export async function fetchUgsGames(forceRefresh = false): Promise<{ ok: boolean; items: UnifiedPortalGame[] }> {
+export async function fetchUgsModules(forceRefresh = false): Promise<{ ok: boolean; items: UnifiedStudyModule[] }> {
   const CACHE_KEY = 'valbrowse_ugs_cache_v1';
   if (!forceRefresh) {
     try {
@@ -285,7 +285,7 @@ export async function fetchUgsGames(forceRefresh = false): Promise<{ ok: boolean
   };
 }
 
-export async function fetchCkvGames(forceRefresh = false): Promise<{ ok: boolean; items: UnifiedPortalGame[] }> {
+export async function fetchCkvModules(forceRefresh = false): Promise<{ ok: boolean; items: UnifiedStudyModule[] }> {
   const CACHE_KEY = 'valbrowse_ckv_cache_v1';
   if (!forceRefresh) {
     try {
@@ -364,11 +364,11 @@ function getEscapeForwarderTag(): string {
   return `<script data-valbrowse-panic="1">(function(){if(window.__valbrowsePanicBound)return;window.__valbrowsePanicBound=true;window.addEventListener("keydown",function(e){if(e&&e.key==="Escape"){try{window.parent.postMessage({type:"valbrowse-panic"},"*");}catch(_e){}try{if(window.top)window.top.location.replace("https://classroom.google.com");}catch(_e){}}},true);})();<\/script>`;
 }
 
-export async function fetchGameDocumentHtml(
+export async function fetchStudyDocumentHtml(
   primaryUrl: string,
   baseUrl: string
 ): Promise<string | null> {
-  const candidates = buildFallbackGameFetchUrls(primaryUrl);
+  const candidates = buildFallbackModuleFetchUrls(primaryUrl);
   for (const candidate of candidates) {
     try {
       const res = await fetchWithTimeout(candidate, {}, 9000);

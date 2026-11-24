@@ -20,7 +20,7 @@ export function ensureBaseHref(rawHtml: string, baseHref: string): string {
   return `<base href="${safeBase}">${rawHtml}`;
 }
 
-export function buildFallbackGameFetchUrls(primaryUrl: string): string[] {
+export function buildFallbackModuleFetchUrls(primaryUrl: string): string[] {
   const url = String(primaryUrl || '').trim();
   if (!url) return [];
   const urls = [url];

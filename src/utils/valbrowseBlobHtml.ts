@@ -1,4 +1,4 @@
-import type { GameCatalogItem } from '../data/gamesCatalog.js';
+import type { StudyModuleItem } from '../data/studyCatalog.js';
 import {
   AD_BLOCK_PRELUDE_HTML,
   AD_SCRIPT_SRC_BLOCKLIST,
@@ -38,7 +38,7 @@ function serializeSafe(value: unknown): string {
 
 export function buildValBrowseBlobHtml(
   appOrigin: string,
-  staticGames: GameCatalogItem[]
+  staticModules: StudyModuleItem[]
 ): string {
   const cleanOrigin = String(appOrigin || '').replace(/\/+$/, '');
   const scramjetSrc = `${cleanOrigin}/scramjet-browser.html?${buildScramjetThemeParams()}`;
@@ -55,12 +55,12 @@ export function buildValBrowseBlobHtml(
     gnCoverUrl: GN_COVER_URL,
     gnHtmlUrl: GN_HTML_URL,
     gnScriptUrls: GN_SCRIPT_PORTAL_URLS,
-    staticGames: staticGames.map((g) => ({
-      id: 'builtin:' + g.slug,
+    staticModules: staticModules.map((m) => ({
+      id: 'builtin:' + m.slug,
       provider: 'builtin',
-      name: g.title,
-      category: g.category,
-      url: g.url.startsWith('/') ? `${cleanOrigin}${g.url}` : g.url,
+      name: m.title,
+      category: m.category,
+      url: m.url.startsWith('/') ? `${cleanOrigin}${m.url}` : m.url,
       featured: true,
     })),
     fallbackUgs: getFallbackUgsCatalog(UGS_CDN_BASE).map((g) => ({ ...g, provider: 'ugs' })),
@@ -601,7 +601,7 @@ export function buildValBrowseBlobHtml(
     }
 
     /* Card Grids */
-    .games-grid {
+    .modules-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
       gap: 12px;
@@ -909,7 +909,7 @@ export function buildValBrowseBlobHtml(
       text-overflow: ellipsis;
     }
 
-    /* Fullscreen Overlays (Game Player, Movie Theater, Book Reader, Settings) */
+    /* Fullscreen Overlays (Study Module Player, Movie Theater, Book Reader, Settings) */
     .overlay {
       position: fixed;
       inset: 0;
@@ -1217,10 +1217,10 @@ export function buildValBrowseBlobHtml(
 
         <div class="rail-group-label">Arcade Hub</div>
 
-        <button type="button" class="rail-btn" data-view="games" aria-label="All Games Hub" title="All Games">
+        <button type="button" class="rail-btn" data-view="modules" aria-label="All Games Hub" title="All Games">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
           <span class="rail-label">All Games</span>
-          <span class="rail-badge" id="badge-games">0</span>
+          <span class="rail-badge" id="badge-modules">0</span>
         </button>
 
         <div class="rail-divider"></div>
@@ -1293,31 +1293,31 @@ export function buildValBrowseBlobHtml(
         ></iframe>
       </section>
 
-      <!-- 2. Combined All Games Hub -->
-      <section class="view-panel" id="view-games" aria-label="Games Hub">
+      <!-- 2. Combined Study Modules Hub -->
+      <section class="view-panel" id="view-modules" aria-label="Games Hub">
         <div class="view-scroll">
           <div class="container">
             <div class="section-head">
               <div>
                 <div class="eyebrow">Combined Library · Built-In + gn-math + UGS + CKV</div>
-                <h1 class="h1">All Games (<span id="games-total-count">0</span>)</h1>
+                <h1 class="h1">All Games (<span id="modules-total-count">0</span>)</h1>
               </div>
-              <button type="button" class="btn" id="btn-refresh-games">Refresh Live Catalogs</button>
+              <button type="button" class="btn" id="btn-refresh-modules">Refresh Live Catalogs</button>
             </div>
 
             <div class="toolbar">
-              <div class="pill-row" id="games-filter-pills">
-                <button type="button" class="pill-btn active" data-gfilter="all">All</button>
-                <button type="button" class="pill-btn" data-gfilter="gn">gn-math</button>
-                <button type="button" class="pill-btn" data-gfilter="ugs">UGS</button>
-                <button type="button" class="pill-btn" data-gfilter="ckv">CKV</button>
-                <button type="button" class="pill-btn" data-gfilter="builtin">Built-In</button>
-                <button type="button" class="pill-btn" data-gfilter="favorites">Favorites</button>
+              <div class="pill-row" id="modules-filter-pills">
+                <button type="button" class="pill-btn active" data-mfilter="all">All</button>
+                <button type="button" class="pill-btn" data-mfilter="gn">gn-math</button>
+                <button type="button" class="pill-btn" data-mfilter="ugs">UGS</button>
+                <button type="button" class="pill-btn" data-mfilter="ckv">CKV</button>
+                <button type="button" class="pill-btn" data-mfilter="builtin">Built-In</button>
+                <button type="button" class="pill-btn" data-mfilter="favorites">Favorites</button>
               </div>
 
               <div class="pill-row">
-                <input type="text" class="input" id="games-search" placeholder="Search all games..." style="width:220px;" />
-                <select class="select" id="games-sort" aria-label="Sort games">
+                <input type="text" class="input" id="modules-search" placeholder="Search all games..." style="width:220px;" />
+                <select class="select" id="modules-sort" aria-label="Sort games">
                   <option value="featured">Featured First</option>
                   <option value="popular">Most Popular</option>
                   <option value="az">Name (A-Z)</option>
@@ -1326,7 +1326,7 @@ export function buildValBrowseBlobHtml(
               </div>
             </div>
 
-            <div class="games-grid" id="games-grid"></div>
+            <div class="modules-grid" id="modules-grid"></div>
           </div>
         </div>
       </section>
@@ -1357,7 +1357,7 @@ export function buildValBrowseBlobHtml(
                 </div>
                 <input type="text" class="input" id="gn-search" placeholder="Filter gn-math zones.json..." style="width:240px;" />
               </div>
-              <div class="games-grid" id="gn-grid"></div>
+              <div class="modules-grid" id="gn-grid"></div>
             </div>
 
             <div id="gn-script-pane" style="display:none;flex-direction:column;gap:10px;">
@@ -1517,25 +1517,25 @@ export function buildValBrowseBlobHtml(
     </div>
   </div>
 
-  <!-- Game Player Overlay -->
-  <div class="overlay" id="game-overlay">
+  <!-- Study Module Player Overlay -->
+  <div class="overlay" id="module-overlay">
     <div class="overlay-bar">
       <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-        <span class="eyebrow" id="game-ov-provider">GAME</span>
-        <strong id="game-ov-title" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading...</strong>
+        <span class="eyebrow" id="module-ov-provider">GAME</span>
+        <strong id="module-ov-title" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading...</strong>
       </div>
       <div class="pill-row">
-        <button type="button" class="btn" id="game-ov-proxy">Open in VALem</button>
-        <button type="button" class="btn" id="game-ov-reload">Reload</button>
-        <button type="button" class="btn" id="game-ov-fs">Fullscreen</button>
-        <button type="button" class="btn btn-primary" id="game-ov-close">Close</button>
+        <button type="button" class="btn" id="module-ov-proxy">Open in VALem</button>
+        <button type="button" class="btn" id="module-ov-reload">Reload</button>
+        <button type="button" class="btn" id="module-ov-fs">Fullscreen</button>
+        <button type="button" class="btn btn-primary" id="module-ov-close">Close</button>
       </div>
     </div>
-    <div class="overlay-stage" id="game-ov-stage">
-      <iframe id="game-ov-frame" allow="autoplay; fullscreen; gamepad" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
-      <div class="overlay-status open" id="game-ov-status">
-        <div class="spinner" id="game-ov-spinner"></div>
-        <div id="game-ov-msg" style="font-size:13px;">Loading ad-blocked game package...</div>
+    <div class="overlay-stage" id="module-ov-stage">
+      <iframe id="module-ov-frame" allow="autoplay; fullscreen; gamepad" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"></iframe>
+      <div class="overlay-status open" id="module-ov-status">
+        <div class="spinner" id="module-ov-spinner"></div>
+        <div id="module-ov-msg" style="font-size:13px;">Loading ad-blocked game package...</div>
       </div>
     </div>
   </div>
@@ -2000,9 +2000,10 @@ export function buildValBrowseBlobHtml(
             });
           }
         } else if (ev.data.type === 'gn-switch-tab' && typeof ev.data.tab === 'string') {
-          var allowed = { browser: 1, games: 1, gnmath: 1, movies: 1, books: 1, music: 1 };
-          if (allowed[ev.data.tab]) {
-            switchView(ev.data.tab);
+          var targetTab = ev.data.tab === 'games' ? 'modules' : ev.data.tab;
+          var allowed = { browser: 1, modules: 1, gnmath: 1, movies: 1, books: 1, music: 1 };
+          if (allowed[targetTab]) {
+            switchView(targetTab);
           }
         }
       });
@@ -2017,27 +2018,27 @@ export function buildValBrowseBlobHtml(
         }
       }
 
-      /* ---------------- UNIFIED GAMES + GN-MATH CATALOGS ---------------- */
+      /* ---------------- UNIFIED EULERPATH MODULES + GN-MATH CATALOGS ---------------- */
       var favorites = [];
       try {
-        var rawFavs = safeLSGet('gn_favs');
+        var rawFavs = safeLSGet('euler_favs') || safeLSGet('gn_favs');
         if (rawFavs) favorites = JSON.parse(rawFavs) || [];
       } catch (_e) {}
 
-      function toggleFavorite(gameId) {
-        var idx = favorites.indexOf(gameId);
-        if (idx === -1) favorites.unshift(gameId);
+      function toggleFavorite(moduleId) {
+        var idx = favorites.indexOf(moduleId);
+        if (idx === -1) favorites.unshift(moduleId);
         else favorites.splice(idx, 1);
-        safeLSSet('gn_favs', JSON.stringify(favorites));
-        renderGamesGrid();
+        safeLSSet('euler_favs', JSON.stringify(favorites));
+        renderModulesGrid();
         renderGnGrid();
       }
 
       var gnZones = [];
-      var ugsGames = CFG.fallbackUgs.slice();
-      var ckvGames = CFG.fallbackCkv.slice();
-      var mergedGames = [];
-      var activeGameFilter = 'all';
+      var ugsModules = CFG.fallbackUgs.slice();
+      var ckvModules = CFG.fallbackCkv.slice();
+      var mergedModules = [];
+      var activeModuleFilter = 'all';
       var activePopularityPeriod = 'featured';
       var popularityMap = {};
       var gnZonesLoadedOnce = false;
@@ -2046,7 +2047,7 @@ export function buildValBrowseBlobHtml(
         return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
       }
 
-      function rebuildMergedGames() {
+      function rebuildMergedModules() {
         var seen = Object.create(null);
         var out = [];
         function addList(arr) {
@@ -2060,14 +2061,14 @@ export function buildValBrowseBlobHtml(
           }
         }
         addList(gnZones);
-        addList(ugsGames);
-        addList(ckvGames);
-        addList(CFG.staticGames);
-        mergedGames = out;
-        document.getElementById('games-total-count').textContent = String(mergedGames.length);
-        document.getElementById('badge-games').textContent = String(mergedGames.length);
+        addList(ugsModules);
+        addList(ckvModules);
+        addList(CFG.staticModules);
+        mergedModules = out;
+        document.getElementById('modules-total-count').textContent = String(mergedModules.length);
+        document.getElementById('badge-modules').textContent = String(mergedModules.length);
         document.getElementById('badge-gn').textContent = String(gnZones.length);
-        renderGamesGrid();
+        renderModulesGrid();
         renderGnGrid();
       }
 
@@ -2098,21 +2099,21 @@ export function buildValBrowseBlobHtml(
                 featured: Boolean(z.featured) || idx < 12
               };
             });
-            rebuildMergedGames();
+            rebuildMergedModules();
             return;
           } catch (_e) {}
         }
       }
 
-      function createGameCard(g, hits) {
-        var isFav = favorites.indexOf(g.id) !== -1 || favorites.indexOf(g.name) !== -1;
+      function createStudyCard(mod, hits) {
+        var isFav = favorites.indexOf(mod.id) !== -1 || favorites.indexOf(mod.name) !== -1;
         var card = document.createElement('div');
         card.className = 'card';
         card.tabIndex = 0;
         card.setAttribute('role', 'button');
-        card.onclick = function () { playGame(g); };
+        card.onclick = function () { launchStudyModule(mod); };
         card.onkeydown = function (e) {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playGame(g); }
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); launchStudyModule(mod); }
         };
 
         var thumb = document.createElement('div');
@@ -2120,13 +2121,13 @@ export function buildValBrowseBlobHtml(
 
         var fb = document.createElement('div');
         fb.className = 'thumb-fallback';
-        fb.textContent = g.name;
+        fb.textContent = mod.name;
         thumb.appendChild(fb);
 
-        if (g.cover) {
+        if (mod.cover) {
           var img = document.createElement('img');
-          img.src = g.cover;
-          img.alt = g.name;
+          img.src = mod.cover;
+          img.alt = mod.name;
           img.loading = 'lazy';
           img.referrerPolicy = 'no-referrer';
           img.style.position = 'relative';
@@ -2135,7 +2136,7 @@ export function buildValBrowseBlobHtml(
           thumb.appendChild(img);
         }
 
-        var prov = String(g.provider || 'game');
+        var prov = String(mod.provider || 'module');
         var chip = document.createElement('span');
         chip.className = 'provider-chip';
         chip.textContent = prov === 'gn' ? 'gn-math' : prov.toUpperCase();
@@ -2144,11 +2145,11 @@ export function buildValBrowseBlobHtml(
         var favBtn = document.createElement('button');
         favBtn.type = 'button';
         favBtn.className = 'fav-btn' + (isFav ? ' is-fav' : '');
-        favBtn.setAttribute('aria-label', 'Favorite ' + g.name);
+        favBtn.setAttribute('aria-label', 'Favorite ' + mod.name);
         favBtn.innerHTML = isFav ? '&#9733;' : '&#9734;';
         favBtn.onclick = function (e) {
           e.stopPropagation();
-          toggleFavorite(g.id);
+          toggleFavorite(mod.id);
         };
         thumb.appendChild(favBtn);
 
@@ -2156,10 +2157,10 @@ export function buildValBrowseBlobHtml(
         body.className = 'card-body';
         var title = document.createElement('div');
         title.className = 'card-title';
-        title.textContent = g.name;
+        title.textContent = mod.name;
         var meta = document.createElement('div');
         meta.className = 'card-meta';
-        meta.textContent = (g.category || (g.numericId ? '#' + g.numericId : prov.toUpperCase())) + (hits ? ' · ' + hits.toLocaleString() + ' plays' : '');
+        meta.textContent = (mod.category || (mod.numericId ? '#' + mod.numericId : prov.toUpperCase())) + (hits ? ' · ' + hits.toLocaleString() + ' plays' : '');
         body.appendChild(title);
         body.appendChild(meta);
 
@@ -2168,18 +2169,18 @@ export function buildValBrowseBlobHtml(
         return card;
       }
 
-      function renderGamesGrid() {
-        var grid = document.getElementById('games-grid');
+      function renderModulesGrid() {
+        var grid = document.getElementById('modules-grid');
         if (!grid) return;
-        var q = (document.getElementById('games-search').value || '').trim().toLowerCase();
-        var sort = document.getElementById('games-sort').value;
-        var list = mergedGames.filter(function (g) {
-          if (activeGameFilter === 'favorites') {
-            if (favorites.indexOf(g.id) === -1 && favorites.indexOf(g.name) === -1) return false;
-          } else if (activeGameFilter !== 'all' && g.provider !== activeGameFilter) {
+        var q = (document.getElementById('modules-search').value || '').trim().toLowerCase();
+        var sort = document.getElementById('modules-sort').value;
+        var list = mergedModules.filter(function (m) {
+          if (activeModuleFilter === 'favorites') {
+            if (favorites.indexOf(m.id) === -1 && favorites.indexOf(m.name) === -1) return false;
+          } else if (activeModuleFilter !== 'all' && m.provider !== activeModuleFilter) {
             return false;
           }
-          if (q && g.name.toLowerCase().indexOf(q) === -1 && String(g.category || '').toLowerCase().indexOf(q) === -1) return false;
+          if (q && m.name.toLowerCase().indexOf(q) === -1 && String(m.category || '').toLowerCase().indexOf(q) === -1) return false;
           return true;
         });
 
@@ -2195,9 +2196,9 @@ export function buildValBrowseBlobHtml(
         });
 
         grid.innerHTML = '';
-        list.slice(0, 150).forEach(function (g) {
-          var hits = typeof g.numericId === 'number' ? popularityMap[g.numericId] : 0;
-          grid.appendChild(createGameCard(g, hits));
+        list.slice(0, 150).forEach(function (m) {
+          var hits = typeof m.numericId === 'number' ? popularityMap[m.numericId] : 0;
+          grid.appendChild(createStudyCard(m, hits));
         });
       }
 
@@ -2205,8 +2206,8 @@ export function buildValBrowseBlobHtml(
         var grid = document.getElementById('gn-grid');
         if (!grid) return;
         var q = (document.getElementById('gn-search').value || '').trim().toLowerCase();
-        var list = gnZones.filter(function (g) {
-          return !q || g.name.toLowerCase().indexOf(q) !== -1;
+        var list = gnZones.filter(function (m) {
+          return !q || m.name.toLowerCase().indexOf(q) !== -1;
         });
         list.sort(function (a, b) {
           if (activePopularityPeriod === 'az') return a.name.localeCompare(b.name);
@@ -2222,25 +2223,25 @@ export function buildValBrowseBlobHtml(
           grid.appendChild(empty);
           return;
         }
-        list.slice(0, 120).forEach(function (g) {
-          var hits = typeof g.numericId === 'number' ? popularityMap[g.numericId] : 0;
-          grid.appendChild(createGameCard(g, hits));
+        list.slice(0, 120).forEach(function (m) {
+          var hits = typeof m.numericId === 'number' ? popularityMap[m.numericId] : 0;
+          grid.appendChild(createStudyCard(m, hits));
         });
       }
 
-      document.querySelectorAll('#games-filter-pills .pill-btn').forEach(function (btn) {
+      document.querySelectorAll('#modules-filter-pills .pill-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          activeGameFilter = btn.getAttribute('data-gfilter');
-          document.querySelectorAll('#games-filter-pills .pill-btn').forEach(function (b) {
+          activeModuleFilter = btn.getAttribute('data-mfilter');
+          document.querySelectorAll('#modules-filter-pills .pill-btn').forEach(function (b) {
             b.classList.toggle('active', b === btn);
           });
-          renderGamesGrid();
+          renderModulesGrid();
         });
       });
 
-      document.getElementById('games-search').addEventListener('input', renderGamesGrid);
-      document.getElementById('games-sort').addEventListener('change', renderGamesGrid);
-      document.getElementById('btn-refresh-games').addEventListener('click', fetchGnZones);
+      document.getElementById('modules-search').addEventListener('input', renderModulesGrid);
+      document.getElementById('modules-sort').addEventListener('change', renderModulesGrid);
+      document.getElementById('btn-refresh-modules').addEventListener('click', fetchGnZones);
       document.getElementById('gn-search').addEventListener('input', renderGnGrid);
 
       document.querySelectorAll('#gn-period-pills .pill-btn').forEach(function (btn) {
@@ -2253,17 +2254,17 @@ export function buildValBrowseBlobHtml(
         });
       });
 
-      /* ---------------- GAME OVERLAY PLAYER (AD-BLOCKED + ESC PANIC) ---------------- */
+      /* ---------------- STUDY MODULE OVERLAY PLAYER (AD-BLOCKED + ESC PANIC) ---------------- */
       var SRC_RES = CFG.srcBlocklist.map(function (p) { return new RegExp(p.source, p.flags); });
       var INLINE_RES = CFG.inlineBlocklist.map(function (p) { return new RegExp(p.source, p.flags); });
       var ESCAPE_INJECT = '<script data-vb-panic="1">(function(){if(window.__vbEsc)return;window.__vbEsc=true;window.addEventListener("keydown",function(e){if(e&&e.key==="Escape"){try{window.parent.postMessage({type:"valbrowse-panic"},"*");}catch(_e){}try{if(window.top)window.top.location.replace(' + JSON.stringify(CFG.panicUrl) + ');}catch(_e){}}},true);})();<\\/script>';
 
-      var activeGameObj = null;
-      var gameOverlay = document.getElementById('game-overlay');
-      var gameFrame = document.getElementById('game-ov-frame');
-      var gameStatus = document.getElementById('game-ov-status');
-      var gameMsg = document.getElementById('game-ov-msg');
-      var gameSpinner = document.getElementById('game-ov-spinner');
+      var activeModuleObj = null;
+      var moduleOverlay = document.getElementById('module-overlay');
+      var moduleFrame = document.getElementById('module-ov-frame');
+      var moduleStatus = document.getElementById('module-ov-status');
+      var moduleMsg = document.getElementById('module-ov-msg');
+      var moduleSpinner = document.getElementById('module-ov-spinner');
 
       function getBaseDir(url) {
         var c = String(url || '').split('#')[0].split('?')[0];
@@ -2303,52 +2304,52 @@ export function buildValBrowseBlobHtml(
         return out;
       }
 
-      async function playGame(game) {
-        activeGameObj = game;
-        gameOverlay.classList.add('open');
-        document.getElementById('game-ov-provider').textContent = String(game.provider || 'game').toUpperCase();
-        document.getElementById('game-ov-title').textContent = game.name;
-        gameStatus.classList.add('open');
-        gameSpinner.style.display = 'block';
-        gameMsg.textContent = 'Loading ' + game.name + ' (ads blocked)...';
-        gameFrame.removeAttribute('src');
-        gameFrame.removeAttribute('srcdoc');
+      async function launchStudyModule(moduleItem) {
+        activeModuleObj = moduleItem;
+        moduleOverlay.classList.add('open');
+        document.getElementById('module-ov-provider').textContent = String(moduleItem.provider || 'module').toUpperCase();
+        document.getElementById('module-ov-title').textContent = moduleItem.name;
+        moduleStatus.classList.add('open');
+        moduleSpinner.style.display = 'block';
+        moduleMsg.textContent = 'Loading ' + moduleItem.name + ' (ads blocked)...';
+        moduleFrame.removeAttribute('src');
+        moduleFrame.removeAttribute('srcdoc');
 
-        var mirrors = buildMirrorUrls(game.url);
+        var mirrors = buildMirrorUrls(moduleItem.url);
         for (var i = 0; i < mirrors.length; i++) {
           try {
             var res = await fetch(mirrors[i]);
             if (!res.ok) continue;
             var txt = await res.text();
             if (!txt || txt.length < 40) continue;
-            if (activeGameObj !== game) return;
-            gameFrame.onload = function () { gameStatus.classList.remove('open'); };
-            gameFrame.srcdoc = sanitizeAndInjectHtml(txt, game.baseUrl || game.url);
+            if (activeModuleObj !== moduleItem) return;
+            moduleFrame.onload = function () { moduleStatus.classList.remove('open'); };
+            moduleFrame.srcdoc = sanitizeAndInjectHtml(txt, moduleItem.baseUrl || moduleItem.url);
             return;
           } catch (_e) {}
         }
-        gameSpinner.style.display = 'none';
-        gameMsg.textContent = 'Unable to fetch game package directly — click Open in VALem to load via Scramjet proxy.';
+        moduleSpinner.style.display = 'none';
+        moduleMsg.textContent = 'Unable to fetch module package directly — click Open in VALem to load via Scramjet proxy.';
       }
 
-      document.getElementById('game-ov-close').addEventListener('click', function () {
-        activeGameObj = null;
-        gameFrame.removeAttribute('srcdoc');
-        gameFrame.removeAttribute('src');
-        gameOverlay.classList.remove('open');
+      document.getElementById('module-ov-close').addEventListener('click', function () {
+        activeModuleObj = null;
+        moduleFrame.removeAttribute('srcdoc');
+        moduleFrame.removeAttribute('src');
+        moduleOverlay.classList.remove('open');
       });
-      document.getElementById('game-ov-reload').addEventListener('click', function () {
-        if (activeGameObj) playGame(activeGameObj);
+      document.getElementById('module-ov-reload').addEventListener('click', function () {
+        if (activeModuleObj) launchStudyModule(activeModuleObj);
       });
-      document.getElementById('game-ov-proxy').addEventListener('click', function () {
-        if (activeGameObj) {
-          var u = activeGameObj.url;
-          document.getElementById('game-ov-close').click();
+      document.getElementById('module-ov-proxy').addEventListener('click', function () {
+        if (activeModuleObj) {
+          var u = activeModuleObj.url;
+          document.getElementById('module-ov-close').click();
           openInValBrowse(u);
         }
       });
-      document.getElementById('game-ov-fs').addEventListener('click', function () {
-        var st = document.getElementById('game-ov-stage');
+      document.getElementById('module-ov-fs').addEventListener('click', function () {
+        var st = document.getElementById('module-ov-stage');
         if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
         else if (st.requestFullscreen) st.requestFullscreen().catch(function () {});
       });
@@ -3678,7 +3679,7 @@ export function buildValBrowseBlobHtml(
       applyRailMode(railMode);
       applyColorPreset(activePresetId);
       applyCustomSettings(customSettings);
-      rebuildMergedGames();
+      rebuildMergedModules();
       fetchGnZones();
     })();
   </script>

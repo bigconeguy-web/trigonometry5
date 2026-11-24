@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, ExternalLink, ShieldAlert, X } from 'lucide-react';
-import { GAME_CATALOG } from './data/gamesCatalog';
+import { EULER_STUDY_CATALOG } from './data/studyCatalog';
 import { buildValBrowseBlobHtml } from './utils/valbrowseBlobHtml';
 import {
   buildStandaloneBlobWrapperHtml,
@@ -26,7 +26,7 @@ export default function App() {
   const valbrowseDocHtml = useMemo(() => {
     if (!valbrowseOpen) return '';
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    return buildValBrowseBlobHtml(origin, GAME_CATALOG);
+    return buildValBrowseBlobHtml(origin, EULER_STUDY_CATALOG);
   }, [valbrowseOpen]);
 
   const handleOpenStandaloneBlob = useCallback(() => {

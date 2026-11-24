@@ -183,12 +183,12 @@ function buildEmbeddedPortalHtml(origin: string): string {
   <header>
     <div class="nav-wrap">
       <div class="nav-left">
-        <div class="brand" onclick="switchTab('games')">
+        <div class="brand" onclick="switchTab('modules')">
           <span class="brand-dot"></span>
           <span>gn<span class="pink">-math</span></span>
         </div>
         <nav class="nav-tabs">
-          <button type="button" class="nav-btn active" data-nav="games" onclick="switchTab('games', this)">Games</button>
+          <button type="button" class="nav-btn active" data-nav="modules" onclick="switchTab('modules', this)">Games</button>
           <button type="button" class="nav-btn" data-nav="music" onclick="switchTab('music', this)">Music</button>
           <button type="button" class="nav-btn" data-nav="books" onclick="switchTab('books', this)">Books &amp; Manga</button>
           <button type="button" class="nav-btn" data-nav="movies" onclick="switchTab('movies', this)">Movies</button>
@@ -204,18 +204,18 @@ function buildEmbeddedPortalHtml(origin: string): string {
   </header>
 
   <main>
-    <section id="view-games" class="view active">
+    <section id="view-modules" class="view active">
       <div class="toolbar">
-        <input type="text" id="gameSearch" placeholder="Search games..." oninput="renderGames()">
-        <select id="gameSort" onchange="renderGames()">
+        <input type="text" id="moduleSearch" placeholder="Search games..." oninput="renderModules()">
+        <select id="moduleSort" onchange="renderModules()">
           <option value="default">Featured</option>
           <option value="az">A - Z</option>
           <option value="za">Z - A</option>
           <option value="fav">Favorites</option>
         </select>
       </div>
-      <div id="gameStatus" class="status-text">Loading catalog...</div>
-      <div id="gameGrid" class="grid"></div>
+      <div id="moduleStatus" class="status-text">Loading catalog...</div>
+      <div id="moduleGrid" class="grid"></div>
     </section>
 
     <section id="view-music" class="view">
@@ -303,66 +303,67 @@ function buildEmbeddedPortalHtml(origin: string): string {
     var ZONES_URLS = ['https://cdn.jsdelivr.net/gh/freebuisness/assets@main/zones.json', 'https://fastly.jsdelivr.net/gh/freebuisness/assets@main/zones.json'];
     var COVER_BASE = 'https://cdn.jsdelivr.net/gh/freebuisness/covers@main';
     var HTML_BASE = 'https://cdn.jsdelivr.net/gh/freebuisness/html@main';
-    var allGames = [];
-    var gameFavs = [];
-    try { gameFavs = JSON.parse(safeLS.get('gn_favs', '[]')); } catch (e) {}
+    var allModules = [];
+    var moduleFavs = [];
+    try { moduleFavs = JSON.parse(safeLS.get('euler_favs', '') || safeLS.get('gn_favs', '[]')); } catch (e) {}
     var booksLoaded = false, moviesLoaded = false;
 
     function switchTab(tabKey, btn) {
+      var targetTab = tabKey === 'games' ? 'modules' : tabKey;
       document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
       document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
-      var v = document.getElementById('view-' + tabKey);
+      var v = document.getElementById('view-' + targetTab);
       if (v) v.classList.add('active');
-      var b = btn || document.querySelector('.nav-btn[data-nav="' + tabKey + '"]');
+      var b = btn || document.querySelector('.nav-btn[data-nav="' + targetTab + '"]');
       if (b) b.classList.add('active');
-      if (tabKey === 'books' && !booksLoaded) { booksLoaded = true; searchBooks('classic'); }
-      if (tabKey === 'movies' && !moviesLoaded) { moviesLoaded = true; loadCuratedMovies(); }
+      if (targetTab === 'books' && !booksLoaded) { booksLoaded = true; searchBooks('classic'); }
+      if (targetTab === 'movies' && !moviesLoaded) { moviesLoaded = true; loadCuratedMovies(); }
     }
 
-    async function loadGames() {
+    async function loadModules() {
       for (var i = 0; i < ZONES_URLS.length; i++) {
         try {
           var res = await fetch(ZONES_URLS[i]);
           if (!res.ok) continue;
           var data = await res.json();
-          allGames = data.filter(function(z) { return z && z.url && !z.url.startsWith('http'); }).map(function(z) {
+          allModules = data.filter(function(z) { return z && z.url && !z.url.startsWith('http'); }).map(function(z) {
             return { name: z.name || 'Untitled', cover: (z.cover || '').replace('{COVER_URL}', COVER_BASE), url: (z.url || '').replace('{HTML_URL}', HTML_BASE) };
           });
-          renderGames();
+          renderModules();
           return;
         } catch (e) {}
       }
     }
 
-    function renderGames() {
-      var q = document.getElementById('gameSearch').value.toLowerCase().trim();
-      var sort = document.getElementById('gameSort').value;
-      var list = allGames.filter(function(g) { return g.name.toLowerCase().indexOf(q) !== -1; });
-      if (sort === 'fav') list = list.filter(function(g) { return gameFavs.indexOf(g.name) !== -1; });
+    function renderModules() {
+      var q = document.getElementById('moduleSearch').value.toLowerCase().trim();
+      var sort = document.getElementById('moduleSort').value;
+      var list = allModules.filter(function(g) { return g.name.toLowerCase().indexOf(q) !== -1; });
+      if (sort === 'fav') list = list.filter(function(g) { return moduleFavs.indexOf(g.name) !== -1; });
       else if (sort === 'az') list.sort(function(a, b) { return a.name.localeCompare(b.name); });
       else if (sort === 'za') list.sort(function(a, b) { return b.name.localeCompare(a.name); });
-      document.getElementById('gameStatus').textContent = 'Showing ' + list.length + ' games';
-      var grid = document.getElementById('gameGrid');
+      document.getElementById('moduleStatus').textContent = 'Showing ' + list.length + ' games';
+      var grid = document.getElementById('moduleGrid');
       grid.innerHTML = '';
       list.forEach(function(g) {
         var c = document.createElement('div');
         c.className = 'card';
-        c.onclick = function() { openGame(g); };
+        c.onclick = function() { openModule(g); };
         c.innerHTML = '<img class="card-thumb" src="' + g.cover + '" loading="lazy"><div class="card-body"><span class="card-title"></span><button type="button" class="star">★</button></div>';
         c.querySelector('.card-title').textContent = g.name;
         var star = c.querySelector('.star');
-        if (gameFavs.indexOf(g.name) !== -1) star.classList.add('fav');
+        if (moduleFavs.indexOf(g.name) !== -1) star.classList.add('fav');
         star.onclick = function(e) {
           e.stopPropagation();
-          gameFavs = gameFavs.indexOf(g.name) !== -1 ? gameFavs.filter(function(f) { return f !== g.name; }) : gameFavs.concat([g.name]);
-          safeLS.set('gn_favs', JSON.stringify(gameFavs));
-          renderGames();
+          moduleFavs = moduleFavs.indexOf(g.name) !== -1 ? moduleFavs.filter(function(f) { return f !== g.name; }) : moduleFavs.concat([g.name]);
+          safeLS.set('euler_favs', JSON.stringify(moduleFavs));
+          renderModules();
         };
         grid.appendChild(c);
       });
     }
 
-    function openGame(g) {
+    function openModule(g) {
       showOverlay('frame', 'Game', g.name);
       var f = document.getElementById('overlayFrame');
       fetch(g.url).then(function(r) { return r.text(); }).then(function(h) {
@@ -505,7 +506,7 @@ function buildEmbeddedPortalHtml(origin: string): string {
       document.getElementById('overlay').style.display = 'none';
       document.getElementById('overlayFrame').src = 'about:blank';
     }
-    loadGames();
+    loadModules();
   </script>
 </body>
 </html>`;

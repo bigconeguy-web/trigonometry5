@@ -29,33 +29,33 @@ test('parseCkvTree filters gamefiles/*.html, builds CDN URLs, and matches gameim
     { path: 'gameimages/basketbros.jpg', type: 'blob' },
   ];
 
-  const games = parseCkvTree(sampleTree);
-  assert.equal(games.length, 3);
+  const modules = parseCkvTree(sampleTree);
+  assert.equal(modules.length, 3);
 
-  const basket = games.find((g) => g.name === 'Basket Bros');
+  const basket = modules.find((m) => m.name === 'Basket Bros');
   assert.ok(basket);
   assert.equal(basket.url, `${CKV_CDN_BASE}/gamefiles/Basket%20Bros.html`);
   assert.equal(basket.cover, `${CKV_CDN_BASE}/gameimages/basketbros.jpg`);
 
-  const example = games.find((g) => g.name === 'Example Game');
+  const example = modules.find((m) => m.name === 'Example Game');
   assert.ok(example);
   assert.equal(example.url, `${CKV_CDN_BASE}/gamefiles/example-game.html`);
   assert.equal(example.cover, `${CKV_CDN_BASE}/gameimages/example-game.png`);
 
-  const unmatched = games.find((g) => g.name === 'Unmatched Game');
+  const unmatched = modules.find((m) => m.name === 'Unmatched Game');
   assert.ok(unmatched);
   assert.equal(unmatched.cover, null);
 });
 
-test('getFallbackCkvCatalog provides 20 popular CKV games with encoded CDN URLs', () => {
+test('getFallbackCkvCatalog provides 20 popular CKV modules with encoded CDN URLs', () => {
   assert.equal(FALLBACK_CKV_PATHS.length, 20);
   const fallback = getFallbackCkvCatalog();
   assert.equal(fallback.length, 20);
-  for (const game of fallback) {
-    assert.equal(game.provider, 'ckv');
-    assert.ok(game.url.startsWith(`${CKV_CDN_BASE}/gamefiles/`));
-    assert.ok(game.cover && game.cover.startsWith(`${CKV_CDN_BASE}/gameimages/`));
-    assert.equal(game.featured, true);
+  for (const mod of fallback) {
+    assert.equal(mod.provider, 'ckv');
+    assert.ok(mod.url.startsWith(`${CKV_CDN_BASE}/gamefiles/`));
+    assert.ok(mod.cover && mod.cover.startsWith(`${CKV_CDN_BASE}/gameimages/`));
+    assert.equal(mod.featured, true);
   }
 });
 

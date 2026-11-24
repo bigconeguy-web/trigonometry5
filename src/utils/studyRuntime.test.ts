@@ -2,22 +2,22 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   buildDirectEmbedUrl,
-  buildFallbackGameFetchUrls,
+  buildFallbackModuleFetchUrls,
   ensureBaseHref,
   getBlobStorageShimTag,
   getSafePerformanceTag
-} from './gameRuntime';
+} from './studyRuntime';
 
 test('ensureBaseHref rewrites relative or root base tags so blob iframes resolve to CDN', () => {
-  const rootBase = '<html><head><base href="/"><title>Game</title></head><body></body></html>';
+  const rootBase = '<html><head><base href="/"><title>Module</title></head><body></body></html>';
   const out = ensureBaseHref(rootBase, 'https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/slope/');
   assert.ok(out.includes('<base href="https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/slope/">'));
   assert.ok(!out.includes('<base href="/">'));
 
-  const validBase = '<html><head><base href="https://cdn.example.com/game/"></head><body></body></html>';
+  const validBase = '<html><head><base href="https://cdn.example.com/module/"></head><body></body></html>';
   assert.equal(ensureBaseHref(validBase, 'https://cdn.jsdelivr.net/other/'), validBase);
 
-  const noBase = '<html><head><title>G</title></head><body></body></html>';
+  const noBase = '<html><head><title>M</title></head><body></body></html>';
   assert.ok(
     ensureBaseHref(noBase, 'https://cdn.jsdelivr.net/gh/x/y@main/').includes(
       '<head><base href="https://cdn.jsdelivr.net/gh/x/y@main/">'
@@ -25,8 +25,8 @@ test('ensureBaseHref rewrites relative or root base tags so blob iframes resolve
   );
 });
 
-test('buildFallbackGameFetchUrls generates raw.githubusercontent and rawcdn.githack mirrors for large files', () => {
-  const urls = buildFallbackGameFetchUrls(
+test('buildFallbackModuleFetchUrls generates raw.githubusercontent and rawcdn.githack mirrors for large files', () => {
+  const urls = buildFallbackModuleFetchUrls(
     'https://cdn.jsdelivr.net/gh/freebuisness/html@main/123.html'
   );
   assert.equal(urls[0], 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/123.html');

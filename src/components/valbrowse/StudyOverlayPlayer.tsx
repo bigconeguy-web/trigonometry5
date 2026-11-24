@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Maximize2, RotateCw, X, Globe, Loader2 } from 'lucide-react';
-import type { UnifiedPortalGame } from '../../utils/valbrowseConfig';
-import { buildDirectEmbedUrl } from '../../utils/gameRuntime';
-import { fetchGameDocumentHtml } from '../../utils/gnMathService';
+import type { UnifiedStudyModule } from '../../utils/valbrowseConfig';
+import { buildDirectEmbedUrl } from '../../utils/studyRuntime';
+import { fetchStudyDocumentHtml } from '../../utils/gnMathService';
 
-interface GameOverlayPlayerProps {
-  game: UnifiedPortalGame | null;
+interface StudyOverlayPlayerProps {
+  moduleItem: UnifiedStudyModule | null;
   onClose: () => void;
   onOpenInProxy?: (url: string) => void;
 }
 
-export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
-  game,
+export const StudyOverlayPlayer: React.FC<StudyOverlayPlayerProps> = ({
+  moduleItem,
   onClose,
   onOpenInProxy,
 }) => {
@@ -23,7 +23,7 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
   const [reloadNonce, setReloadNonce] = useState(0);
 
   useEffect(() => {
-    if (!game) {
+    if (!moduleItem) {
       setSrcDocHtml(null);
       setFallbackUrl(null);
       setLoading(false);
@@ -35,26 +35,26 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
     setSrcDocHtml(null);
     setFallbackUrl(null);
 
-    fetchGameDocumentHtml(game.url, game.baseUrl)
+    fetchStudyDocumentHtml(moduleItem.url, moduleItem.baseUrl)
       .then((html) => {
         if (cancelled) return;
         if (html) {
           setSrcDocHtml(html);
         } else {
-          setFallbackUrl(buildDirectEmbedUrl(game.url));
+          setFallbackUrl(buildDirectEmbedUrl(moduleItem.url));
         }
         setLoading(false);
       })
       .catch(() => {
         if (cancelled) return;
-        setFallbackUrl(buildDirectEmbedUrl(game.url));
+        setFallbackUrl(buildDirectEmbedUrl(moduleItem.url));
         setLoading(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [game, reloadNonce]);
+  }, [moduleItem, reloadNonce]);
 
   const handleFullscreen = () => {
     const el = frameRef.current;
@@ -65,7 +65,7 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
 
   return (
     <AnimatePresence>
-      {game && (
+      {moduleItem && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -74,20 +74,20 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
           className="fixed inset-0 z-50 bg-[#07090e] flex flex-col"
           role="dialog"
           aria-modal="true"
-          aria-label={`Playing ${game.name}`}
+          aria-label={`Playing ${moduleItem.name}`}
         >
           <div className="h-13 px-4 bg-[#0c1018] border-b border-white/[0.08] flex items-center justify-between gap-3 shrink-0">
             <div className="flex items-center gap-3 min-w-0">
               <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shrink-0">
-                {game.provider === 'gn'
+                {moduleItem.provider === 'gn'
                   ? 'gn-math'
-                  : game.provider === 'ugs'
+                  : moduleItem.provider === 'ugs'
                     ? 'UGS'
-                    : game.provider === 'ckv'
+                    : moduleItem.provider === 'ckv'
                       ? 'CKV'
                       : 'Arcade'}
               </span>
-              <h2 className="text-sm font-bold text-slate-100 truncate">{game.name}</h2>
+              <h2 className="text-sm font-bold text-slate-100 truncate">{moduleItem.name}</h2>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -95,7 +95,7 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const target = game.url;
+                    const target = moduleItem.url;
                     onClose();
                     onOpenInProxy(target);
                   }}
@@ -137,7 +137,7 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#07090e]">
                 <Loader2 className="w-7 h-7 text-indigo-400 animate-spin" />
                 <p className="text-xs font-medium text-slate-400">
-                  Loading {game.name} into local memory...
+                  Loading {moduleItem.name} into local memory...
                 </p>
               </div>
             )}
@@ -145,8 +145,8 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
             {srcDocHtml ? (
               <iframe
                 ref={frameRef}
-                key={`doc-${game.id}-${reloadNonce}`}
-                title={game.name}
+                key={`doc-${moduleItem.id}-${reloadNonce}`}
+                title={moduleItem.name}
                 srcDoc={srcDocHtml}
                 allow="autoplay; gamepad; fullscreen"
                 referrerPolicy="no-referrer"
@@ -155,8 +155,8 @@ export const GameOverlayPlayer: React.FC<GameOverlayPlayerProps> = ({
             ) : fallbackUrl ? (
               <iframe
                 ref={frameRef}
-                key={`url-${game.id}-${reloadNonce}`}
-                title={game.name}
+                key={`url-${moduleItem.id}-${reloadNonce}`}
+                title={moduleItem.name}
                 src={fallbackUrl}
                 allow="autoplay; gamepad; fullscreen"
                 referrerPolicy="no-referrer"

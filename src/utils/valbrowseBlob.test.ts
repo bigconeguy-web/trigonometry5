@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
-import { GAME_CATALOG } from '../data/gamesCatalog';
+import { EULER_STUDY_CATALOG } from '../data/studyCatalog';
 import { THEMES_CATALOG } from './themeCatalog';
 import { buildValBrowseBlobHtml } from './valbrowseBlobHtml';
 import {
@@ -16,8 +16,8 @@ import {
   STANDALONE_WINDOW_NAME,
 } from './valbrowseConfig';
 
-test('buildValBrowseBlobHtml embeds valid JS, coral aesthetic, 124 color presets, collapsible sidebar, custom settings, Scramjet frontpage, games, and gn-math sections', () => {
-  const html = buildValBrowseBlobHtml('https://example.org', GAME_CATALOG);
+test('buildValBrowseBlobHtml embeds valid JS, coral aesthetic, 124 color presets, collapsible sidebar, custom settings, Scramjet frontpage, modules, and gn-math sections', () => {
+  const html = buildValBrowseBlobHtml('https://example.org', EULER_STUDY_CATALOG);
 
   assert.match(html, /<title>VALem — Isolated Workspace<\/title>/);
   assert.ok(html.includes('https://example.org/scramjet-browser.html'));
@@ -53,8 +53,8 @@ test('buildValBrowseBlobHtml embeds valid JS, coral aesthetic, 124 color presets
   assert.ok(html.includes('Music Studio'));
   assert.ok(!html.includes('data.jsdelivr.net'), 'Should not fire dead data.jsdelivr.net requests');
 
-  for (const game of GAME_CATALOG.slice(0, 15)) {
-    assert.ok(html.includes(game.slug), `Expected built-in game slug ${game.slug}`);
+  for (const mod of EULER_STUDY_CATALOG.slice(0, 15)) {
+    assert.ok(html.includes(mod.slug), `Expected built-in module slug ${mod.slug}`);
   }
 
   // Must only have a single closing script tag so inline HTML parser never terminates early

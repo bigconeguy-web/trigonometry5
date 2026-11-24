@@ -16,7 +16,7 @@ import {
 
 export type ValBrowseSection =
   | 'browser'
-  | 'games'
+  | 'modules'
   | 'gnmath'
   | 'movies'
   | 'books'
@@ -31,7 +31,7 @@ interface SidebarProps {
   onCloseMobile: () => void;
   onOpenUtilities: () => void;
   onTriggerPanic: () => void;
-  totalGamesCount: number;
+  totalModulesCount: number;
   gnMathCount: number;
 }
 
@@ -51,12 +51,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
   onOpenUtilities,
   onTriggerPanic,
-  totalGamesCount,
+  totalModulesCount,
   gnMathCount,
 }) => {
   const primaryItems: NavItemConfig[] = [
     { id: 'browser', label: 'ValBrowse', icon: Globe },
-    { id: 'games', label: 'Games', icon: Gamepad2, count: totalGamesCount > 0 ? totalGamesCount : undefined },
+    { id: 'modules', label: 'Games', icon: Gamepad2, count: totalModulesCount > 0 ? totalModulesCount : undefined },
   ];
 
   const gnMathItems: NavItemConfig[] = [

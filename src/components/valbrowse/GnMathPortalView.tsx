@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Search, Star, TrendingUp, Code2, Globe, RotateCw, Loader2, ExternalLink, Play } from 'lucide-react';
 import {
-  filterAndSortGames,
-  type UnifiedPortalGame,
+  filterAndSortModules,
+  type UnifiedStudyModule,
 } from '../../utils/valbrowseConfig';
 import {
   fetchUpstreamGnMathHtml,
@@ -11,13 +11,13 @@ import {
 } from '../../utils/gnMathService';
 
 interface GnMathPortalViewProps {
-  gnZones: UnifiedPortalGame[];
+  gnZones: UnifiedStudyModule[];
   loading: boolean;
   favorites: string[];
   popularityByPeriod: Record<PopularityPeriod, Record<number, number>>;
   onLoadPeriod: (period: PopularityPeriod) => void;
   onToggleFavorite: (id: string) => void;
-  onPlayGame: (game: UnifiedPortalGame) => void;
+  onLaunchModule: (modItem: UnifiedStudyModule) => void;
   onOpenInProxy: (url: string) => void;
 }
 
@@ -28,7 +28,7 @@ export const GnMathPortalView: React.FC<GnMathPortalViewProps> = ({
   popularityByPeriod,
   onLoadPeriod,
   onToggleFavorite,
-  onPlayGame,
+  onLaunchModule,
   onOpenInProxy,
 }) => {
   const [mode, setMode] = useState<'zones' | 'script'>('zones');
@@ -59,7 +59,7 @@ export const GnMathPortalView: React.FC<GnMathPortalViewProps> = ({
       selectedTag === 'all'
         ? gnZones
         : gnZones.filter((z) => Array.isArray(z.special) && z.special.includes(selectedTag));
-    return filterAndSortGames(base, {
+    return filterAndSortModules(base, {
       query,
       provider: 'gn',
       sort: 'popular',
@@ -223,13 +223,13 @@ export const GnMathPortalView: React.FC<GnMathPortalViewProps> = ({
                   return (
                     <div
                       key={zone.id}
-                      onClick={() => onPlayGame(zone)}
+                      onClick={() => onLaunchModule(zone)}
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
-                          onPlayGame(zone);
+                          onLaunchModule(zone);
                         }
                       }}
                       className="group relative rounded-xl bg-[#0e131e] hover:bg-[#141b2b] border border-white/[0.07] hover:border-indigo-500/45 overflow-hidden transition-all duration-150 cursor-pointer flex flex-col"

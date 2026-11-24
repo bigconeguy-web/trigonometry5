@@ -1,11 +1,11 @@
-export interface GameCatalogItem {
+export interface StudyModuleItem {
   slug: string;
   title: string;
   category: string;
   url: string;
 }
 
-export const GAME_CATALOG: GameCatalogItem[] = [
+export const EULER_STUDY_CATALOG: StudyModuleItem[] = [
   // Top Trending & Indie Ports
   { slug: 'drive-mad', title: 'Drive Mad', category: 'Racing', url: 'https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/drivemad/index.html' },
   { slug: 'geometry-dash', title: 'Geometry Dash', category: 'Rhythm', url: 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/868-F3.html' },

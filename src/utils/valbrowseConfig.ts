@@ -1,4 +1,4 @@
-import type { GameCatalogItem } from '../data/gamesCatalog.js';
+import type { StudyModuleItem } from '../data/studyCatalog.js';
 import { normalizeTitleKey } from './ugsCatalog.js';
 
 export const DEFAULT_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
@@ -10,7 +10,7 @@ export const STANDALONE_WINDOW_FEATURES =
 
 export const VALBROWSE_WISP_STORAGE_KEY = 'valbrowse_wisp_url';
 export const LEGACY_WISP_STORAGE_KEY = 'gn_scramjet_wisp';
-export const VALBROWSE_FAVS_KEY = 'gn_favs';
+export const EULER_FAVS_KEY = 'euler_favs';
 
 export type BareMuxTransportMode = 'libcurl' | 'epoxy';
 export const DEFAULT_BAREMUX_TRANSPORT: BareMuxTransportMode = 'libcurl';
@@ -96,12 +96,12 @@ export function sanitizeAppShortcuts(rawList: unknown): AppShortcutItem[] {
   return out;
 }
 
-export type GameProviderTag = 'gn' | 'ugs' | 'ckv' | 'builtin';
+export type StudyProviderTag = 'gn' | 'ugs' | 'ckv' | 'builtin';
 
-export interface UnifiedPortalGame {
+export interface UnifiedStudyModule {
   id: string;
   numericId?: number;
-  provider: GameProviderTag;
+  provider: StudyProviderTag;
   name: string;
   category?: string;
   author?: string;
@@ -184,16 +184,16 @@ export function deriveBaseUrlFromUrl(url: string): string {
   }
 }
 
-export function mergeAllGamesCatalog(
-  gnGames: UnifiedPortalGame[],
-  ugsGames: UnifiedPortalGame[],
-  ckvGames: UnifiedPortalGame[],
-  staticCatalog: GameCatalogItem[]
-): UnifiedPortalGame[] {
+export function mergeAllStudyCatalog(
+  gnModules: UnifiedStudyModule[],
+  ugsModules: UnifiedStudyModule[],
+  ckvModules: UnifiedStudyModule[],
+  staticCatalog: StudyModuleItem[]
+): UnifiedStudyModule[] {
   const seen = new Set<string>();
-  const merged: UnifiedPortalGame[] = [];
+  const merged: UnifiedStudyModule[] = [];
 
-  const pushUnique = (item: UnifiedPortalGame) => {
+  const pushUnique = (item: UnifiedStudyModule) => {
     if (!item || !item.name || !item.url) return;
     const key = normalizeTitleKey(item.name);
     if (key && seen.has(key)) return;
@@ -201,9 +201,9 @@ export function mergeAllGamesCatalog(
     merged.push(item);
   };
 
-  for (const g of gnGames) pushUnique(g);
-  for (const g of ugsGames) pushUnique(g);
-  for (const g of ckvGames) pushUnique(g);
+  for (const g of gnModules) pushUnique(g);
+  for (const g of ugsModules) pushUnique(g);
+  for (const g of ckvModules) pushUnique(g);
 
   for (const s of staticCatalog) {
     pushUnique({
@@ -221,28 +221,28 @@ export function mergeAllGamesCatalog(
   return merged;
 }
 
-export type GamesFilterProvider = 'all' | GameProviderTag | 'featured' | 'favorites';
-export type GamesSortOrder = 'featured' | 'az' | 'za' | 'popular';
+export type StudyFilterProvider = 'all' | StudyProviderTag | 'featured' | 'favorites';
+export type StudySortOrder = 'featured' | 'az' | 'za' | 'popular';
 
-export interface FilterGamesOptions {
+export interface FilterModulesOptions {
   query?: string;
-  provider?: GamesFilterProvider;
-  sort?: GamesSortOrder;
+  provider?: StudyFilterProvider;
+  sort?: StudySortOrder;
   favorites?: string[];
   popularityMap?: Record<number, number>;
 }
 
-export function filterAndSortGames(
-  games: UnifiedPortalGame[],
-  options: FilterGamesOptions = {}
-): UnifiedPortalGame[] {
+export function filterAndSortModules(
+  modules: UnifiedStudyModule[],
+  options: FilterModulesOptions = {}
+): UnifiedStudyModule[] {
   const query = String(options.query || '').trim().toLowerCase();
   const provider = options.provider || 'all';
   const sort = options.sort || 'featured';
   const favSet = new Set(options.favorites || []);
   const pop = options.popularityMap || {};
 
-  let list = games.slice();
+  let list = modules.slice();
 
   if (provider === 'favorites') {
     list = list.filter((g) => favSet.has(g.id) || favSet.has(g.name));

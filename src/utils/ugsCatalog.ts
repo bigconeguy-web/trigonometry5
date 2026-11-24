@@ -6,7 +6,7 @@ export interface GitHubTreeItem {
   size?: number;
 }
 
-export interface UgsGameEntry {
+export interface UgsStudyEntry {
   id: string;
   name: string;
   folder: string;
@@ -82,7 +82,7 @@ const POPULAR_SLUGS = new Set([
   'ages of conflict',
 ]);
 
-const COMPOUND_GAME_WORDS = [
+const COMPOUND_CATALOG_WORDS = [
   'adventures', 'adventure',
   'capitalist', 'basketball', 'superstars',
   'minutes', 'minute',
@@ -132,7 +132,7 @@ function splitCompoundToken(token: string): string[] {
   dp[0] = [];
   for (let i = 0; i < n; i++) {
     if (!dp[i]) continue;
-    for (const word of COMPOUND_GAME_WORDS) {
+    for (const word of COMPOUND_CATALOG_WORDS) {
       if (lower.startsWith(word, i)) {
         const end = i + word.length;
         const candidate = [...dp[i]!, word];
@@ -150,7 +150,7 @@ function splitCompoundToken(token: string): string[] {
 
 export function formatUgsTitle(folderOrPath: string): string {
   let raw = (folderOrPath || '').trim();
-  if (!raw) return 'UNTITLED GAME';
+  if (!raw) return 'UNTITLED MODULE';
 
   if (raw.includes('/')) {
     raw = raw.split('/')[0];
@@ -240,12 +240,12 @@ function scoreCoverAsset(repoPath: string): number {
 export function parseUgsTree(
   treeItems: GitHubTreeItem[],
   cdnBase: string = UGS_CDN_BASE
-): UgsGameEntry[] {
+): UgsStudyEntry[] {
   if (!Array.isArray(treeItems)) return [];
 
   const coverMap = new Map<string, { path: string; score: number }>();
   const candidatesByFolder = new Map<string, { path: string; score: number }[]>();
-  const standaloneEntries: UgsGameEntry[] = [];
+  const standaloneEntries: UgsStudyEntry[] = [];
 
   for (const item of treeItems) {
     if (!item || item.type !== 'blob' || typeof item.path !== 'string') continue;
@@ -270,7 +270,7 @@ export function parseUgsTree(
     const filename = parts[parts.length - 1].toLowerCase();
     if (EXCLUDED_HTML_NAMES.has(filename)) continue;
 
-    // Exclude paths under non-game utility/asset subdirectories
+    // Exclude paths under non-module utility/asset subdirectories
     const subdirs = parts.slice(1, -1);
     if (subdirs.some((dir) => EXCLUDED_PATH_SEGMENTS.has(dir.toLowerCase()) || dir.toLowerCase() === 'old')) {
       continue;
@@ -279,7 +279,7 @@ export function parseUgsTree(
     if (EXCLUDED_PATH_SEGMENTS.has(topFolder.toLowerCase())) continue;
 
     if (parts.length === 1) {
-      // Standalone root-level .html game file
+      // Standalone root-level .html module file
       const name = formatUgsTitle(p);
       standaloneEntries.push({
         id: `ugs:${p}`,
@@ -299,12 +299,12 @@ export function parseUgsTree(
     candidatesByFolder.set(topFolder, list);
   }
 
-  const games: UgsGameEntry[] = [...standaloneEntries];
+  const modules: UgsStudyEntry[] = [...standaloneEntries];
   for (const [folder, candidates] of candidatesByFolder.entries()) {
     candidates.sort((a, b) => b.score - a.score || a.path.localeCompare(b.path));
     const best = candidates[0];
     const coverEntry = coverMap.get(folder);
-    games.push({
+    modules.push({
       id: `ugs:${folder}`,
       name: formatUgsTitle(folder),
       folder,
@@ -316,8 +316,8 @@ export function parseUgsTree(
     });
   }
 
-  games.sort((a, b) => a.name.localeCompare(b.name));
-  return games;
+  modules.sort((a, b) => a.name.localeCompare(b.name));
+  return modules;
 }
 
 export function normalizeTitleKey(title: string): string {
@@ -326,7 +326,7 @@ export function normalizeTitleKey(title: string): string {
     .replace(/[^a-z0-9]/g, '');
 }
 
-export interface UnifiedGameEntry {
+export interface UnifiedStudyEntry {
   id: string;
   numericId?: number;
   name: string;
@@ -339,20 +339,20 @@ export interface UnifiedGameEntry {
 }
 
 export function mergeCatalogs(
-  primaryGames: UnifiedGameEntry[],
-  secondaryGames: UnifiedGameEntry[]
-): UnifiedGameEntry[] {
+  primaryModules: UnifiedStudyEntry[],
+  secondaryModules: UnifiedStudyEntry[]
+): UnifiedStudyEntry[] {
   const seen = new Set<string>();
-  const merged: UnifiedGameEntry[] = [];
+  const merged: UnifiedStudyEntry[] = [];
 
-  for (const item of primaryGames) {
+  for (const item of primaryModules) {
     if (!item || !item.name || !item.url) continue;
     const key = normalizeTitleKey(item.name);
     if (key) seen.add(key);
     merged.push(item);
   }
 
-  for (const item of secondaryGames) {
+  for (const item of secondaryModules) {
     if (!item || !item.name || !item.url) continue;
     const key = normalizeTitleKey(item.name);
     if (key && seen.has(key)) continue;
@@ -386,7 +386,7 @@ export const FALLBACK_UGS_PATHS: Array<{ path: string; cover?: string }> = [
   { path: 'ages of conflict/index.html' },
 ];
 
-export function getFallbackUgsCatalog(cdnBase: string = UGS_CDN_BASE): UgsGameEntry[] {
+export function getFallbackUgsCatalog(cdnBase: string = UGS_CDN_BASE): UgsStudyEntry[] {
   return FALLBACK_UGS_PATHS.map((item) => {
     const folder = item.path.split('/')[0];
     return {

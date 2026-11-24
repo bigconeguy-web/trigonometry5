@@ -1,4 +1,4 @@
-import { GameCatalogItem } from '../data/gamesCatalog';
+import { StudyModuleItem } from '../data/studyCatalog';
 import {
   AD_BLOCK_PRELUDE_HTML,
   AD_SCRIPT_SRC_BLOCKLIST,
@@ -10,8 +10,8 @@ function serializeForInlineScript(value: unknown): string {
   return JSON.stringify(value).replace(/<\//g, '<\\/');
 }
 
-export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
-  const safeGamesJson = serializeForInlineScript(games);
+export function buildDashboardBlobHtml(studyModules: StudyModuleItem[]): string {
+  const safeModulesJson = serializeForInlineScript(studyModules);
   const safePreludeJson = serializeForInlineScript(AD_BLOCK_PRELUDE_HTML);
   const srcBlocklistSources = serializeForInlineScript(
     AD_SCRIPT_SRC_BLOCKLIST.map((re) => ({ source: re.source, flags: re.flags }))
@@ -205,7 +205,7 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
       grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
       gap: 10px;
     }
-    .game-btn {
+    .module-btn {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -220,21 +220,21 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
       cursor: pointer;
       transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
     }
-    .game-btn:hover {
+    .module-btn:hover {
       background: #202026;
       border-color: #3f3f46;
       transform: translateY(-1px);
     }
-    .game-btn.active {
+    .module-btn.active {
       border-color: #34d399;
       background: #18221e;
     }
-    .game-name {
+    .module-name {
       font-size: 13px;
       font-weight: 700;
       line-height: 1.3;
     }
-    .game-cat {
+    .module-cat {
       font-size: 11px;
       color: #a1a1aa;
       font-weight: 500;
@@ -246,7 +246,7 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
     <div class="topbar">
       <div class="brand">
         <span class="brand-title">Dashboard</span>
-        <span class="badge" id="total-badge">${games.length} Games</span>
+        <span class="badge" id="total-badge">${studyModules.length} Games</span>
       </div>
       <span class="badge badge-shield">Ads &amp; Popups Disabled</span>
     </div>
@@ -278,19 +278,19 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
     </div>
 
     <div class="controls-row">
-      <input type="text" id="search" placeholder="Search ${games.length} games..." autocomplete="off" />
+      <input type="text" id="search" placeholder="Search ${studyModules.length} games..." autocomplete="off" />
       <select id="category" aria-label="Filter by category">
         <option value="ALL">All Categories</option>
       </select>
     </div>
 
-    <div id="count-label">Showing ${games.length} of ${games.length} games</div>
+    <div id="count-label">Showing ${studyModules.length} of ${studyModules.length} games</div>
     <div id="grid"></div>
   </div>
 
   <script>
     (function () {
-      var GAMES = ${safeGamesJson};
+      var STUDY_MODULES = ${safeModulesJson};
       var AD_PRELUDE = ${safePreludeJson};
       var SRC_PATTERNS = ${srcBlocklistSources}.map(function (p) { return new RegExp(p.source, p.flags); });
       var INLINE_PATTERNS = ${inlineBlocklistSources}.map(function (p) { return new RegExp(p.source, p.flags); });
@@ -312,12 +312,12 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
       var closeBtn = document.getElementById("close-btn");
       var retryBtn = document.getElementById("retry-btn");
 
-      var currentGame = null;
+      var currentModule = null;
       var activeRequestId = 0;
 
       // Populate categories
       var catSet = {};
-      GAMES.forEach(function (g) { catSet[g.category] = true; });
+      STUDY_MODULES.forEach(function (g) { catSet[g.category] = true; });
       Object.keys(catSet).sort().forEach(function (cat) {
         var opt = document.createElement("option");
         opt.value = cat;
@@ -331,7 +331,7 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
         return idx === -1 ? clean + "/" : clean.slice(0, idx + 1);
       }
 
-      function sanitizeGameHtml(rawHtml, sourceUrl) {
+      function sanitizeStudyModuleHtml(rawHtml, sourceUrl) {
         var html = rawHtml || "";
         html = html.replace(/<template\\b[^>]*data-ad-rail-template[^>]*>[\\s\\S]*?<\\/template>/gi, "");
         html = html.replace(/<ins\\b[^>]*class=["'][^"']*adsbygoogle[^"']*["'][^>]*>[\\s\\S]*?<\\/ins>/gi, "");
@@ -367,24 +367,24 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
         return html;
       }
 
-      async function launchGame(game) {
-        currentGame = game;
+      async function launchModule(modItem) {
+        currentModule = modItem;
         var reqId = ++activeRequestId;
         playerShell.classList.add("active");
-        nowPlaying.textContent = game.title;
+        nowPlaying.textContent = modItem.title;
         errorBox.classList.remove("visible");
-        loaderText.textContent = "Loading " + game.title + " (ads disabled)...";
+        loaderText.textContent = "Loading " + modItem.title + " (ads disabled)...";
         loader.classList.add("visible");
         frame.removeAttribute("srcdoc");
         renderGrid();
         window.scrollTo({ top: 0, behavior: "smooth" });
 
         try {
-          var res = await fetch(game.url);
+          var res = await fetch(modItem.url);
           if (!res.ok) throw new Error("HTTP " + res.status);
           var raw = await res.text();
           if (reqId !== activeRequestId) return;
-          var cleaned = sanitizeGameHtml(raw, game.url);
+          var cleaned = sanitizeStudyModuleHtml(raw, modItem.url);
           frame.onload = function () {
             if (reqId === activeRequestId) {
               loader.classList.remove("visible");
@@ -394,7 +394,7 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
         } catch (err) {
           if (reqId !== activeRequestId) return;
           loader.classList.remove("visible");
-          errorText.textContent = "Failed to load " + game.title + ": " + (err && err.message ? err.message : "Network error");
+          errorText.textContent = "Failed to load " + modItem.title + ": " + (err && err.message ? err.message : "Network error");
           errorBox.classList.add("visible");
         }
       }
@@ -402,32 +402,32 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
       function renderGrid() {
         var q = (searchInput.value || "").trim().toLowerCase();
         var cat = categorySelect.value;
-        var filtered = GAMES.filter(function (g) {
+        var filtered = STUDY_MODULES.filter(function (g) {
           var matchesCat = cat === "ALL" || g.category === cat;
           var matchesQuery = !q || g.title.toLowerCase().includes(q) || g.slug.replace(/-/g, " ").includes(q) || g.category.toLowerCase().includes(q);
           return matchesCat && matchesQuery;
         });
 
-        countLabel.textContent = "Showing " + filtered.length + " of " + GAMES.length + " games";
+        countLabel.textContent = "Showing " + filtered.length + " of " + STUDY_MODULES.length + " games";
         grid.innerHTML = "";
 
         filtered.forEach(function (g) {
           var btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "game-btn" + (currentGame && currentGame.slug === g.slug ? " active" : "");
+          btn.className = "module-btn" + (currentModule && currentModule.slug === g.slug ? " active" : "");
           btn.dataset.slug = g.slug;
 
           var nameSpan = document.createElement("span");
-          nameSpan.className = "game-name";
+          nameSpan.className = "module-name";
           nameSpan.textContent = g.title;
 
           var catSpan = document.createElement("span");
-          catSpan.className = "game-cat";
+          catSpan.className = "module-cat";
           catSpan.textContent = g.category;
 
           btn.appendChild(nameSpan);
           btn.appendChild(catSpan);
-          btn.onclick = function () { launchGame(g); };
+          btn.onclick = function () { launchModule(g); };
           grid.appendChild(btn);
         });
       }
@@ -436,10 +436,10 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
       categorySelect.addEventListener("change", renderGrid);
 
       reloadBtn.addEventListener("click", function () {
-        if (currentGame) launchGame(currentGame);
+        if (currentModule) launchModule(currentModule);
       });
       retryBtn.addEventListener("click", function () {
-        if (currentGame) launchGame(currentGame);
+        if (currentModule) launchModule(currentModule);
       });
       fullscreenBtn.addEventListener("click", function () {
         if (document.fullscreenElement) {
@@ -450,7 +450,7 @@ export function buildDashboardBlobHtml(games: GameCatalogItem[]): string {
       });
       closeBtn.addEventListener("click", function () {
         activeRequestId++;
-        currentGame = null;
+        currentModule = null;
         frame.removeAttribute("srcdoc");
         playerShell.classList.remove("active");
         loader.classList.remove("visible");

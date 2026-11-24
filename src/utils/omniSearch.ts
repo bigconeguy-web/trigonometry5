@@ -1,6 +1,6 @@
 import { solveMathOrUnit, type MathSolveResult } from './studyHelper.js';
 
-export type LocalSourceType = 'note' | 'flashcard' | 'calc' | 'app' | 'task' | 'game';
+export type LocalSourceType = 'note' | 'flashcard' | 'calc' | 'app' | 'task' | 'module';
 
 export interface BuiltinUtilityApp {
   key: string;
@@ -30,7 +30,7 @@ export interface LocalWorkspaceSources {
   flashcards?: Array<{ id: string; front: string; back: string; mastered?: boolean }>;
   calcHistory?: Array<{ expr: string; result?: string; res?: string }>;
   tasks?: Array<{ id: string; title: string; col?: string; priority?: string }>;
-  games?: Array<{ id: string; name: string; provider?: string; author?: string }>;
+  modules?: Array<{ id: string; name: string; provider?: string; author?: string }>;
   apps?: BuiltinUtilityApp[];
 }
 
@@ -92,18 +92,18 @@ export const BUILTIN_UTILITY_APPS: BuiltinUtilityApp[] = [
     keywords: ['music', 'player', 'soundcloud', 'lofi', 'audio', 'playlist', 'beats', 'sound']
   },
   {
-    key: 'games',
+    key: 'modules',
     title: 'Games & Links',
     category: 'Play & Media',
     description: 'Browse all games across GN-Math, UGS, and CKV libraries in multi-tab windows',
-    keywords: ['play', 'arcade', 'gn', 'ugs', 'ckv', 'library', 'favorites']
+    keywords: ['play', 'euler', 'gn', 'ugs', 'ckv', 'library', 'favorites']
   },
   {
     key: 'ckv',
     title: 'CKV Library',
     category: 'Play & Media',
     description: 'Browse ChickenKingsVault titles with cover art and fullscreen player',
-    keywords: ['games', 'vault', 'ckv', 'thumbnails']
+    keywords: ['modules', 'vault', 'ckv', 'thumbnails']
   },
   {
     key: 'palette',
@@ -344,23 +344,23 @@ export function searchLocalWorkspace(
     }
   });
 
-  // 6. Cached In-Memory Games (capped cleanly, 0 network requests)
-  let gameHits = 0;
-  for (const game of sources.games || []) {
-    if (gameHits >= 12) break;
-    const provider = (game.provider || 'game').toUpperCase();
-    if (matchesAll(`${game.name || ''} ${game.author || ''} ${provider}`)) {
-      const score = scoreFieldMatch(game.name || '', qLower, tokens) + 5;
+  // 6. Cached In-Memory Study Modules (capped cleanly, 0 network requests)
+  let moduleHits = 0;
+  for (const mod of sources.modules || []) {
+    if (moduleHits >= 12) break;
+    const provider = (mod.provider || 'module').toUpperCase();
+    if (matchesAll(`${mod.name || ''} ${mod.author || ''} ${provider}`)) {
+      const score = scoreFieldMatch(mod.name || '', qLower, tokens) + 5;
       results.push({
-        source: 'game',
-        id: game.id,
-        title: game.name,
-        subtitle: game.author ? `By ${game.author}` : 'Launch in new game tab',
+        source: 'module',
+        id: mod.id,
+        title: mod.name,
+        subtitle: mod.author ? `By ${mod.author}` : 'Launch in new study tab',
         meta: `Library · ${provider}`,
         score,
-        actionPayload: game
+        actionPayload: mod
       });
-      gameHits++;
+      moduleHits++;
     }
   }
 

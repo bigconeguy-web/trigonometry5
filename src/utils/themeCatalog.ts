@@ -249,7 +249,7 @@ export const THEMES_CATALOG: ThemeSpec[] = [
     border: '#37236b',
   },
   {
-    id: 'arcade-ruby',
+    id: 'euler-ruby',
     name: 'Arcade Ruby',
     category: 'Dark & Neon',
     bgPrimary: '#14060b',
@@ -1605,6 +1605,7 @@ const LEGACY_THEME_MAP: Record<string, string> = {
   forest: 'emerald-matrix',
   ocean: 'deep-ocean',
   light: 'pure-paper-light',
+  'arcade-ruby': 'euler-ruby',
 };
 
 export function resolveThemeById(id: string | null | undefined): ThemeSpec {

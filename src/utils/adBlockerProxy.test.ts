@@ -1,15 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GAME_CATALOG } from '../data/gamesCatalog';
-import { getBaseHrefDirectory, sanitizeGameHtml } from './adBlockerProxy';
+import { EULER_STUDY_CATALOG } from '../data/studyCatalog';
+import { getBaseHrefDirectory, sanitizeStudyModuleHtml } from './adBlockerProxy';
 import { buildDashboardBlobHtml } from './blobMenuBuilder';
 
-test('GAME_CATALOG contains all 224 unique verified games', () => {
-  assert.equal(GAME_CATALOG.length, 224);
-  const uniqueSlugs = new Set(GAME_CATALOG.map((g) => g.slug));
+test('EULER_STUDY_CATALOG contains all 224 unique verified modules', () => {
+  assert.equal(EULER_STUDY_CATALOG.length, 224);
+  const uniqueSlugs = new Set(EULER_STUDY_CATALOG.map((m) => m.slug));
   assert.equal(uniqueSlugs.size, 224);
-  for (const game of GAME_CATALOG) {
-    assert.ok(game.url.startsWith('https://cdn.jsdelivr.net/'), `Expected jsDelivr URL for ${game.slug}`);
+  for (const mod of EULER_STUDY_CATALOG) {
+    assert.ok(mod.url.startsWith('https://cdn.jsdelivr.net/'), `Expected jsDelivr URL for ${mod.slug}`);
   }
 });
 
@@ -20,7 +20,7 @@ test('getBaseHrefDirectory extracts parent directory ending with slash', () => {
   );
 });
 
-test('sanitizeGameHtml strips ad scripts and injects <base href> plus ad-blocker stubs', () => {
+test('sanitizeStudyModuleHtml strips ad scripts and injects <base href> plus ad-blocker stubs', () => {
   const rawHtml = `<!DOCTYPE html><html><head>
     <title>Drive Mad</title>
     <script type="text/javascript" src="Jump_Gamemonetize.js"></script>
@@ -30,7 +30,7 @@ test('sanitizeGameHtml strips ad scripts and injects <base href> plus ad-blocker
     <script src="webapp/fancade.js"></script>
   </head><body><ins class="adsbygoogle"></ins><canvas></canvas></body></html>`;
 
-  const cleaned = sanitizeGameHtml(
+  const cleaned = sanitizeStudyModuleHtml(
     rawHtml,
     'https://cdn.jsdelivr.net/gh/selenite-cc/selenite-old@main/drivemad/index.html'
   );
@@ -45,23 +45,23 @@ test('sanitizeGameHtml strips ad scripts and injects <base href> plus ad-blocker
   assert.match(cleaned, /window\.adBreak/);
 });
 
-test('sanitizeGameHtml preserves existing <base href> tag instead of overwriting it', () => {
+test('sanitizeStudyModuleHtml preserves existing <base href> tag instead of overwriting it', () => {
   const rawHtml = `<html><head><base href="https://cdn.jsdelivr.net/gh/Replku/Ovo@abc/"><script src="patch/js/poki-sdk.js"></script></head><body></body></html>`;
-  const cleaned = sanitizeGameHtml(rawHtml, 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/1-fix2.html');
+  const cleaned = sanitizeStudyModuleHtml(rawHtml, 'https://cdn.jsdelivr.net/gh/freebuisness/html@main/1-fix2.html');
 
   assert.match(cleaned, /<base href="https:\/\/cdn\.jsdelivr\.net\/gh\/Replku\/Ovo@abc\/">/);
   assert.doesNotMatch(cleaned, /freebuisness\/html@main\//);
   assert.match(cleaned, /patch\/js\/poki-sdk\.js/);
 });
 
-test('buildDashboardBlobHtml sets title to Dashboard, embeds all 224 games, and disables popup sandbox', () => {
-  const html = buildDashboardBlobHtml(GAME_CATALOG);
+test('buildDashboardBlobHtml sets title to Dashboard, embeds all 224 modules, and disables popup sandbox', () => {
+  const html = buildDashboardBlobHtml(EULER_STUDY_CATALOG);
   assert.match(html, /<title>Dashboard<\/title>/);
   assert.match(html, /placeholder="Search 224 games\.\.\."/);
   assert.match(html, /sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"/);
   assert.doesNotMatch(html, /allow-popups/);
-  for (const game of GAME_CATALOG) {
-    assert.ok(html.includes(game.slug), `Missing slug ${game.slug}`);
+  for (const mod of EULER_STUDY_CATALOG) {
+    assert.ok(html.includes(mod.slug), `Missing slug ${mod.slug}`);
   }
   // Ensure there is only one closing </script> and inline script isn't broken by raw </script>
   const scriptMatches = html.match(/<\/script>/g) || [];

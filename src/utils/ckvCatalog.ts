@@ -1,6 +1,6 @@
 import type { GitHubTreeItem } from './ugsCatalog';
 
-export interface CkvGameEntry {
+export interface CkvStudyEntry {
   id: string;
   provider: 'ckv';
   name: string;
@@ -55,7 +55,7 @@ export function getCkvBaseUrl(cdnBase: string = CKV_CDN_BASE): string {
 
 export function formatCkvTitle(repoPath: string): string {
   let raw = String(repoPath || '').trim();
-  if (!raw) return 'Untitled Game';
+  if (!raw) return 'Untitled Module';
 
   raw = raw
     .replace(/^gamefiles\//i, '')
@@ -64,7 +64,7 @@ export function formatCkvTitle(repoPath: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 
-  if (!raw) return 'Untitled Game';
+  if (!raw) return 'Untitled Module';
 
   return raw
     .split(' ')
@@ -90,7 +90,7 @@ function scoreImageExt(path: string): number {
 export function parseCkvTree(
   treeItems: GitHubTreeItem[],
   cdnBase: string = CKV_CDN_BASE
-): CkvGameEntry[] {
+): CkvStudyEntry[] {
   if (!Array.isArray(treeItems)) return [];
 
   const exactImageMap = new Map<string, string>();
@@ -118,7 +118,7 @@ export function parseCkvTree(
   }
 
   const baseUrl = getCkvBaseUrl(cdnBase);
-  const entries: CkvGameEntry[] = [];
+  const entries: CkvStudyEntry[] = [];
 
   for (const item of treeItems) {
     if (!item || item.type !== 'blob' || typeof item.path !== 'string') continue;
@@ -169,7 +169,7 @@ export const FALLBACK_CKV_PATHS: Array<{ path: string; cover?: string }> = [
   { path: 'gamefiles/Tetris.html', cover: 'gameimages/tetris.png' },
 ];
 
-export function getFallbackCkvCatalog(cdnBase: string = CKV_CDN_BASE): CkvGameEntry[] {
+export function getFallbackCkvCatalog(cdnBase: string = CKV_CDN_BASE): CkvStudyEntry[] {
   const baseUrl = getCkvBaseUrl(cdnBase);
   return FALLBACK_CKV_PATHS.map((item) => {
     const stem = item.path.slice('gamefiles/'.length).replace(/\.html?$/i, '');
@@ -194,7 +194,7 @@ export interface CompactCkvCacheRecord {
 }
 
 export function serializeCkvCache(
-  entries: CkvGameEntry[],
+  entries: CkvStudyEntry[],
   cdnBase: string = CKV_CDN_BASE,
   nowMs: number = Date.now()
 ): string {
@@ -217,7 +217,7 @@ export function deserializeCkvCache(
   rawJson: string | null | undefined,
   nowMs: number = Date.now(),
   ttlMs: number = 30 * 60 * 1000
-): CkvGameEntry[] | null {
+): CkvStudyEntry[] | null {
   if (!rawJson) return null;
   try {
     const parsed = JSON.parse(rawJson) as CompactCkvCacheRecord;

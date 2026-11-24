@@ -19,7 +19,7 @@ test('formatUgsTitle formats compact, hyphenated, and camelCase slugs into upper
   assert.equal(formatUgsTitle('monkey mart v6.3/index.html'), 'MONKEY MART V6.3');
 });
 
-test('parseUgsTree extracts valid games, excludes asset/error HTMLs, and builds CDN URLs', () => {
+test('parseUgsTree extracts valid modules, excludes asset/error HTMLs, and builds CDN URLs', () => {
   const tree: GitHubTreeItem[] = [
     { path: 'README.md', type: 'blob' },
     { path: 'FootballBros.js', type: 'blob' },
@@ -37,31 +37,31 @@ test('parseUgsTree extracts valid games, excludes asset/error HTMLs, and builds 
     { path: 'standalone-snake.html', type: 'blob' },
   ];
 
-  const games = parseUgsTree(tree);
-  assert.equal(games.length, 6);
+  const modules = parseUgsTree(tree);
+  assert.equal(modules.length, 6);
 
-  const dawn = games.find((g) => g.folder === '10minutestilldawn');
+  const dawn = modules.find((m) => m.folder === '10minutestilldawn');
   assert.ok(dawn);
   assert.equal(dawn.name, '10 MINUTES TILL DAWN');
   assert.equal(dawn.url, 'https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/10minutestilldawn/index.html');
   assert.equal(dawn.cover, 'https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/10minutestilldawn/icon.png');
   assert.equal(dawn.featured, true);
 
-  const retro = games.find((g) => g.folder === 'retro bowl');
+  const retro = modules.find((m) => m.folder === 'retro bowl');
   assert.ok(retro);
   assert.equal(retro.name, 'RETRO BOWL');
   assert.equal(retro.url, 'https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/retro%20bowl/new.html');
   assert.equal(retro.baseUrl, 'https://cdn.jsdelivr.net/gh/bubbls/UGS-Assets@main/retro%20bowl/');
 
-  const snake = games.find((g) => g.path === 'standalone-snake.html');
+  const snake = modules.find((m) => m.path === 'standalone-snake.html');
   assert.ok(snake);
   assert.equal(snake.name, 'STANDALONE SNAKE');
 });
 
-test('getFallbackUgsCatalog provides 15-20 valid popular games with encoded jsDelivr URLs', () => {
+test('getFallbackUgsCatalog provides 15-20 valid popular modules with encoded jsDelivr URLs', () => {
   const fallback = getFallbackUgsCatalog();
   assert.ok(fallback.length >= 15 && fallback.length <= 25);
-  const dawn = fallback.find((g) => g.folder === '10minutestilldawn');
+  const dawn = fallback.find((m) => m.folder === '10minutestilldawn');
   assert.ok(dawn);
   assert.equal(dawn.url, buildUgsCdnUrl('10minutestilldawn/index.html'));
 });

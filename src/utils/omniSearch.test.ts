@@ -56,7 +56,7 @@ test('searchLocalWorkspace indexes Notepad, Flashcards, Calculator History, Buil
       { expr: 'sqrt(256)', result: '16' }
     ],
     tasks: [{ id: 't1', title: 'Practice slope homework', col: 'todo' }],
-    games: [{ id: 'g1', name: 'Slope 3D', provider: 'gn', author: 'Y8' }]
+    modules: [{ id: 'm1', name: 'Slope 3D', provider: 'gn', author: 'Y8' }]
   };
 
   // Query across notes + flashcards
@@ -75,12 +75,12 @@ test('searchLocalWorkspace indexes Notepad, Flashcards, Calculator History, Buil
   const calcHits = searchLocalWorkspace('912', sources);
   assert.equal(calcHits.some((h) => h.source === 'calc' && h.title === '48*19 = 912'), true);
 
-  // Query matching notes, flashcards, tasks, and games
+  // Query matching notes, flashcards, tasks, and modules
   const slopeHits = searchLocalWorkspace('slope', sources);
   assert.equal(slopeHits.some((h) => h.source === 'note'), true);
   assert.equal(slopeHits.some((h) => h.source === 'flashcard'), true);
   assert.equal(slopeHits.some((h) => h.source === 'task'), true);
-  assert.equal(slopeHits.some((h) => h.source === 'game'), true);
+  assert.equal(slopeHits.some((h) => h.source === 'module'), true);
 
   // Built-in catalog includes all key tools
   assert.ok(BUILTIN_UTILITY_APPS.some((a) => a.key === 'calculator'));

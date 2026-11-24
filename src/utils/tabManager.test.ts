@@ -23,9 +23,9 @@ test('enforces maximum of 8 simultaneous open tabs', () => {
   for (let i = 1; i < MAX_OPEN_TABS; i++) {
     const res = openTab(state, {
       id: `tab-${i}`,
-      kind: 'game',
-      title: `Game ${i}`,
-      gameId: `g-${i}`,
+      kind: 'module',
+      title: `Module ${i}`,
+      moduleId: `m-${i}`,
     });
     assert.equal(res.added, true);
     assert.equal(res.error, null);
@@ -37,9 +37,9 @@ test('enforces maximum of 8 simultaneous open tabs', () => {
 
   const blocked = openTab(state, {
     id: 'tab-9',
-    kind: 'game',
-    title: 'Game 9',
-    gameId: 'g-9',
+    kind: 'module',
+    title: 'Module 9',
+    moduleId: 'm-9',
   });
   assert.equal(blocked.added, false);
   assert.match(blocked.error || '', /Maximum 8/i);
@@ -53,7 +53,7 @@ test('closeTab protects pinned Home tab and selects neighbor when active tab clo
   assert.equal(pinnedAttempt.state.tabs.length, 1);
 
   state = openTab(state, { id: 'calc', kind: 'utility', title: 'Calculator', appKey: 'calculator' }).state;
-  state = openTab(state, { id: 'retro', kind: 'game', title: 'Retro Bowl', gameId: 'ckv:retro' }).state;
+  state = openTab(state, { id: 'retro', kind: 'module', title: 'Retro Bowl', moduleId: 'ckv:retro' }).state;
   assert.equal(state.activeTabId, 'retro');
 
   const closedRetro = closeTab(state, 'retro');

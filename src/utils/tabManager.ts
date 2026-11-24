@@ -1,6 +1,6 @@
 export const MAX_OPEN_TABS = 8;
 
-export type WorkspaceTabKind = 'library' | 'game' | 'utility';
+export type WorkspaceTabKind = 'library' | 'module' | 'utility';
 
 export interface WorkspaceTab {
   id: string;
@@ -8,7 +8,7 @@ export interface WorkspaceTab {
   title: string;
   pinned?: boolean;
   appKey?: string;
-  gameId?: string;
+  moduleId?: string;
 }
 
 export interface TabManagerState {
@@ -24,7 +24,7 @@ export function createInitialTabState(): TabManagerState {
         kind: 'library',
         title: 'Home · Library',
         pinned: true,
-        appKey: 'games',
+        appKey: 'modules',
       },
     ],
     activeTabId: 'home',
