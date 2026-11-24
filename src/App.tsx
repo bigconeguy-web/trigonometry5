@@ -65,12 +65,14 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [popupBlockedToast]);
 
-  // Global Ctrl+E secret toggle, Escape panic close/redirect, & postMessage panic bridge
+  // Global Ctrl+E secret standalone :blob popup launch, Escape panic close/redirect, & postMessage panic bridge
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'e') {
         e.preventDefault();
-        setValbrowseOpen(true);
+        if (!isStandaloneVbFrame) {
+          handleOpenStandaloneBlob();
+        }
         return;
       }
       if (valbrowseOpen && e.key === 'Escape') {
@@ -91,26 +93,26 @@ export default function App() {
       window.removeEventListener('keydown', onKeyDown, true);
       window.removeEventListener('message', onMessage);
     };
-  }, [valbrowseOpen]);
+  }, [valbrowseOpen, isStandaloneVbFrame, handleOpenStandaloneBlob]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <EulerPathPortal />
 
-      {/* Secret Workspace (triggered via Ctrl+E or ?vb=1 inside standalone blob popup) */}
+      {/* Secret Workspace (triggered via ?vb=1 inside standalone blob popup, or inline fallback) */}
       {valbrowseOpen && valbrowseDocHtml && (
         <div
           className="fixed inset-0 z-50 bg-[#080406] flex flex-col"
           role="dialog"
           aria-modal="true"
-          aria-label="ValBrowse Workspace"
+          aria-label="VALem Workspace"
         >
           {!isStandaloneVbFrame && (
             <div className="h-10 px-2.5 sm:px-3 bg-[#080406] border-b border-white/[0.08] flex items-center justify-between gap-2 shrink-0">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-2 h-2 rounded-full bg-[#ff5c7c] shrink-0" />
                 <span className="text-xs font-bold text-[#fdf2f4] truncate">
-                  valbrowse
+                  VALem
                 </span>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -152,7 +154,7 @@ export default function App() {
           <iframe
             data-testid="valbrowse-blob-iframe"
             srcDoc={valbrowseDocHtml}
-            title="ValBrowse Workspace"
+            title="VALem Workspace"
             allow="autoplay; gamepad; fullscreen"
             className="w-full flex-1 border-0 bg-[#0b0608]"
           />
@@ -167,9 +169,22 @@ export default function App() {
           className="fixed bottom-4 right-4 z-[70] max-w-sm rounded-xl bg-zinc-900 border border-amber-500/40 shadow-2xl px-4 py-3 text-xs text-zinc-100 flex items-start gap-2.5"
         >
           <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div className="flex-1 leading-relaxed">
-            Popup blocked — click the popup icon in Chrome&apos;s address bar to allow popups, then click{' '}
-            <strong>Open Standalone :blob</strong> again.
+          <div className="flex-1 space-y-2 leading-relaxed">
+            <div>
+              Popup blocked — click the popup icon in Chrome&apos;s address bar to allow popups, then press{' '}
+              <strong>Ctrl+E</strong> again.
+            </div>
+            <button
+              type="button"
+              data-testid="popup-fallback-inline-btn"
+              onClick={() => {
+                setPopupBlockedToast(false);
+                setValbrowseOpen(true);
+              }}
+              className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-[11px] font-semibold text-white cursor-pointer"
+            >
+              Open in Current Window Instead
+            </button>
           </div>
           <button
             type="button"

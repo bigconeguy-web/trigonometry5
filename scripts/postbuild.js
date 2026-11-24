@@ -51,11 +51,12 @@ if (fs.existsSync(publicData)) {
   fs.cpSync(publicData, rootData, { recursive: true, force: true });
 }
 
-// 5. Mirror Scramjet, BareMux, and Epoxy transport bundles into dist/ and docs/
+// 5. Mirror Scramjet, BareMux, Epoxy, and Libcurl transport bundles into dist/ and docs/
 const runtimeCopies = [
   { src: path.join(rootDir, 'node_modules', '@mercuryworkshop', 'scramjet', 'dist'), destName: 'scram' },
   { src: path.join(rootDir, 'node_modules', '@mercuryworkshop', 'bare-mux', 'dist'), destName: 'baremux' },
   { src: path.join(rootDir, 'node_modules', '@mercuryworkshop', 'epoxy-transport', 'dist'), destName: 'epoxy' },
+  { src: path.join(rootDir, 'node_modules', '@mercuryworkshop', 'libcurl-transport', 'dist'), destName: 'libcurl' },
 ];
 
 for (const item of runtimeCopies) {
@@ -69,4 +70,4 @@ for (const item of runtimeCopies) {
   }
 }
 
-console.log('✓ Postbuild complete: root assets, root modules, scram/baremux/epoxy, docs/, dist/, and .nojekyll synchronized.');
+console.log('✓ Postbuild complete: root assets, root modules, scram/baremux/epoxy/libcurl, docs/, dist/, and .nojekyll synchronized.');

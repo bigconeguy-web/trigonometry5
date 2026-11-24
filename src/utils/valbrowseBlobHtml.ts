@@ -14,12 +14,21 @@ import {
   buildScramjetThemeParams,
 } from './valbrowseConfig.js';
 import {
-  CURATED_MOVIES,
   GN_COVER_URL,
   GN_HTML_URL,
   GN_SCRIPT_PORTAL_URLS,
 } from './gnMathService.js';
-import { CURATED_SOUNDCLOUD_STATIONS } from './soundcloudEmbed.js';
+import {
+  ARCHIVE_FEATURE_FILMS_URL,
+  TVMAZE_SEARCH_URL,
+  TVMAZE_SHOWS_URL,
+  buildArchiveMovieFallbackList,
+  buildTvFallbackCatalog,
+} from './cinemaCatalog.js';
+import {
+  CURATED_SOUNDCLOUD_STATIONS,
+  SOUNDCLOUD_ARTIST_EXAMPLES,
+} from './soundcloudEmbed.js';
 import { getFallbackUgsCatalog, UGS_CDN_BASE } from './ugsCatalog.js';
 import { getFallbackCkvCatalog, CKV_CDN_BASE } from './ckvCatalog.js';
 
@@ -56,8 +65,13 @@ export function buildValBrowseBlobHtml(
     })),
     fallbackUgs: getFallbackUgsCatalog(UGS_CDN_BASE).map((g) => ({ ...g, provider: 'ugs' })),
     fallbackCkv: getFallbackCkvCatalog(CKV_CDN_BASE).map((g) => ({ ...g, provider: 'ckv' })),
-    curatedMovies: CURATED_MOVIES,
+    tvmazeShowsUrl: TVMAZE_SHOWS_URL,
+    tvmazeSearchUrl: TVMAZE_SEARCH_URL,
+    archiveFeatureFilmsUrl: ARCHIVE_FEATURE_FILMS_URL,
+    cinemaFallbackShows: buildTvFallbackCatalog(),
+    cinemaFallbackMovies: buildArchiveMovieFallbackList(),
     scStations: CURATED_SOUNDCLOUD_STATIONS,
+    scArtists: SOUNDCLOUD_ARTIST_EXAMPLES,
     adPrelude: AD_BLOCK_PRELUDE_HTML,
     srcBlocklist: AD_SCRIPT_SRC_BLOCKLIST.map((r) => ({ source: r.source, flags: r.flags })),
     inlineBlocklist: INLINE_AD_SCRIPT_PATTERNS.map((r) => ({ source: r.source, flags: r.flags })),
@@ -68,10 +82,10 @@ export function buildValBrowseBlobHtml(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ValBrowse — Isolated Workspace</title>
+  <title>VALem — Isolated Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
       --bg: #0b0608;
@@ -86,7 +100,12 @@ export function buildValBrowseBlobHtml(
       --accent-soft: rgba(255, 92, 124, 0.14);
       --border: rgba(255, 255, 255, 0.08);
       --border-strong: rgba(255, 255, 255, 0.16);
+      --ui-radius: 12px;
+      --glow-strength: 1;
+      --glass-blur: 14px;
+      --font-scale: 1;
       --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --font-display: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-ui: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
@@ -103,33 +122,159 @@ export function buildValBrowseBlobHtml(
       -webkit-font-smoothing: antialiased;
     }
 
+    body[data-reduced-motion="1"] *,
+    body[data-reduced-motion="1"] *::before,
+    body[data-reduced-motion="1"] *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+
     .app-shell {
       width: 100%;
       height: 100%;
       display: flex;
       overflow: hidden;
       background: var(--bg);
+      position: relative;
     }
 
-    /* Collapsible Left Glassmorphic Rail */
+    /* Collapsible Left Glassmorphic Sidebar Rail (Expanded -> Compact -> Hidden) */
     .rail {
-      width: 56px;
+      width: 232px;
       height: 100%;
-      background: var(--rail);
+      background: color-mix(in srgb, var(--rail) 94%, transparent);
+      backdrop-filter: blur(var(--glass-blur));
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 10px 8px;
+      padding: 10px;
       flex-shrink: 0;
       z-index: 40;
-      transition: width 0.24s var(--ease);
+      transition: width 0.24s var(--ease), margin-left 0.24s var(--ease), padding 0.24s var(--ease), opacity 0.2s var(--ease);
       overflow: hidden;
     }
 
-    .rail.expanded {
+    .rail.compact {
+      width: 58px;
+      padding: 10px 8px;
+    }
+
+    .rail.hidden-rail {
       width: 232px;
-      padding: 10px 10px;
+      margin-left: -232px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .rail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 2px 2px 8px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+      min-height: 40px;
+    }
+
+    .rail.compact .rail-header {
+      justify-content: center;
+      padding: 2px 0 8px;
+    }
+
+    .rail-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .rail.compact .rail-brand {
+      display: none;
+    }
+
+    .rail-logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rail-logo-name {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .rail-collapse-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.2s var(--ease);
+    }
+
+    .rail-collapse-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: var(--surface-2);
+    }
+
+    .rail.compact .rail-collapse-btn svg {
+      transform: rotate(180deg);
+    }
+
+    .rail-reopen-btn {
+      position: fixed;
+      top: 52px;
+      left: 10px;
+      z-index: 45;
+      height: 32px;
+      padding: 0 11px;
+      border-radius: 9px;
+      border: 1px solid var(--border-strong);
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      backdrop-filter: blur(12px);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.15s var(--ease), transform 0.15s var(--ease);
+    }
+
+    .rail-reopen-btn.visible {
+      display: inline-flex;
+    }
+
+    .rail-reopen-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-1px);
     }
 
     .rail-top, .rail-bottom {
@@ -147,28 +292,29 @@ export function buildValBrowseBlobHtml(
       color: var(--muted);
       padding: 8px 10px 3px;
       white-space: nowrap;
-      opacity: 0;
-      height: 0;
-      overflow: hidden;
-      transition: opacity 0.18s var(--ease), height 0.18s var(--ease);
-    }
-
-    .rail.expanded .rail-group-label {
       opacity: 0.78;
       height: auto;
+      overflow: hidden;
+      transition: opacity 0.18s var(--ease), height 0.18s var(--ease), padding 0.18s var(--ease);
+    }
+
+    .rail.compact .rail-group-label {
+      opacity: 0;
+      height: 0;
+      padding: 0;
     }
 
     .rail-divider {
       height: 1px;
       background: var(--border);
-      margin: 6px 4px;
+      margin: 5px 4px;
     }
 
     .rail-btn {
       width: 100%;
-      height: 38px;
+      height: 37px;
       padding: 0 10px;
-      border-radius: 10px;
+      border-radius: calc(var(--ui-radius) - 2px);
       border: 1px solid transparent;
       background: transparent;
       color: var(--muted);
@@ -215,12 +361,13 @@ export function buildValBrowseBlobHtml(
       text-align: left;
       overflow: hidden;
       text-overflow: ellipsis;
-      opacity: 0;
+      opacity: 1;
       transition: opacity 0.16s var(--ease);
     }
 
-    .rail.expanded .rail-label {
-      opacity: 1;
+    .rail.compact .rail-label {
+      opacity: 0;
+      width: 0;
     }
 
     .rail-badge {
@@ -231,11 +378,11 @@ export function buildValBrowseBlobHtml(
       border-radius: 6px;
       background: var(--surface-2);
       color: var(--muted);
-      display: none;
+      display: inline-block;
     }
 
-    .rail.expanded .rail-badge {
-      display: inline-block;
+    .rail.compact .rail-badge {
+      display: none;
     }
 
     /* Main Stage */
@@ -280,9 +427,36 @@ export function buildValBrowseBlobHtml(
       padding: 20px 24px 36px;
       background-color: var(--bg);
       background-image:
-        radial-gradient(ellipse 60% 45% at 50% 0%, var(--accent-soft), transparent 70%),
-        radial-gradient(var(--border) 1px, transparent 1px);
-      background-size: 100% 100%, 24px 24px;
+        radial-gradient(ellipse 68% 50% at 14% 8%, color-mix(in srgb, var(--accent) calc(16% * var(--glow-strength)), transparent), transparent 72%),
+        radial-gradient(ellipse 52% 46% at 88% 82%, color-mix(in srgb, var(--accent) calc(11% * var(--glow-strength)), transparent), transparent 74%),
+        linear-gradient(to right, color-mix(in srgb, var(--text) 3.5%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--text) 3.5%, transparent) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+    }
+
+    body[data-bg-style="topo"] .view-scroll {
+      background-image:
+        radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--accent) calc(15% * var(--glow-strength)), transparent), transparent 55%),
+        repeating-radial-gradient(circle at 18% 85%, transparent 0 36px, color-mix(in srgb, var(--text) 4%, transparent) 36px 37px);
+      background-size: 100% 100%, 100% 100%;
+    }
+
+    body[data-bg-style="glass"] .view-scroll {
+      background-image:
+        radial-gradient(ellipse 75% 42% at 50% 0%, color-mix(in srgb, var(--accent) calc(20% * var(--glow-strength)), transparent), transparent 72%),
+        linear-gradient(160deg, var(--bg) 0%, var(--rail) 100%);
+      background-size: 100% 100%, 100% 100%;
+    }
+
+    body[data-bg-style="grid"] .view-scroll {
+      background-image:
+        linear-gradient(to right, color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px),
+        linear-gradient(to bottom, color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px);
+      background-size: 32px 32px, 32px 32px;
+    }
+
+    body[data-bg-style="matte"] .view-scroll {
+      background-image: none;
     }
 
     .container {
@@ -435,8 +609,178 @@ export function buildValBrowseBlobHtml(
 
     .media-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
       gap: 14px;
+    }
+
+    .cinema-poster-wrap {
+      position: relative;
+      aspect-ratio: 2 / 3;
+      background: var(--bg);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cinema-poster-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.24s var(--ease);
+    }
+
+    .card:hover .cinema-poster-wrap img {
+      transform: scale(1.045);
+    }
+
+    .rating-chip {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 3;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(8, 4, 6, 0.86);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: #fcd34d;
+    }
+
+    .theater-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px 20px 28px;
+      background: var(--bg);
+    }
+
+    .theater-inner {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .overlay.theater-wide .theater-inner {
+      max-width: 100%;
+    }
+
+    .theater-player-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 50vh;
+      flex-shrink: 0;
+      background: #000;
+      border-radius: 14px;
+      border: 1px solid var(--border-strong);
+      overflow: hidden;
+    }
+
+    .overlay.theater-wide .theater-player-box {
+      max-height: 66vh;
+    }
+
+    .theater-player-box iframe,
+    .theater-player-box video {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    .theater-fallback {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(255, 92, 124, 0.08), rgba(8, 4, 6, 0.96));
+      z-index: 4;
+    }
+
+    .theater-fallback.open {
+      display: flex;
+    }
+
+    .episodes-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .episode-btn {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 9px 11px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: var(--font-ui);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.14s var(--ease), background 0.14s var(--ease);
+    }
+
+    .episode-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .episode-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .artist-dir-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 8px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .artist-chip-btn {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: var(--font-ui);
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 0.14s var(--ease), transform 0.12s var(--ease);
+    }
+
+    .artist-chip-btn:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .artist-chip-btn.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
     }
 
     .books-grid {
@@ -466,7 +810,7 @@ export function buildValBrowseBlobHtml(
     .thumb-wrap {
       position: relative;
       aspect-ratio: 16 / 10;
-      background: #0a0507;
+      background: var(--bg);
       overflow: hidden;
       display: flex;
       align-items: center;
@@ -496,7 +840,7 @@ export function buildValBrowseBlobHtml(
       font-family: var(--font-mono);
       font-size: 11px;
       color: var(--muted);
-      background: linear-gradient(135deg, #1b0f13 0%, #0d0609 100%);
+      background: linear-gradient(135deg, var(--surface-2) 0%, var(--bg) 100%);
       padding: 10px;
       text-align: center;
     }
@@ -508,12 +852,12 @@ export function buildValBrowseBlobHtml(
       z-index: 3;
       padding: 2px 7px;
       border-radius: 6px;
-      background: rgba(8, 4, 6, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--rail);
+      border: 1px solid var(--border);
       font-family: var(--font-mono);
       font-size: 10px;
       font-weight: 600;
-      color: #ff99ae;
+      color: var(--accent);
     }
 
     .fav-btn {
@@ -630,7 +974,7 @@ export function buildValBrowseBlobHtml(
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      border: 3px solid rgba(255, 92, 124, 0.2);
+      border: 3px solid var(--accent-soft);
       border-top-color: var(--accent);
       animation: vbSpin 0.75s linear infinite;
     }
@@ -655,7 +999,7 @@ export function buildValBrowseBlobHtml(
 
     .modal-card {
       width: 100%;
-      max-width: 660px;
+      max-width: 760px;
       max-height: 88vh;
       overflow-y: auto;
       background: var(--surface);
@@ -668,11 +1012,59 @@ export function buildValBrowseBlobHtml(
       box-shadow: 0 24px 56px rgba(0, 0, 0, 0.65);
     }
 
+    .settings-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .settings-pane {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .settings-pane.active {
+      display: flex;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .setting-row-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .setting-row-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .setting-row-desc {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
     .preset-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
       gap: 8px;
-      max-height: 270px;
+      max-height: 250px;
       overflow-y: auto;
       padding-right: 4px;
     }
@@ -714,7 +1106,7 @@ export function buildValBrowseBlobHtml(
       width: 11px;
       height: 11px;
       border-radius: 50%;
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      border: 1px solid rgba(128, 128, 128, 0.45);
     }
 
     .preset-dot + .preset-dot {
@@ -800,24 +1192,39 @@ export function buildValBrowseBlobHtml(
 </head>
 <body>
   <div class="app-shell">
+    <button type="button" class="rail-reopen-btn" id="btn-rail-reopen" aria-label="Show Sidebar Menu">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <span>VALem Menu</span>
+    </button>
+
     <!-- Left Collapsible Glassmorphic Sidebar Rail -->
-    <aside class="rail" id="rail" aria-label="ValBrowse Navigation">
+    <aside class="rail" id="rail" aria-label="VALem Navigation">
       <div class="rail-top">
-        <button type="button" class="rail-btn active" data-view="browser" aria-label="ValBrowse Proxy Browser" title="ValBrowse Proxy Browser">
+        <div class="rail-header">
+          <div class="rail-brand">
+            <span class="rail-logo-mark">V</span>
+            <span class="rail-logo-name">VALem</span>
+          </div>
+          <button type="button" class="rail-collapse-btn" id="btn-rail-toggle" aria-expanded="true" aria-label="Collapse or Expand Sidebar" title="Collapse / Expand Sidebar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+        </div>
+
+        <button type="button" class="rail-btn active" data-view="browser" aria-label="VALem Proxy Browser" title="VALem Proxy Browser">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span class="rail-label">ValBrowse</span>
+          <span class="rail-label">VALem Browser</span>
         </button>
 
-        <div class="rail-group-label">Combined</div>
+        <div class="rail-group-label">Arcade Hub</div>
 
         <button type="button" class="rail-btn" data-view="games" aria-label="All Games Hub" title="All Games">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
-          <span class="rail-label">Games</span>
+          <span class="rail-label">All Games</span>
           <span class="rail-badge" id="badge-games">0</span>
         </button>
 
         <div class="rail-divider"></div>
-        <div class="rail-group-label">gn-math Provider</div>
+        <div class="rail-group-label">gn-math Library</div>
 
         <button type="button" class="rail-btn" data-view="gnmath" aria-label="gn-math Script and Zones" title="gn-math Script">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
@@ -825,9 +1232,9 @@ export function buildValBrowseBlobHtml(
           <span class="rail-badge" id="badge-gn">0</span>
         </button>
 
-        <button type="button" class="rail-btn" data-view="movies" aria-label="gn-math Movies" title="Movies">
+        <button type="button" class="rail-btn" data-view="movies" aria-label="Movies and TV" title="Movies & TV">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
-          <span class="rail-label">Movies</span>
+          <span class="rail-label">Movies &amp; TV</span>
         </button>
 
         <button type="button" class="rail-btn" data-view="books" aria-label="gn-math Books and Manga" title="Books & Manga">
@@ -837,7 +1244,7 @@ export function buildValBrowseBlobHtml(
 
         <button type="button" class="rail-btn" data-view="music" aria-label="gn-math Music Studio" title="Music">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-          <span class="rail-label">Music</span>
+          <span class="rail-label">Music Studio</span>
         </button>
       </div>
 
@@ -848,14 +1255,15 @@ export function buildValBrowseBlobHtml(
           <span class="rail-label">Standalone :blob</span>
         </button>
 
-        <button type="button" class="rail-btn" id="btn-rail-toggle" aria-label="Expand or Collapse Sidebar" title="Expand / Collapse Sidebar">
+        <button type="button" class="rail-btn" id="btn-rail-hide" aria-label="Auto-Hide Sidebar" title="Hide Sidebar for Fullscreen Width">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-          <span class="rail-label">Collapse Sidebar</span>
+          <span class="rail-label">Hide Sidebar</span>
         </button>
 
-        <button type="button" class="rail-btn" id="btn-open-settings" aria-label="Color Presets and Cloak Settings" title="Settings & 24 Color Presets">
+        <button type="button" class="rail-btn" id="btn-open-settings" aria-label="Color Presets and Custom Settings" title="Custom Settings &amp; 124 Themes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span class="rail-label">Settings (24 Themes)</span>
+          <span class="rail-label">Settings</span>
+          <span class="rail-badge">124</span>
         </button>
 
         <button type="button" class="rail-btn panic" id="btn-rail-panic" aria-label="Panic Redirect to Google Classroom (Esc)" title="Panic (Esc) — Google Classroom">
@@ -869,15 +1277,15 @@ export function buildValBrowseBlobHtml(
     <div class="stage-wrap">
       <div class="mobile-bar">
         <button type="button" class="btn" id="btn-mobile-menu" aria-label="Open Navigation Menu">Menu</button>
-        <span style="font-weight:800;color:#ff6b8b;font-size:14px;">valbrowse</span>
+        <span style="font-weight:800;color:var(--accent);font-size:15px;font-family:var(--font-display);">VALem</span>
         <button type="button" class="btn" id="btn-mobile-panic" style="border-color:rgba(244,63,94,0.4);color:#fda4af;">Panic (Esc)</button>
       </div>
 
-      <!-- 1. ValBrowse Scramjet v2 Frontpage -->
-      <section class="view-panel active" id="view-browser" aria-label="ValBrowse Proxy Browser">
+      <!-- 1. VALem Scramjet v2 Frontpage -->
+      <section class="view-panel active" id="view-browser" aria-label="VALem Proxy Browser">
         <iframe
           id="valbrowse-proxy-frame"
-          title="ValBrowse Scramjet v2 Browser"
+          title="VALem Scramjet v2 Browser"
           src="${scramjetSrc.replace(/"/g, '&quot;')}"
           allow="autoplay; gamepad; fullscreen"
           referrerpolicy="no-referrer"
@@ -935,7 +1343,7 @@ export function buildValBrowseBlobHtml(
               <div class="pill-row">
                 <button type="button" class="pill-btn active" id="gn-tab-zones">Ranked Zones</button>
                 <button type="button" class="pill-btn" id="gn-tab-script">Authentic gn-math Script</button>
-                <button type="button" class="btn" id="gn-open-proxy">Open in ValBrowse</button>
+                <button type="button" class="btn" id="gn-open-proxy">Open in VALem</button>
               </div>
             </div>
 
@@ -968,30 +1376,36 @@ export function buildValBrowseBlobHtml(
         </div>
       </section>
 
-      <!-- 4. gn-math Movies Cinema -->
-      <section class="view-panel" id="view-movies" aria-label="gn-math Movies">
+      <!-- 4. Movies & TV Catalog (TVMaze + Internet Archive + Optional TMDB) -->
+      <section class="view-panel" id="view-movies" aria-label="Movies and TV">
         <div class="view-scroll">
           <div class="container">
             <div class="section-head">
               <div>
-                <div class="eyebrow">gn-math Cinema · Internet Archive Theater</div>
-                <h1 class="h1">Movies &amp; Stream</h1>
+                <div class="eyebrow">TVMaze Live API · Internet Archive Cinema · Optional TMDB</div>
+                <h1 class="h1">Movies &amp; TV</h1>
               </div>
-              <span class="sub" id="movies-status">Public-domain cinema ready</span>
+              <div class="pill-row">
+                <span class="sub" id="movies-status">Loading live TVMaze &amp; Archive.org catalog...</span>
+                <button type="button" class="btn" id="btn-movies-tmdb-shortcut" style="height:28px;font-size:11px;">TMDB Key</button>
+              </div>
             </div>
 
             <div class="toolbar">
               <div class="pill-row" id="movie-genres">
-                <button type="button" class="pill-btn active" data-genre="featured">Featured</button>
+                <button type="button" class="pill-btn active" data-genre="all">All</button>
+                <button type="button" class="pill-btn" data-genre="trending">Trending</button>
+                <button type="button" class="pill-btn" data-genre="action">Action</button>
                 <button type="button" class="pill-btn" data-genre="sci-fi">Sci-Fi</button>
-                <button type="button" class="pill-btn" data-genre="animation">Animation</button>
-                <button type="button" class="pill-btn" data-genre="noir">Film Noir</button>
                 <button type="button" class="pill-btn" data-genre="comedy">Comedy</button>
+                <button type="button" class="pill-btn" data-genre="anime">Anime</button>
+                <button type="button" class="pill-btn" data-genre="public-domain">Full Public-Domain Movies</button>
               </div>
 
               <form id="movies-search-form" class="pill-row">
-                <input type="text" class="input" id="movies-query" placeholder="Search Archive.org films..." style="width:230px;" />
-                <button type="submit" class="btn btn-primary">Find</button>
+                <input type="text" class="input" id="movies-query" placeholder="Search TVMaze shows, anime, or Archive films..." style="width:265px;" />
+                <button type="submit" class="btn btn-primary">Search</button>
+                <button type="button" class="btn" id="btn-movies-reset">Reset</button>
               </form>
             </div>
 
@@ -1046,7 +1460,7 @@ export function buildValBrowseBlobHtml(
               <div class="panel-box">
                 <strong style="font-size:14px;">SoundCloud Player</strong>
                 <form id="sc-form" class="pill-row" style="width:100%;">
-                  <input type="text" class="input" id="sc-input" value="https://soundcloud.com/lofi_girl" placeholder="Paste soundcloud.com URL..." style="flex:1;" />
+                  <input type="text" class="input" id="sc-input" value="https://soundcloud.com/lofi_girl" placeholder="Paste soundcloud.com/artist or track URL..." style="flex:1;" />
                   <button type="submit" class="btn btn-primary">Load</button>
                 </form>
                 <div class="pill-row" id="sc-stations"></div>
@@ -1054,10 +1468,24 @@ export function buildValBrowseBlobHtml(
                   id="sc-frame"
                   title="SoundCloud Player"
                   width="100%"
-                  height="280"
+                  height="260"
                   allow="autoplay"
                   style="border:1px solid var(--border);border-radius:10px;background:#000;"
                 ></iframe>
+
+                <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:8px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                    <span class="eyebrow">Artist SoundCloud Search Examples</span>
+                    <span class="sub">Click any link to load or copy handle</span>
+                  </div>
+                  <div class="pill-row" id="sc-artist-cats">
+                    <button type="button" class="pill-btn active" data-sc-cat="all">All</button>
+                    <button type="button" class="pill-btn" data-sc-cat="rap">10 Rappers</button>
+                    <button type="button" class="pill-btn" data-sc-cat="pop">Famous Pop</button>
+                    <button type="button" class="pill-btn" data-sc-cat="kpop">K-Pop</button>
+                  </div>
+                  <div class="artist-dir-grid" id="sc-artist-grid"></div>
+                </div>
               </div>
 
               <div class="panel-box">
@@ -1069,12 +1497,12 @@ export function buildValBrowseBlobHtml(
                 <label class="sub" style="display:flex;justify-content:space-between;">
                   <span>Tempo</span><span id="synth-bpm-val">76 BPM</span>
                 </label>
-                <input type="range" id="synth-bpm" min="60" max="110" value="76" style="accent-color:#ff5c7c;" />
+                <input type="range" id="synth-bpm" min="60" max="110" value="76" style="accent-color:var(--accent);" />
 
                 <label class="sub" style="display:flex;justify-content:space-between;">
                   <span>Warmth Filter</span><span id="synth-cut-val">1100 Hz</span>
                 </label>
-                <input type="range" id="synth-cut" min="350" max="2800" value="1100" style="accent-color:#ff5c7c;" />
+                <input type="range" id="synth-cut" min="350" max="2800" value="1100" style="accent-color:var(--accent);" />
 
                 <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:8px;">
                   <span style="font-size:12px;font-weight:600;">Local Audio File</span>
@@ -1097,7 +1525,7 @@ export function buildValBrowseBlobHtml(
         <strong id="game-ov-title" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Loading...</strong>
       </div>
       <div class="pill-row">
-        <button type="button" class="btn" id="game-ov-proxy">Open in ValBrowse</button>
+        <button type="button" class="btn" id="game-ov-proxy">Open in VALem</button>
         <button type="button" class="btn" id="game-ov-reload">Reload</button>
         <button type="button" class="btn" id="game-ov-fs">Fullscreen</button>
         <button type="button" class="btn btn-primary" id="game-ov-close">Close</button>
@@ -1112,16 +1540,79 @@ export function buildValBrowseBlobHtml(
     </div>
   </div>
 
-  <!-- Movie Theater Overlay -->
-  <div class="overlay" id="movie-overlay">
+  <!-- Embedded Theater View Overlay -->
+  <div class="overlay" id="movie-overlay" aria-label="Embedded Theater View">
     <div class="overlay-bar">
-      <strong id="movie-ov-title" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Cinema</strong>
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <span class="eyebrow" id="movie-ov-source">CINEMA</span>
+        <strong id="movie-ov-title" style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Cinema Theater</strong>
+      </div>
       <div class="pill-row">
-        <button type="button" class="btn" id="movie-ov-proxy">Open in ValBrowse</button>
+        <button type="button" class="btn" id="movie-ov-theater">Theater Mode</button>
+        <button type="button" class="btn" id="movie-ov-fs">Fullscreen</button>
+        <button type="button" class="btn" id="movie-ov-proxy">Open in VALem</button>
         <button type="button" class="btn btn-primary" id="movie-ov-close">Close</button>
       </div>
     </div>
-    <div class="overlay-stage" id="movie-ov-stage" style="padding:16px;"></div>
+    <div class="theater-body">
+      <div class="theater-inner">
+        <div class="theater-player-box" id="movie-ov-stage">
+          <iframe
+            id="cinema-player-frame"
+            title="VALem Embedded Theater Player"
+            allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <div class="theater-fallback" id="cinema-player-fallback">
+            <span class="eyebrow">Embedded Player Notice</span>
+            <strong id="cinema-fallback-title" style="font-size:16px;color:var(--text);">No direct video stream attached to this metadata title</strong>
+            <p class="sub" id="cinema-fallback-msg" style="max-width:520px;line-height:1.5;">
+              TVMaze provides full episode guides, cast, and metadata without requiring an API key. Paste a custom embed URL below, add your free TMDB key in Settings for official trailers, or switch to Full Public-Domain Movies to stream complete films.
+            </p>
+            <div class="pill-row" style="justify-content:center;">
+              <button type="button" class="btn btn-primary" id="cinema-fallback-retry">Reload Embed</button>
+              <button type="button" class="btn" id="cinema-fallback-proxy">Search Watch Page in VALem</button>
+            </div>
+          </div>
+        </div>
+
+        <form class="panel-box" id="cinema-embed-form" style="padding:12px 14px;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span class="eyebrow">Configurable Embed Player URL</span>
+            <span class="sub" id="cinema-embed-hint">Supports Archive.org embeds, YouTube embeds, or custom player URLs</span>
+          </div>
+          <div class="pill-row" style="width:100%;">
+            <input type="text" class="input" id="cinema-embed-input" placeholder="https://archive.org/embed/... or custom embed URL..." style="flex:1;min-width:220px;" />
+            <button type="submit" class="btn btn-primary">Load Embed</button>
+            <button type="button" class="btn" id="cinema-embed-auto">Auto Stream</button>
+          </div>
+        </form>
+
+        <div class="panel-box" id="cinema-episodes-panel" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div>
+              <span class="eyebrow">TVMaze Episode Guide</span>
+              <div style="font-size:14px;font-weight:700;margin-top:2px;" id="cinema-episodes-heading">Seasons &amp; Episodes</div>
+            </div>
+            <select id="cinema-season-select" class="select" aria-label="Select Season"></select>
+          </div>
+          <div class="episodes-strip" id="cinema-episodes-list"></div>
+          <div class="sub" id="cinema-episode-detail" style="line-height:1.5;">Select an episode above to inspect its synopsis and runtime.</div>
+        </div>
+
+        <div class="panel-box" id="cinema-meta-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span class="eyebrow" id="cinema-ov-network">Network</span>
+              <span class="sub" id="cinema-ov-rating"></span>
+            </div>
+            <span class="sub" id="cinema-ov-genres"></span>
+          </div>
+          <p id="cinema-ov-synopsis" style="font-size:13px;line-height:1.62;color:var(--text);"></p>
+          <div class="sub" id="cinema-ov-cast"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Book Reader Overlay -->
@@ -1134,52 +1625,187 @@ export function buildValBrowseBlobHtml(
         <button type="button" class="btn btn-primary" id="book-ov-close">Close</button>
       </div>
     </div>
-    <div style="flex:1;overflow-y:auto;padding:28px 20px;background:#0b0608;">
-      <pre id="book-ov-body" style="max-width:740px;margin:0 auto;white-space:pre-wrap;font-family:var(--font-ui);font-size:17px;line-height:1.82;color:#f5dce1;"></pre>
+    <div style="flex:1;overflow-y:auto;padding:28px 20px;background:var(--bg);">
+      <pre id="book-ov-body" style="max-width:740px;margin:0 auto;white-space:pre-wrap;font-family:var(--font-ui);font-size:17px;line-height:1.82;color:var(--text);"></pre>
     </div>
   </div>
 
-  <!-- Settings & 24 Color Presets Modal -->
+  <!-- Settings & ${THEMES_CATALOG.length} Color Presets Modal -->
   <div class="modal-backdrop" id="settings-modal">
     <div class="modal-card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <div>
-          <strong style="font-size:16px;">ValBrowse Settings &amp; 24 Color Presets</strong>
-          <div class="sub">Pick a color preset, launch standalone :blob window, or configure tab cloak</div>
+          <strong style="font-size:16px;font-family:var(--font-display);">VALem Custom Settings &amp; ${THEMES_CATALOG.length} Color Presets</strong>
+          <div class="sub">Customize themes, backgrounds, sidebar layout, home modules, tab cloak, and panic target</div>
         </div>
         <button type="button" class="btn" id="btn-close-settings">Close</button>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-          <span class="eyebrow">Color Presets (24)</span>
-          <button type="button" class="btn" id="btn-preset-reset-coral" style="height:26px;font-size:11px;">Reset Default Coral</button>
-        </div>
-        <div class="pill-row" id="preset-cat-pills">
-          <button type="button" class="pill-btn active" data-pcat="All">All (24)</button>
-          <button type="button" class="pill-btn" data-pcat="Dark & Neon">Dark &amp; Neon</button>
-          <button type="button" class="pill-btn" data-pcat="Cozy & Pastel">Cozy &amp; Pastel</button>
-          <button type="button" class="pill-btn" data-pcat="High-Contrast & Light">High-Contrast &amp; Light</button>
-        </div>
-        <div class="preset-grid" id="color-presets-grid"></div>
+      <div class="settings-nav" id="settings-tabs">
+        <button type="button" class="pill-btn active" data-stab="appearance">Themes &amp; Background</button>
+        <button type="button" class="pill-btn" data-stab="layout">Sidebar &amp; Layout</button>
+        <button type="button" class="pill-btn" data-stab="cloak">Cloak &amp; Panic</button>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <span class="eyebrow">Window Tab Cloak &amp; Standalone Window</span>
-        <div class="pill-row">
-          <button type="button" class="btn" data-cloak="Home - Classroom">Google Classroom</button>
-          <button type="button" class="btn" data-cloak="Dashboard | Canvas">Canvas LMS</button>
-          <button type="button" class="btn" data-cloak="Study Notes - Google Docs">Google Docs</button>
-          <button type="button" class="btn btn-primary" id="btn-modal-standalone-blob">Open Standalone :blob Window</button>
+      <!-- Pane 1: Themes & Background -->
+      <div class="settings-pane active" id="spane-appearance">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span class="eyebrow">Color Presets (${THEMES_CATALOG.length})</span>
+            <div class="pill-row">
+              <input type="text" class="input" id="preset-search" placeholder="Search themes..." aria-label="Search color presets" style="height:28px;width:155px;font-size:11px;padding:0 9px;" />
+              <button type="button" class="btn" id="btn-preset-random" style="height:28px;font-size:11px;padding:0 10px;">Random Theme</button>
+              <button type="button" class="btn" id="btn-preset-reset-coral" style="height:28px;font-size:11px;padding:0 10px;">Default Coral</button>
+            </div>
+          </div>
+          <div class="pill-row" id="preset-cat-pills">
+            <button type="button" class="pill-btn active" data-pcat="All">All (${THEMES_CATALOG.length})</button>
+            <button type="button" class="pill-btn" data-pcat="Dark & Neon">Dark &amp; Neon (${THEMES_CATALOG.filter((t) => t.category === 'Dark & Neon').length})</button>
+            <button type="button" class="pill-btn" data-pcat="Cozy & Pastel">Cozy &amp; Pastel (${THEMES_CATALOG.filter((t) => t.category === 'Cozy & Pastel').length})</button>
+            <button type="button" class="pill-btn" data-pcat="High-Contrast & Light">High-Contrast &amp; Light (${THEMES_CATALOG.filter((t) => t.category === 'High-Contrast & Light').length})</button>
+          </div>
+          <div class="preset-grid" id="color-presets-grid"></div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Canvas Background Style</span>
+            <span class="setting-row-desc">Choose the ambient pattern behind VALem</span>
+          </div>
+          <div class="pill-row" id="bg-style-pills">
+            <button type="button" class="pill-btn active" data-bgstyle="aurora">Aurora Mesh</button>
+            <button type="button" class="pill-btn" data-bgstyle="topo">Topographic</button>
+            <button type="button" class="pill-btn" data-bgstyle="glass">Midnight Glass</button>
+            <button type="button" class="pill-btn" data-bgstyle="grid">Fine Grid</button>
+            <button type="button" class="pill-btn" data-bgstyle="matte">Pure Matte</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Corner Shape</span>
+            <span class="setting-row-desc">Adjust card and input roundness</span>
+          </div>
+          <div class="pill-row" id="radius-pills">
+            <button type="button" class="pill-btn" data-radius="6">Sharp (6px)</button>
+            <button type="button" class="pill-btn active" data-radius="12">Balanced (12px)</button>
+            <button type="button" class="pill-btn" data-radius="18">Soft (18px)</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Ambient Glow &amp; Backdrop Blur</span>
+            <span class="setting-row-desc">Fine-tune mesh glow intensity (<span id="glow-pct-val">100%</span>)</span>
+          </div>
+          <div class="pill-row">
+            <input type="range" id="custom-glow-range" min="0" max="150" value="100" style="accent-color:var(--accent);width:120px;" />
+            <button type="button" class="pill-btn active" id="btn-toggle-blur">Glass Blur: On</button>
+          </div>
         </div>
       </div>
 
-      <div style="padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-family:var(--font-mono);font-size:11px;color:var(--muted);">
-        Default Wisp Endpoint:<br />
-        <span style="color:var(--accent);">${DEFAULT_WISP_URL}</span>
+      <!-- Pane 2: Sidebar & Layout -->
+      <div class="settings-pane" id="spane-layout">
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Start Page UI Layout</span>
+            <span class="setting-row-desc">Arrange VALem as Split Hero, Normal Search Engine, Side Search Engine, or Minimal</span>
+          </div>
+          <div class="pill-row" id="home-layout-pills">
+            <button type="button" class="pill-btn active" data-homelayout="split">Split Hero</button>
+            <button type="button" class="pill-btn" data-homelayout="normal">Normal Search</button>
+            <button type="button" class="pill-btn" data-homelayout="side">Side Search</button>
+            <button type="button" class="pill-btn" data-homelayout="minimal">Minimal</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Sidebar Mode</span>
+            <span class="setting-row-desc">Expanded labels, compact icon rail, or auto-hidden drawer</span>
+          </div>
+          <div class="pill-row" id="sidebar-mode-pills">
+            <button type="button" class="pill-btn active" data-railmode="expanded">Expanded</button>
+            <button type="button" class="pill-btn" data-railmode="compact">Compact Rail</button>
+            <button type="button" class="pill-btn" data-railmode="hidden">Auto-Hide</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">VALem Home Modules</span>
+            <span class="setting-row-desc">Toggle the live clock card and quick-launch tiles on start page</span>
+          </div>
+          <div class="pill-row">
+            <button type="button" class="pill-btn active" id="btn-toggle-clock">Live Clock: On</button>
+            <button type="button" class="pill-btn active" id="btn-toggle-shortcuts">Launchpad: On</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Text Scale &amp; Motion</span>
+            <span class="setting-row-desc">Adjust browser start page scale and transition motion</span>
+          </div>
+          <div class="pill-row" id="font-scale-pills">
+            <button type="button" class="pill-btn" data-fscale="0.92">Compact</button>
+            <button type="button" class="pill-btn active" data-fscale="1">Default</button>
+            <button type="button" class="pill-btn" data-fscale="1.08">Large</button>
+            <button type="button" class="pill-btn" id="btn-toggle-motion">Motion: Smooth</button>
+          </div>
+        </div>
       </div>
 
-      <div class="sub">Press <code style="color:var(--text);">Esc</code> anywhere to immediately close or redirect to Google Classroom.</div>
+      <!-- Pane 3: Cloak & Panic -->
+      <div class="settings-pane" id="spane-cloak">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span class="eyebrow">Custom Tab Title Cloak</span>
+          <div class="pill-row">
+            <input type="text" class="input" id="custom-cloak-title" placeholder="Enter custom tab title..." style="flex:1;min-width:190px;" />
+            <button type="button" class="btn btn-primary" id="btn-apply-custom-cloak">Apply Title</button>
+          </div>
+          <div class="pill-row">
+            <button type="button" class="btn" data-cloak="Home - Classroom">Google Classroom</button>
+            <button type="button" class="btn" data-cloak="Dashboard | Canvas">Canvas LMS</button>
+            <button type="button" class="btn" data-cloak="Study Notes - Google Docs">Google Docs</button>
+            <button type="button" class="btn" data-cloak="Khan Academy | Free Online Courses">Khan Academy</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span class="eyebrow">Panic Redirect Target (Esc Key)</span>
+          <div class="pill-row">
+            <select id="panic-url-select" class="select" style="flex:1;min-width:190px;">
+              <option value="https://classroom.google.com">Google Classroom (Default)</option>
+              <option value="https://drive.google.com">Google Drive</option>
+              <option value="https://www.khanacademy.org">Khan Academy</option>
+              <option value="https://clever.com">Clever Portal</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="btn-modal-standalone-blob">Open Standalone :blob</button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span class="eyebrow">Optional TMDB API Key (Movies &amp; YouTube Trailers)</span>
+          <div class="pill-row">
+            <input type="password" class="input" id="tmdb-api-key-input" placeholder="Paste optional TMDB v3 API key (saved in localStorage)..." style="flex:1;min-width:190px;" />
+            <button type="button" class="btn btn-primary" id="btn-save-tmdb-key">Save Key</button>
+            <button type="button" class="btn" id="btn-clear-tmdb-key">Clear</button>
+          </div>
+          <div class="sub" id="tmdb-key-status">Optional — leave blank to use free TVMaze + Internet Archive catalog with no key required.</div>
+        </div>
+
+        <div style="padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-family:var(--font-mono);font-size:11px;color:var(--muted);">
+          Default Wisp Endpoint:<br />
+          <span style="color:var(--accent);">${DEFAULT_WISP_URL}</span>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div class="sub">Press <code style="color:var(--text);">Esc</code> anywhere to immediately close or redirect to your Panic destination.</div>
+          <button type="button" class="btn" id="btn-reset-all-custom">Reset All Settings</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1288,8 +1914,29 @@ export function buildValBrowseBlobHtml(
       /* ---------------- NAVIGATION & COLLAPSIBLE RAIL ---------------- */
       var railEl = document.getElementById('rail');
       var railToggleBtn = document.getElementById('btn-rail-toggle');
+      var railHideBtn = document.getElementById('btn-rail-hide');
+      var railReopenBtn = document.getElementById('btn-rail-reopen');
       var mobileMenuBtn = document.getElementById('btn-mobile-menu');
       var currentView = 'browser';
+      var railMode = safeLSGet('valem_rail_mode') || 'expanded';
+
+      function applyRailMode(mode) {
+        if (mode !== 'expanded' && mode !== 'compact' && mode !== 'hidden') {
+          mode = 'expanded';
+        }
+        railMode = mode;
+        safeLSSet('valem_rail_mode', mode);
+        railEl.classList.toggle('compact', mode === 'compact');
+        railEl.classList.toggle('hidden-rail', mode === 'hidden');
+        if (railReopenBtn) railReopenBtn.classList.toggle('visible', mode === 'hidden');
+        if (railToggleBtn) {
+          railToggleBtn.setAttribute('aria-expanded', mode === 'expanded' ? 'true' : 'false');
+          railToggleBtn.title = mode === 'expanded' ? 'Collapse Sidebar' : 'Expand Sidebar';
+        }
+        document.querySelectorAll('#sidebar-mode-pills .pill-btn').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-railmode') === mode);
+        });
+      }
 
       function switchView(viewId) {
         currentView = viewId;
@@ -1317,8 +1964,20 @@ export function buildValBrowseBlobHtml(
       });
 
       railToggleBtn.addEventListener('click', function () {
-        railEl.classList.toggle('expanded');
+        applyRailMode(railMode === 'compact' ? 'expanded' : 'compact');
       });
+
+      if (railHideBtn) {
+        railHideBtn.addEventListener('click', function () {
+          applyRailMode('hidden');
+        });
+      }
+
+      if (railReopenBtn) {
+        railReopenBtn.addEventListener('click', function () {
+          applyRailMode('expanded');
+        });
+      }
 
       mobileMenuBtn.addEventListener('click', function () {
         railEl.classList.toggle('mobile-open');
@@ -1328,6 +1987,18 @@ export function buildValBrowseBlobHtml(
         if (!ev || !ev.data) return;
         if (ev.data.type === 'valbrowse-panic') {
           triggerPanic();
+        } else if (ev.data.type === 'valem-open-settings') {
+          renderColorPresetsGrid();
+          settingsModal.classList.add('open');
+        } else if (ev.data.type === 'valem-layout-sync' && typeof ev.data.homeLayout === 'string') {
+          var nextL = ev.data.homeLayout;
+          if (nextL === 'split' || nextL === 'normal' || nextL === 'side' || nextL === 'minimal') {
+            customSettings.homeLayout = nextL;
+            safeLSSet('valem_custom_settings', JSON.stringify(customSettings));
+            document.querySelectorAll('#home-layout-pills .pill-btn').forEach(function (b) {
+              b.classList.toggle('active', b.getAttribute('data-homelayout') === nextL);
+            });
+          }
         } else if (ev.data.type === 'gn-switch-tab' && typeof ev.data.tab === 'string') {
           var allowed = { browser: 1, games: 1, gnmath: 1, movies: 1, books: 1, music: 1 };
           if (allowed[ev.data.tab]) {
@@ -1657,7 +2328,7 @@ export function buildValBrowseBlobHtml(
           } catch (_e) {}
         }
         gameSpinner.style.display = 'none';
-        gameMsg.textContent = 'Unable to fetch game package directly — click Open in ValBrowse to load via Scramjet proxy.';
+        gameMsg.textContent = 'Unable to fetch game package directly — click Open in VALem to load via Scramjet proxy.';
       }
 
       document.getElementById('game-ov-close').addEventListener('click', function () {
@@ -1701,7 +2372,7 @@ export function buildValBrowseBlobHtml(
             return;
           } catch (_e) {}
         }
-        st.textContent = 'Unable to reach jsDelivr right now — click Open in ValBrowse to proxy gn-math.';
+        st.textContent = 'Unable to reach jsDelivr right now — click Open in VALem to proxy gn-math.';
       }
 
       document.getElementById('gn-tab-zones').addEventListener('click', function () {
@@ -1724,34 +2395,207 @@ export function buildValBrowseBlobHtml(
         openInValBrowse('https://cdn.jsdelivr.net/gh/gn-math/gn-math.github.io@main/index.html');
       });
 
-      /* ---------------- MOVIES (ARCHIVE.ORG) ---------------- */
-      var movieGenre = 'featured';
+      /* ---------------- MOVIES & TV (TVMAZE + ARCHIVE.ORG + OPTIONAL TMDB) ---------------- */
+      var movieGenre = 'all';
       var activeMovieObj = null;
+      var activeMovieEpisodes = [];
+      var activeSelectedEpisode = null;
+      var tvMazeShowsCache = Array.isArray(CFG.cinemaFallbackShows) ? CFG.cinemaFallbackShows.slice() : [];
+      var archiveMoviesCache = Array.isArray(CFG.cinemaFallbackMovies) ? CFG.cinemaFallbackMovies.slice() : [];
+      var tmdbMoviesCache = [];
+      var cinemaSearchResults = null;
+      var cinemaLiveFetched = false;
 
-      function renderMovies(list) {
+      function stripHtmlClient(raw) {
+        return String(raw || '')
+          .replace(/<\\/?(?:b|i|em|strong|span|u)\\b[^>]*>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/&nbsp;/gi, ' ')
+          .replace(/&amp;/gi, '&')
+          .replace(/&quot;/gi, '"')
+          .replace(/&#39;/gi, "'")
+          .replace(/\\s+/g, ' ')
+          .replace(/\\s+([.,!?;:])/g, '$1')
+          .trim();
+      }
+
+      function mapGenresClient(genres, source, showType, lang, rating) {
+        var tags = ['all'];
+        if (source === 'archive') tags.push('public-domain');
+        if (source === 'tmdb' || (typeof rating === 'number' && rating >= 7.8)) tags.push('trending');
+        var gs = (genres || []).map(function (g) { return String(g || '').toLowerCase(); });
+        var st = String(showType || '').toLowerCase();
+        var ln = String(lang || '').toLowerCase();
+        if (gs.some(function (g) { return g.indexOf('action') !== -1 || g.indexOf('adventure') !== -1 || g.indexOf('thriller') !== -1; })) tags.push('action');
+        if (gs.some(function (g) { return g.indexOf('science-fiction') !== -1 || g.indexOf('sci-fi') !== -1 || g.indexOf('fantasy') !== -1; })) tags.push('sci-fi');
+        if (gs.some(function (g) { return g.indexOf('comedy') !== -1; })) tags.push('comedy');
+        if (gs.some(function (g) { return g.indexOf('anime') !== -1; }) || (st.indexOf('animation') !== -1 && ln === 'japanese')) tags.push('anime');
+        return tags;
+      }
+
+      function normalizeTvMazeClient(show) {
+        if (!show || !show.id || !show.name) return null;
+        var genres = Array.isArray(show.genres) ? show.genres : [];
+        var rating = show.rating && typeof show.rating.average === 'number' ? show.rating.average : null;
+        var ym = String(show.premiered || '').match(/^(\\d{4})/);
+        var net = (show.network && show.network.name) || (show.webChannel && show.webChannel.name) || 'TV Network';
+        return {
+          id: 'tvmaze:' + show.id,
+          externalId: String(show.id),
+          source: 'tvmaze',
+          title: String(show.name).trim(),
+          year: ym ? ym[1] : '',
+          rating: rating,
+          genres: genres,
+          categoryTags: mapGenresClient(genres, 'tvmaze', show.type, show.language, rating),
+          summary: stripHtmlClient(show.summary) || 'No synopsis available.',
+          poster: (show.image && (show.image.medium || show.image.original)) || null,
+          backdrop: (show.image && (show.image.original || show.image.medium)) || null,
+          networkOrStudio: net,
+          cast: [],
+          embedUrl: '',
+          watchPageUrl: (show.officialSite && String(show.officialSite).trim()) || ('https://www.tvmaze.com/shows/' + show.id),
+          isFullMovie: false
+        };
+      }
+
+      function normalizeArchiveClient(doc) {
+        if (!doc || !doc.identifier) return null;
+        var id = String(doc.identifier).trim();
+        var title = Array.isArray(doc.title) ? String(doc.title[0] || id).trim() : String(doc.title || id).trim();
+        var desc = stripHtmlClient(Array.isArray(doc.description) ? doc.description[0] : doc.description) || 'Complete legal public-domain feature film on Internet Archive.';
+        var yr = Array.isArray(doc.year) ? doc.year[0] : doc.year;
+        var low = (title + ' ' + desc).toLowerCase();
+        var tags = ['all', 'public-domain'];
+        var genres = ['Public Domain'];
+        if (/comedy|keaton|chaplin|friday/.test(low)) { genres.push('Comedy'); tags.push('comedy'); }
+        if (/sci-fi|space|living dead|plan 9|superman|scientist/.test(low)) { genres.push('Sci-Fi'); tags.push('sci-fi'); }
+        if (/action|adventure|general|war|western/.test(low)) { genres.push('Action'); tags.push('action'); }
+        return {
+          id: 'archive:' + id,
+          externalId: id,
+          source: 'archive',
+          title: title,
+          year: yr ? String(yr).slice(0, 4) : '',
+          rating: null,
+          genres: genres,
+          categoryTags: tags,
+          summary: desc,
+          poster: 'https://archive.org/services/img/' + encodeURIComponent(id),
+          backdrop: 'https://archive.org/services/img/' + encodeURIComponent(id),
+          networkOrStudio: 'Internet Archive Cinema',
+          cast: ['Public Domain Feature'],
+          embedUrl: 'https://archive.org/embed/' + encodeURIComponent(id),
+          watchPageUrl: 'https://archive.org/details/' + encodeURIComponent(id),
+          isFullMovie: true
+        };
+      }
+
+      function normalizeTmdbClient(m) {
+        if (!m || !m.id || !(m.title || m.name)) return null;
+        var rel = String(m.release_date || m.first_air_date || '');
+        var rating = typeof m.vote_average === 'number' && m.vote_average > 0 ? Number(m.vote_average.toFixed(1)) : null;
+        return {
+          id: 'tmdb:' + m.id,
+          externalId: String(m.id),
+          source: 'tmdb',
+          title: String(m.title || m.name).trim(),
+          year: rel ? rel.slice(0, 4) : '',
+          rating: rating,
+          genres: ['TMDB Trending'],
+          categoryTags: ['all', 'trending'],
+          summary: String(m.overview || '').trim() || 'Trending TMDB movie.',
+          poster: m.poster_path ? ('https://image.tmdb.org/t/p/w500' + m.poster_path) : null,
+          backdrop: m.backdrop_path ? ('https://image.tmdb.org/t/p/w780' + m.backdrop_path) : null,
+          networkOrStudio: 'TMDB',
+          cast: [],
+          embedUrl: '',
+          watchPageUrl: 'https://www.themoviedb.org/movie/' + m.id,
+          isFullMovie: false
+        };
+      }
+
+      function getActiveCinemaPool() {
+        if (Array.isArray(cinemaSearchResults)) return cinemaSearchResults;
+        var combined = [];
+        var seen = {};
+        function pushUnique(arr) {
+          (arr || []).forEach(function (item) {
+            if (!item || seen[item.id]) return;
+            seen[item.id] = true;
+            combined.push(item);
+          });
+        }
+        if (movieGenre === 'public-domain') {
+          pushUnique(archiveMoviesCache);
+        } else {
+          pushUnique(tmdbMoviesCache);
+          pushUnique(tvMazeShowsCache);
+          pushUnique(archiveMoviesCache);
+        }
+        return combined;
+      }
+
+      function renderMoviesFiltered() {
         var grid = document.getElementById('movies-grid');
+        if (!grid) return;
+        var q = (document.getElementById('movies-query').value || '').trim().toLowerCase();
+        var pool = getActiveCinemaPool();
+        var list = pool.filter(function (m) {
+          if (movieGenre !== 'all' && (!m.categoryTags || m.categoryTags.indexOf(movieGenre) === -1)) return false;
+          if (q && !Array.isArray(cinemaSearchResults)) {
+            var hay = (m.title + ' ' + m.summary + ' ' + (m.genres || []).join(' ') + ' ' + m.networkOrStudio).toLowerCase();
+            if (hay.indexOf(q) === -1) return false;
+          }
+          return true;
+        });
+
         grid.innerHTML = '';
-        list.forEach(function (m) {
+        if (list.length === 0) {
+          var empty = document.createElement('div');
+          empty.className = 'sub';
+          empty.textContent = 'No titles matched this filter. Try searching TVMaze or switching to All / Full Public-Domain Movies.';
+          grid.appendChild(empty);
+          return;
+        }
+
+        list.slice(0, 60).forEach(function (m) {
           var card = document.createElement('div');
           card.className = 'card';
+          card.setAttribute('data-cinema-id', m.id);
           card.onclick = function () { openMovie(m); };
 
           var thumb = document.createElement('div');
-          thumb.className = 'thumb-wrap';
+          thumb.className = 'cinema-poster-wrap';
+
+          var srcChip = document.createElement('span');
+          srcChip.className = 'provider-chip';
+          srcChip.textContent = m.source === 'archive' ? 'FULL MOVIE' : (m.source === 'tmdb' ? 'TMDB' : 'TVMAZE');
+          thumb.appendChild(srcChip);
+
+          if (typeof m.rating === 'number') {
+            var rChip = document.createElement('span');
+            rChip.className = 'rating-chip';
+            rChip.textContent = '★ ' + m.rating.toFixed(1);
+            thumb.appendChild(rChip);
+          }
+
           var fb = document.createElement('div');
           fb.className = 'thumb-fallback';
-          fb.textContent = (m.genre || 'cinema').toUpperCase();
+          fb.textContent = m.title;
           thumb.appendChild(fb);
 
-          var img = document.createElement('img');
-          img.src = m.thumb;
-          img.alt = m.title;
-          img.loading = 'lazy';
-          img.referrerPolicy = 'no-referrer';
-          img.style.position = 'relative';
-          img.style.zIndex = '2';
-          img.onerror = function () { img.style.display = 'none'; };
-          thumb.appendChild(img);
+          if (m.poster) {
+            var img = document.createElement('img');
+            img.src = m.poster;
+            img.alt = m.title;
+            img.loading = 'lazy';
+            img.referrerPolicy = 'no-referrer';
+            img.style.position = 'relative';
+            img.style.zIndex = '2';
+            img.onerror = function () { img.style.display = 'none'; };
+            thumb.appendChild(img);
+          }
 
           var body = document.createElement('div');
           body.className = 'card-body';
@@ -1760,7 +2604,7 @@ export function buildValBrowseBlobHtml(
           t.textContent = m.title;
           var d = document.createElement('div');
           d.className = 'card-meta';
-          d.textContent = String(m.desc || '').replace(/<[^>]+>/g, '');
+          d.textContent = (m.year ? m.year + ' · ' : '') + ((m.genres && m.genres.slice(0, 2).join(', ')) || m.networkOrStudio);
           body.appendChild(t);
           body.appendChild(d);
 
@@ -1768,95 +2612,355 @@ export function buildValBrowseBlobHtml(
           card.appendChild(body);
           grid.appendChild(card);
         });
+
+        var statusEl = document.getElementById('movies-status');
+        if (statusEl && cinemaLiveFetched) {
+          statusEl.textContent = 'Showing ' + Math.min(list.length, 60) + ' of ' + list.length + ' titles';
+        }
+      }
+
+      async function loadCinemaLiveCatalog() {
+        var statusEl = document.getElementById('movies-status');
+        if (statusEl) statusEl.textContent = 'Syncing TVMaze + Internet Archive cinema...';
+        var tmdbKey = (safeLSGet('valem_tmdb_api_key') || '').trim();
+
+        var tasks = [
+          fetch(CFG.tvmazeShowsUrl).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+          fetch(CFG.archiveFeatureFilmsUrl).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+          tmdbKey
+            ? fetch('https://api.themoviedb.org/3/trending/movie/week?api_key=' + encodeURIComponent(tmdbKey)).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+            : Promise.resolve(null)
+        ];
+
+        var results = await Promise.all(tasks);
+        if (Array.isArray(results[0]) && results[0].length > 0) {
+          tvMazeShowsCache = results[0].slice(0, 72).map(normalizeTvMazeClient).filter(Boolean);
+        }
+        if (results[1] && results[1].response && Array.isArray(results[1].response.docs) && results[1].response.docs.length > 0) {
+          var liveArchive = results[1].response.docs.map(normalizeArchiveClient).filter(Boolean);
+          archiveMoviesCache = liveArchive.concat(CFG.cinemaFallbackMovies || []).filter(function (item, idx, arr) {
+            return arr.findIndex(function (x) { return x.id === item.id; }) === idx;
+          });
+        }
+        if (results[2] && Array.isArray(results[2].results)) {
+          tmdbMoviesCache = results[2].results.slice(0, 24).map(normalizeTmdbClient).filter(Boolean);
+        } else {
+          tmdbMoviesCache = [];
+        }
+        cinemaLiveFetched = true;
+        renderMoviesFiltered();
+      }
+
+      function setTheaterIframeUrl(url, fallbackTitle, fallbackMsg) {
+        var ifr = document.getElementById('cinema-player-frame');
+        var fb = document.getElementById('cinema-player-fallback');
+        var embedIn = document.getElementById('cinema-embed-input');
+        var cleanUrl = String(url || '').trim();
+        if (embedIn) embedIn.value = cleanUrl;
+        if (!cleanUrl) {
+          ifr.removeAttribute('src');
+          document.getElementById('cinema-fallback-title').textContent = fallbackTitle || 'No direct embed stream selected';
+          document.getElementById('cinema-fallback-msg').textContent = fallbackMsg || 'Use Full Public-Domain Movies for complete full-length Archive.org streams, paste a custom embed URL below, or add an optional TMDB API key in Settings for trailers.';
+          fb.classList.add('open');
+          return;
+        }
+        fb.classList.remove('open');
+        ifr.onerror = function () {
+          document.getElementById('cinema-fallback-title').textContent = 'External embed failed to load';
+          fb.classList.add('open');
+        };
+        ifr.src = cleanUrl;
+      }
+
+      function renderEpisodesForSeason(seasonNum) {
+        var listWrap = document.getElementById('cinema-episodes-list');
+        var detailEl = document.getElementById('cinema-episode-detail');
+        listWrap.innerHTML = '';
+        var eps = activeMovieEpisodes.filter(function (ep) { return Number(ep.season) === Number(seasonNum); });
+        if (!eps.length) {
+          detailEl.textContent = 'No episodes listed for this season.';
+          return;
+        }
+        eps.forEach(function (ep, idx) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'episode-btn' + (activeSelectedEpisode ? (activeSelectedEpisode.id === ep.id ? ' active' : '') : (idx === 0 ? ' active' : ''));
+          var l1 = document.createElement('div');
+          l1.style.cssText = 'font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+          l1.textContent = 'S' + ep.season + 'E' + ep.number + ' · ' + ep.name;
+          var l2 = document.createElement('div');
+          l2.className = 'sub';
+          l2.textContent = (ep.airdate || 'Episode') + (ep.runtime ? ' · ' + ep.runtime + 'm' : '');
+          b.appendChild(l1);
+          b.appendChild(l2);
+          b.onclick = function () {
+            activeSelectedEpisode = ep;
+            listWrap.querySelectorAll('.episode-btn').forEach(function (x) { x.classList.remove('active'); });
+            b.classList.add('active');
+            detailEl.textContent = 'S' + ep.season + 'E' + ep.number + ' — ' + ep.name + ': ' + ep.summary;
+            var tmpl = (safeLSGet('valem_embed_template') || '').trim();
+            if (tmpl && activeMovieObj) {
+              var resolved = tmpl
+                .replace(/\\{id\\}/gi, encodeURIComponent(activeMovieObj.externalId))
+                .replace(/\\{season\\}/gi, String(ep.season))
+                .replace(/\\{episode\\}/gi, String(ep.number));
+              setTheaterIframeUrl(resolved);
+            }
+          };
+          listWrap.appendChild(b);
+        });
+        var firstEp = activeSelectedEpisode && eps.some(function (e) { return e.id === activeSelectedEpisode.id; }) ? activeSelectedEpisode : eps[0];
+        activeSelectedEpisode = firstEp;
+        detailEl.textContent = 'S' + firstEp.season + 'E' + firstEp.number + ' — ' + firstEp.name + ': ' + firstEp.summary;
       }
 
       async function openMovie(m) {
         activeMovieObj = m;
-        document.getElementById('movie-ov-title').textContent = m.title;
-        var st = document.getElementById('movie-ov-stage');
-        st.innerHTML = '<div class="sub">Resolving MP4 stream for ' + m.title + '...</div>';
+        activeMovieEpisodes = [];
+        activeSelectedEpisode = null;
+
+        document.getElementById('movie-ov-title').textContent = m.title + (m.year ? ' (' + m.year + ')' : '');
+        document.getElementById('movie-ov-source').textContent = m.source === 'archive' ? 'FULL PUBLIC-DOMAIN MOVIE' : (m.source === 'tmdb' ? 'TMDB DISCOVERY' : 'TVMAZE SERIES');
+        document.getElementById('cinema-ov-network').textContent = m.networkOrStudio || 'Cinema';
+        document.getElementById('cinema-ov-rating').textContent = typeof m.rating === 'number' ? ('Rating: ★ ' + m.rating.toFixed(1) + ' / 10') : '';
+        document.getElementById('cinema-ov-genres').textContent = (m.genres || []).join(' · ');
+        document.getElementById('cinema-ov-synopsis').textContent = m.summary || 'No synopsis available.';
+        document.getElementById('cinema-ov-cast').textContent = (m.cast && m.cast.length) ? ('Cast: ' + m.cast.join(', ')) : '';
+
+        var epPanel = document.getElementById('cinema-episodes-panel');
+        epPanel.style.display = 'none';
         document.getElementById('movie-overlay').classList.add('open');
+
+        if (m.source === 'archive') {
+          setTheaterIframeUrl('https://archive.org/embed/' + encodeURIComponent(m.externalId));
+          return;
+        }
+
+        if (m.source === 'tmdb') {
+          setTheaterIframeUrl('', 'Loading official TMDB YouTube trailer...', 'Fetching trailer metadata from TMDB.');
+          var tmdbKey = (safeLSGet('valem_tmdb_api_key') || '').trim();
+          if (tmdbKey) {
+            try {
+              var vRes = await fetch('https://api.themoviedb.org/3/movie/' + encodeURIComponent(m.externalId) + '/videos?api_key=' + encodeURIComponent(tmdbKey));
+              if (vRes.ok && activeMovieObj === m) {
+                var vJson = await vRes.json();
+                var vids = Array.isArray(vJson && vJson.results) ? vJson.results : [];
+                var tr = vids.find(function (v) { return v.site === 'YouTube' && v.type === 'Trailer' && v.key; }) ||
+                         vids.find(function (v) { return v.site === 'YouTube' && v.key; });
+                if (tr) {
+                  setTheaterIframeUrl('https://www.youtube.com/embed/' + encodeURIComponent(tr.key) + '?autoplay=1');
+                  return;
+                }
+              }
+            } catch (_e) {}
+          }
+          setTheaterIframeUrl('', 'No YouTube trailer returned by TMDB', 'Paste a custom embed URL below or open the TMDB page inside VALem Proxy.');
+          return;
+        }
+
+        // TVMaze Show: fetch live episodes & cast without an API key
+        var tmpl = (safeLSGet('valem_embed_template') || '').trim();
+        var initialEmbed = tmpl
+          ? tmpl.replace(/\\{id\\}/gi, encodeURIComponent(m.externalId)).replace(/\\{season\\}/gi, '1').replace(/\\{episode\\}/gi, '1')
+          : '';
+        setTheaterIframeUrl(
+          initialEmbed,
+          m.title + ' — Episode Guide Ready',
+          'Select any Season & Episode below, paste a configurable embed player URL in the bar below, or click Open in VALem to search via Scramjet proxy.'
+        );
+
         try {
-          var res = await fetch('https://archive.org/metadata/' + encodeURIComponent(m.id));
-          if (res.ok) {
-            var meta = await res.json();
-            var files = Array.isArray(meta && meta.files) ? meta.files : [];
-            var mp4 = files.find(function (f) { return f && f.name && /\\.mp4$/i.test(f.name) && !/_archive\\.mp4$/i.test(f.name); }) ||
-                      files.find(function (f) { return f && f.name && /\\.mp4$/i.test(f.name); });
-            if (mp4 && activeMovieObj === m) {
-              var video = document.createElement('video');
-              video.src = 'https://archive.org/download/' + encodeURIComponent(m.id) + '/' + String(mp4.name).split('/').map(encodeURIComponent).join('/');
-              video.controls = true;
-              video.autoplay = true;
-              video.playsInline = true;
-              video.style.maxWidth = '1100px';
-              video.style.maxHeight = 'calc(100vh - 96px)';
-              st.innerHTML = '';
-              st.appendChild(video);
-              return;
+          var epRes = await fetch('https://api.tvmaze.com/shows/' + encodeURIComponent(m.externalId) + '?embed[]=episodes&embed[]=cast');
+          if (epRes.ok && activeMovieObj === m) {
+            var details = await epRes.json();
+            var castArr = (details && details._embedded && Array.isArray(details._embedded.cast))
+              ? details._embedded.cast.slice(0, 8).map(function (c) {
+                  return c && c.person ? (c.person.name + (c.character && c.character.name ? ' (' + c.character.name + ')' : '')) : '';
+                }).filter(Boolean)
+              : [];
+            if (castArr.length) {
+              document.getElementById('cinema-ov-cast').textContent = 'Cast: ' + castArr.join(', ');
+            }
+            var epsRaw = (details && details._embedded && Array.isArray(details._embedded.episodes)) ? details._embedded.episodes : [];
+            activeMovieEpisodes = epsRaw.map(function (ep) {
+              return {
+                id: ep.id,
+                season: Number(ep.season || 1),
+                number: Number(ep.number || 1),
+                name: String(ep.name || ('Episode ' + (ep.number || 1))),
+                runtime: typeof ep.runtime === 'number' ? ep.runtime : null,
+                airdate: String(ep.airdate || ''),
+                summary: stripHtmlClient(ep.summary) || 'Episode synopsis unavailable.'
+              };
+            });
+            if (activeMovieEpisodes.length > 0) {
+              var seasonNums = [];
+              activeMovieEpisodes.forEach(function (ep) {
+                if (seasonNums.indexOf(ep.season) === -1) seasonNums.push(ep.season);
+              });
+              seasonNums.sort(function (a, b) { return a - b; });
+              var seasonSel = document.getElementById('cinema-season-select');
+              seasonSel.innerHTML = '';
+              seasonNums.forEach(function (sn) {
+                var opt = document.createElement('option');
+                opt.value = String(sn);
+                opt.textContent = 'Season ' + sn;
+                seasonSel.appendChild(opt);
+              });
+              document.getElementById('cinema-episodes-heading').textContent = m.title + ' · ' + activeMovieEpisodes.length + ' Episodes';
+              epPanel.style.display = 'flex';
+              renderEpisodesForSeason(seasonNums[0]);
             }
           }
         } catch (_e) {}
-        if (activeMovieObj === m) {
-          var ifr = document.createElement('iframe');
-          ifr.src = 'https://archive.org/embed/' + encodeURIComponent(m.id);
-          ifr.allow = 'autoplay; fullscreen';
-          st.innerHTML = '';
-          st.appendChild(ifr);
-        }
       }
+
+      document.getElementById('cinema-season-select').addEventListener('change', function () {
+        renderEpisodesForSeason(Number(this.value) || 1);
+      });
+
+      document.getElementById('cinema-embed-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var raw = (document.getElementById('cinema-embed-input').value || '').trim();
+        if (!raw) return;
+        if (raw.indexOf('{id}') !== -1 || raw.indexOf('{season}') !== -1) {
+          safeLSSet('valem_embed_template', raw);
+          var ep = activeSelectedEpisode || { season: 1, number: 1 };
+          var resolved = raw
+            .replace(/\\{id\\}/gi, encodeURIComponent(activeMovieObj ? activeMovieObj.externalId : ''))
+            .replace(/\\{season\\}/gi, String(ep.season))
+            .replace(/\\{episode\\}/gi, String(ep.number));
+          setTheaterIframeUrl(resolved);
+          showToast('Saved configurable embed URL template.');
+        } else {
+          setTheaterIframeUrl(raw);
+        }
+      });
+
+      document.getElementById('cinema-embed-auto').addEventListener('click', function () {
+        if (!activeMovieObj) return;
+        if (activeMovieObj.source === 'archive') {
+          setTheaterIframeUrl('https://archive.org/embed/' + encodeURIComponent(activeMovieObj.externalId));
+        } else {
+          openMovie(activeMovieObj);
+        }
+      });
+
+      document.getElementById('cinema-fallback-retry').addEventListener('click', function () {
+        var cur = (document.getElementById('cinema-embed-input').value || '').trim();
+        if (cur) setTheaterIframeUrl(cur);
+        else if (activeMovieObj) openMovie(activeMovieObj);
+      });
+
+      document.getElementById('cinema-fallback-proxy').addEventListener('click', function () {
+        if (!activeMovieObj) return;
+        var target = activeMovieObj.watchPageUrl || ('https://search.brave.com/search?q=' + encodeURIComponent(activeMovieObj.title + ' watch'));
+        document.getElementById('movie-ov-close').click();
+        openInValBrowse(target);
+      });
+
+      document.getElementById('movie-ov-theater').addEventListener('click', function () {
+        var ov = document.getElementById('movie-overlay');
+        var wide = ov.classList.toggle('theater-wide');
+        this.textContent = wide ? 'Standard Width' : 'Theater Mode';
+      });
+
+      document.getElementById('movie-ov-fs').addEventListener('click', function () {
+        var st = document.getElementById('movie-ov-stage');
+        if (document.fullscreenElement) document.exitFullscreen().catch(function () {});
+        else if (st && st.requestFullscreen) st.requestFullscreen().catch(function () {});
+      });
 
       document.getElementById('movie-ov-close').addEventListener('click', function () {
         activeMovieObj = null;
-        document.getElementById('movie-ov-stage').innerHTML = '';
+        document.getElementById('cinema-player-frame').removeAttribute('src');
         document.getElementById('movie-overlay').classList.remove('open');
+        document.getElementById('movie-overlay').classList.remove('theater-wide');
+        document.getElementById('movie-ov-theater').textContent = 'Theater Mode';
       });
+
       document.getElementById('movie-ov-proxy').addEventListener('click', function () {
         if (activeMovieObj) {
-          var u = 'https://archive.org/details/' + encodeURIComponent(activeMovieObj.id);
+          var u = activeMovieObj.watchPageUrl || ('https://search.brave.com/search?q=' + encodeURIComponent(activeMovieObj.title));
           document.getElementById('movie-ov-close').click();
           openInValBrowse(u);
         }
       });
 
+      document.getElementById('btn-movies-tmdb-shortcut').addEventListener('click', function () {
+        document.getElementById('btn-open-settings').click();
+        var cloakTab = document.querySelector('#settings-tabs [data-stab="cloak"]');
+        if (cloakTab) cloakTab.click();
+        var ki = document.getElementById('tmdb-api-key-input');
+        if (ki) setTimeout(function () { ki.focus(); }, 60);
+      });
+
       document.querySelectorAll('#movie-genres .pill-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          movieGenre = btn.getAttribute('data-genre');
+          movieGenre = btn.getAttribute('data-genre') || 'all';
           document.querySelectorAll('#movie-genres .pill-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
-          var list = movieGenre === 'featured' ? CFG.curatedMovies : CFG.curatedMovies.filter(function (m) { return m.genre === movieGenre; });
-          renderMovies(list);
-          document.getElementById('movies-status').textContent = 'Showing ' + list.length + ' films (' + movieGenre + ')';
+          renderMoviesFiltered();
         });
+      });
+
+      document.getElementById('movies-query').addEventListener('input', function () {
+        if (!this.value.trim()) cinemaSearchResults = null;
+        renderMoviesFiltered();
+      });
+
+      document.getElementById('btn-movies-reset').addEventListener('click', function () {
+        document.getElementById('movies-query').value = '';
+        cinemaSearchResults = null;
+        movieGenre = 'all';
+        document.querySelectorAll('#movie-genres .pill-btn').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-genre') === 'all');
+        });
+        renderMoviesFiltered();
       });
 
       document.getElementById('movies-search-form').addEventListener('submit', async function (e) {
         e.preventDefault();
         var q = (document.getElementById('movies-query').value || '').trim();
-        if (!q) { renderMovies(CFG.curatedMovies); return; }
-        document.getElementById('movies-status').textContent = 'Searching Archive.org for "' + q + '"...';
+        if (!q) {
+          cinemaSearchResults = null;
+          renderMoviesFiltered();
+          return;
+        }
+        document.getElementById('movies-status').textContent = 'Searching TVMaze & Internet Archive for "' + q + '"...';
+        var tmdbKey = (safeLSGet('valem_tmdb_api_key') || '').trim();
         try {
-          var url = 'https://archive.org/advancedsearch.php?q=' + encodeURIComponent(q + ' AND mediatype:movies AND (collection:feature_films OR collection:classic_cartoons OR collection:SciFi_Horror)') + '&fl[]=identifier,title,description&rows=24&page=1&output=json';
-          var res = await fetch(url);
-          var data = await res.json();
-          var docs = (data && data.response && data.response.docs) || [];
-          var mapped = docs.map(function (d) {
-            return {
-              id: d.identifier,
-              title: d.title || d.identifier,
-              genre: 'cinema',
-              desc: Array.isArray(d.description) ? (d.description[0] || '') : (d.description || 'Public domain film'),
-              thumb: 'https://archive.org/services/img/' + encodeURIComponent(d.identifier)
-            };
-          });
-          renderMovies(mapped);
-          document.getElementById('movies-status').textContent = 'Found ' + mapped.length + ' films matching "' + q + '"';
+          var resArr = await Promise.all([
+            fetch(CFG.tvmazeSearchUrl + encodeURIComponent(q)).then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
+            fetch('https://archive.org/advancedsearch.php?q=' + encodeURIComponent(q + ' AND mediatype:(movies) AND collection:(feature_films)') + '&fl[]=identifier,title,description,year&rows=20&output=json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+            tmdbKey
+              ? fetch('https://api.themoviedb.org/3/search/movie?api_key=' + encodeURIComponent(tmdbKey) + '&query=' + encodeURIComponent(q)).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+              : Promise.resolve(null)
+          ]);
+          var mappedTv = Array.isArray(resArr[0]) ? resArr[0].map(function (entry) { return normalizeTvMazeClient(entry && entry.show); }).filter(Boolean) : [];
+          var mappedArc = (resArr[1] && resArr[1].response && Array.isArray(resArr[1].response.docs))
+            ? resArr[1].response.docs.map(normalizeArchiveClient).filter(Boolean)
+            : [];
+          var mappedTmdb = (resArr[2] && Array.isArray(resArr[2].results))
+            ? resArr[2].results.slice(0, 12).map(normalizeTmdbClient).filter(Boolean)
+            : [];
+          var mergedSearch = mappedTmdb.concat(mappedTv).concat(mappedArc);
+          if (mergedSearch.length > 0) {
+            cinemaSearchResults = mergedSearch;
+            renderMoviesFiltered();
+            document.getElementById('movies-status').textContent = 'Found ' + mergedSearch.length + ' results for "' + q + '"';
+          } else {
+            cinemaSearchResults = null;
+            renderMoviesFiltered();
+            document.getElementById('movies-status').textContent = 'No live API hits — filtering local catalog';
+          }
         } catch (_e) {
-          document.getElementById('movies-status').textContent = 'Archive search unavailable — showing curated cinema.';
-          renderMovies(CFG.curatedMovies);
+          cinemaSearchResults = null;
+          renderMoviesFiltered();
         }
       });
 
-      renderMovies(CFG.curatedMovies);
+      renderMoviesFiltered();
+      loadCinemaLiveCatalog();
 
       /* ---------------- BOOKS & MANGA (GUTENDEX) ---------------- */
       var booksLoadedOnce = false;
@@ -1973,12 +3077,16 @@ export function buildValBrowseBlobHtml(
         searchBooks(document.getElementById('books-query').value);
       });
 
-      /* ---------------- MUSIC STUDIO (SOUNDCLOUD + SYNTH) ---------------- */
+      /* ---------------- MUSIC STUDIO (SOUNDCLOUD + ARTIST EXAMPLES + SYNTH) ---------------- */
       var scLoadedOnce = false;
+      var activeArtistCat = 'all';
+      var activeArtistId = '';
+
       function setScUrl(url) {
         document.getElementById('sc-input').value = url;
         document.getElementById('sc-frame').src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(url) + '&color=%23ff5c7c&auto_play=false&hide_related=false&show_comments=false&show_user=true';
       }
+
       var stationsWrap = document.getElementById('sc-stations');
       CFG.scStations.forEach(function (st) {
         var b = document.createElement('button');
@@ -1988,6 +3096,61 @@ export function buildValBrowseBlobHtml(
         b.onclick = function () { scLoadedOnce = true; setScUrl(st.url); };
         stationsWrap.appendChild(b);
       });
+
+      function renderScArtistDirectory() {
+        var grid = document.getElementById('sc-artist-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        var list = (CFG.scArtists || []).filter(function (a) {
+          return activeArtistCat === 'all' || a.category === activeArtistCat;
+        });
+        list.forEach(function (artist) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'artist-chip-btn' + (activeArtistId === artist.id ? ' active' : '');
+          btn.setAttribute('data-sc-artist', artist.id);
+
+          var top = document.createElement('div');
+          top.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:6px;';
+          var nm = document.createElement('span');
+          nm.style.cssText = 'font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+          nm.textContent = artist.name;
+          var badge = document.createElement('span');
+          badge.className = 'eyebrow';
+          badge.style.fontSize = '9px';
+          badge.textContent = artist.genreLabel;
+          top.appendChild(nm);
+          top.appendChild(badge);
+
+          var sub = document.createElement('div');
+          sub.className = 'sub';
+          sub.style.cssText = 'font-family:var(--font-mono);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+          sub.textContent = 'soundcloud.com/' + artist.handle;
+
+          btn.appendChild(top);
+          btn.appendChild(sub);
+          btn.onclick = function () {
+            activeArtistId = artist.id;
+            scLoadedOnce = true;
+            setScUrl(artist.url);
+            renderScArtistDirectory();
+          };
+          grid.appendChild(btn);
+        });
+      }
+
+      document.querySelectorAll('#sc-artist-cats .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activeArtistCat = btn.getAttribute('data-sc-cat') || 'all';
+          document.querySelectorAll('#sc-artist-cats .pill-btn').forEach(function (b) {
+            b.classList.toggle('active', b === btn);
+          });
+          renderScArtistDirectory();
+        });
+      });
+
+      renderScArtistDirectory();
+
       document.getElementById('sc-form').addEventListener('submit', function (e) {
         e.preventDefault();
         scLoadedOnce = true;
@@ -2059,10 +3222,25 @@ export function buildValBrowseBlobHtml(
         player.play().catch(function () {});
       });
 
-      /* ---------------- CLOAK, 24 COLOR PRESETS & SETTINGS MODAL ---------------- */
+      /* ---------------- CLOAK, 124 COLOR PRESETS & SETTINGS MODAL ---------------- */
       var settingsModal = document.getElementById('settings-modal');
       var activePresetCat = 'All';
+      var presetSearchQuery = '';
       var activePresetId = safeLSGet('valbrowse_color_preset') || 'coral-default';
+
+      function getContrastInk(hex) {
+        var clean = String(hex || '').replace('#', '');
+        if (!/^[0-9a-f]{6}$/i.test(clean)) return '#09090b';
+        var toLin = function (v) {
+          var s = v / 255;
+          return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+        };
+        var r = parseInt(clean.slice(0, 2), 16);
+        var g = parseInt(clean.slice(2, 4), 16);
+        var b = parseInt(clean.slice(4, 6), 16);
+        var lum = 0.2126 * toLin(r) + 0.7152 * toLin(g) + 0.0722 * toLin(b);
+        return lum > 0.34 ? '#09090b' : '#ffffff';
+      }
 
       function applyColorPreset(presetId) {
         activePresetId = presetId || 'coral-default';
@@ -2109,7 +3287,7 @@ export function buildValBrowseBlobHtml(
         root.style.setProperty('--muted', tokens.muted);
         root.style.setProperty('--accent', tokens.accent);
         root.style.setProperty('--accent-hover', tokens.accent);
-        root.style.setProperty('--accent-text', tokens.isLight ? '#ffffff' : '#09090b');
+        root.style.setProperty('--accent-text', getContrastInk(tokens.accent));
         root.style.setProperty('--accent-soft', 'color-mix(in srgb, ' + tokens.accent + ' 16%, transparent)');
         root.style.setProperty('--border', tokens.border);
         root.style.setProperty('--border-strong', tokens.accent);
@@ -2138,9 +3316,20 @@ export function buildValBrowseBlobHtml(
         var grid = document.getElementById('color-presets-grid');
         if (!grid) return;
         grid.innerHTML = '';
+        var q = String(presetSearchQuery || '').trim().toLowerCase();
         var filtered = CFG.themePresets.filter(function (t) {
-          return activePresetCat === 'All' || t.category === activePresetCat;
+          var matchCat = activePresetCat === 'All' || t.category === activePresetCat;
+          var matchQ = !q || t.name.toLowerCase().indexOf(q) !== -1 || t.category.toLowerCase().indexOf(q) !== -1;
+          return matchCat && matchQ;
         });
+        if (filtered.length === 0) {
+          var empty = document.createElement('div');
+          empty.className = 'sub';
+          empty.style.gridColumn = '1 / -1';
+          empty.textContent = 'No themes matching "' + presetSearchQuery + '"';
+          grid.appendChild(empty);
+          return;
+        }
         filtered.forEach(function (t) {
           var b = document.createElement('button');
           b.type = 'button';
@@ -2181,13 +3370,286 @@ export function buildValBrowseBlobHtml(
         });
       });
 
+      var presetSearchEl = document.getElementById('preset-search');
+      if (presetSearchEl) {
+        presetSearchEl.addEventListener('input', function () {
+          presetSearchQuery = presetSearchEl.value || '';
+          renderColorPresetsGrid();
+        });
+      }
+
+      var presetRandomEl = document.getElementById('btn-preset-random');
+      if (presetRandomEl) {
+        presetRandomEl.addEventListener('click', function () {
+          var pool = CFG.themePresets.filter(function (t) { return t.id !== activePresetId; });
+          if (!pool.length) return;
+          var pick = pool[Math.floor(Math.random() * pool.length)];
+          applyColorPreset(pick.id);
+          var activeBtn = document.querySelector('#color-presets-grid .preset-item.active');
+          if (activeBtn && activeBtn.scrollIntoView) {
+            activeBtn.scrollIntoView({ block: 'nearest' });
+          }
+        });
+      }
+
       document.getElementById('btn-preset-reset-coral').addEventListener('click', function () {
         applyColorPreset('coral-default');
       });
 
       document.getElementById('valbrowse-proxy-frame').addEventListener('load', function () {
         applyColorPreset(activePresetId);
+        applyCustomSettings(customSettings);
       });
+
+      /* ---------------- CUSTOM SETTINGS ENGINE (LAYOUT, BG, CLOAK, PANIC) ---------------- */
+      var DEFAULT_CUSTOM_SETTINGS = {
+        homeLayout: 'split',
+        bgStyle: 'aurora',
+        uiRadius: 12,
+        glowStrength: 1,
+        glassBlur: 14,
+        fontScale: 1,
+        showClock: true,
+        showShortcuts: true,
+        reducedMotion: false,
+        panicUrl: CFG.panicUrl
+      };
+
+      var customSettings = Object.assign({}, DEFAULT_CUSTOM_SETTINGS);
+      try {
+        var rawCustomSaved = safeLSGet('valem_custom_settings');
+        if (rawCustomSaved) {
+          customSettings = Object.assign({}, DEFAULT_CUSTOM_SETTINGS, JSON.parse(rawCustomSaved));
+        }
+      } catch (_e) {}
+
+      function applyCustomSettings(next) {
+        customSettings = Object.assign({}, DEFAULT_CUSTOM_SETTINGS, next || {});
+        if (
+          customSettings.homeLayout !== 'normal' &&
+          customSettings.homeLayout !== 'side' &&
+          customSettings.homeLayout !== 'minimal'
+        ) {
+          customSettings.homeLayout = 'split';
+        }
+        safeLSSet('valem_custom_settings', JSON.stringify(customSettings));
+        safeLSSet('valem_panic_url', customSettings.panicUrl || CFG.panicUrl);
+        CFG.panicUrl = customSettings.panicUrl || 'https://classroom.google.com';
+
+        var root = document.documentElement;
+        document.body.setAttribute('data-bg-style', customSettings.bgStyle || 'aurora');
+        document.body.setAttribute('data-home-layout', customSettings.homeLayout || 'split');
+        document.body.setAttribute('data-reduced-motion', customSettings.reducedMotion ? '1' : '0');
+        root.style.setProperty('--ui-radius', (customSettings.uiRadius || 12) + 'px');
+        root.style.setProperty('--glow-strength', String(typeof customSettings.glowStrength === 'number' ? customSettings.glowStrength : 1));
+        root.style.setProperty('--glass-blur', (typeof customSettings.glassBlur === 'number' ? customSettings.glassBlur : 14) + 'px');
+        root.style.setProperty('--font-scale', String(customSettings.fontScale || 1));
+
+        document.querySelectorAll('#home-layout-pills .pill-btn').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-homelayout') === customSettings.homeLayout);
+        });
+        document.querySelectorAll('#bg-style-pills .pill-btn').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-bgstyle') === customSettings.bgStyle);
+        });
+        document.querySelectorAll('#radius-pills .pill-btn').forEach(function (b) {
+          b.classList.toggle('active', Number(b.getAttribute('data-radius')) === Number(customSettings.uiRadius));
+        });
+        document.querySelectorAll('#font-scale-pills .pill-btn[data-fscale]').forEach(function (b) {
+          b.classList.toggle('active', Number(b.getAttribute('data-fscale')) === Number(customSettings.fontScale));
+        });
+
+        var glowRange = document.getElementById('custom-glow-range');
+        var glowPctEl = document.getElementById('glow-pct-val');
+        var pctVal = Math.round((typeof customSettings.glowStrength === 'number' ? customSettings.glowStrength : 1) * 100);
+        if (glowRange) glowRange.value = String(pctVal);
+        if (glowPctEl) glowPctEl.textContent = pctVal + '%';
+
+        var blurBtn = document.getElementById('btn-toggle-blur');
+        if (blurBtn) {
+          var blurOn = Number(customSettings.glassBlur) > 0;
+          blurBtn.classList.toggle('active', blurOn);
+          blurBtn.textContent = 'Glass Blur: ' + (blurOn ? 'On' : 'Off');
+        }
+        var clockBtn = document.getElementById('btn-toggle-clock');
+        if (clockBtn) {
+          clockBtn.classList.toggle('active', Boolean(customSettings.showClock));
+          clockBtn.textContent = 'Live Clock: ' + (customSettings.showClock ? 'On' : 'Off');
+        }
+        var scBtn = document.getElementById('btn-toggle-shortcuts');
+        if (scBtn) {
+          scBtn.classList.toggle('active', Boolean(customSettings.showShortcuts));
+          scBtn.textContent = 'Launchpad: ' + (customSettings.showShortcuts ? 'On' : 'Off');
+        }
+        var motionBtn = document.getElementById('btn-toggle-motion');
+        if (motionBtn) {
+          motionBtn.classList.toggle('active', Boolean(customSettings.reducedMotion));
+          motionBtn.textContent = 'Motion: ' + (customSettings.reducedMotion ? 'Reduced' : 'Smooth');
+        }
+        var panicSel = document.getElementById('panic-url-select');
+        if (panicSel && customSettings.panicUrl) {
+          panicSel.value = customSettings.panicUrl;
+        }
+
+        var frame = document.getElementById('valbrowse-proxy-frame');
+        if (frame && frame.contentWindow) {
+          try {
+            frame.contentWindow.postMessage({ type: 'valem-custom-settings', settings: customSettings }, '*');
+          } catch (_e) {}
+        }
+      }
+
+      document.querySelectorAll('#settings-tabs .pill-btn').forEach(function (tabBtn) {
+        tabBtn.addEventListener('click', function () {
+          var target = tabBtn.getAttribute('data-stab');
+          document.querySelectorAll('#settings-tabs .pill-btn').forEach(function (b) {
+            b.classList.toggle('active', b === tabBtn);
+          });
+          document.querySelectorAll('.settings-pane').forEach(function (pane) {
+            pane.classList.toggle('active', pane.id === 'spane-' + target);
+          });
+        });
+      });
+
+      document.querySelectorAll('#bg-style-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          customSettings.bgStyle = btn.getAttribute('data-bgstyle') || 'aurora';
+          applyCustomSettings(customSettings);
+        });
+      });
+
+      document.querySelectorAll('#radius-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          customSettings.uiRadius = Number(btn.getAttribute('data-radius')) || 12;
+          applyCustomSettings(customSettings);
+        });
+      });
+
+      document.querySelectorAll('#font-scale-pills .pill-btn[data-fscale]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          customSettings.fontScale = Number(btn.getAttribute('data-fscale')) || 1;
+          applyCustomSettings(customSettings);
+        });
+      });
+
+      document.querySelectorAll('#home-layout-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          customSettings.homeLayout = btn.getAttribute('data-homelayout') || 'split';
+          applyCustomSettings(customSettings);
+          switchView('browser');
+        });
+      });
+
+      document.querySelectorAll('#sidebar-mode-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          applyRailMode(btn.getAttribute('data-railmode') || 'expanded');
+        });
+      });
+
+      var glowInput = document.getElementById('custom-glow-range');
+      if (glowInput) {
+        glowInput.addEventListener('input', function () {
+          customSettings.glowStrength = Number(glowInput.value) / 100;
+          applyCustomSettings(customSettings);
+        });
+      }
+
+      var blurToggleBtn = document.getElementById('btn-toggle-blur');
+      if (blurToggleBtn) {
+        blurToggleBtn.addEventListener('click', function () {
+          customSettings.glassBlur = Number(customSettings.glassBlur) > 0 ? 0 : 14;
+          applyCustomSettings(customSettings);
+        });
+      }
+
+      var clockToggleBtn = document.getElementById('btn-toggle-clock');
+      if (clockToggleBtn) {
+        clockToggleBtn.addEventListener('click', function () {
+          customSettings.showClock = !customSettings.showClock;
+          applyCustomSettings(customSettings);
+        });
+      }
+
+      var scToggleBtn = document.getElementById('btn-toggle-shortcuts');
+      if (scToggleBtn) {
+        scToggleBtn.addEventListener('click', function () {
+          customSettings.showShortcuts = !customSettings.showShortcuts;
+          applyCustomSettings(customSettings);
+        });
+      }
+
+      var motionToggleBtn = document.getElementById('btn-toggle-motion');
+      if (motionToggleBtn) {
+        motionToggleBtn.addEventListener('click', function () {
+          customSettings.reducedMotion = !customSettings.reducedMotion;
+          applyCustomSettings(customSettings);
+        });
+      }
+
+      var customCloakInput = document.getElementById('custom-cloak-title');
+      var applyCustomCloakBtn = document.getElementById('btn-apply-custom-cloak');
+      if (applyCustomCloakBtn && customCloakInput) {
+        applyCustomCloakBtn.addEventListener('click', function () {
+          var nextTitle = (customCloakInput.value || '').trim();
+          if (!nextTitle) return;
+          document.title = nextTitle;
+          safeLSSet('valem_cloak_title', nextTitle);
+          showToast('Tab title cloaked as "' + nextTitle + '"');
+        });
+      }
+
+      var panicSelectEl = document.getElementById('panic-url-select');
+      if (panicSelectEl) {
+        panicSelectEl.addEventListener('change', function () {
+          customSettings.panicUrl = panicSelectEl.value || 'https://classroom.google.com';
+          applyCustomSettings(customSettings);
+        });
+      }
+
+      var tmdbKeyInput = document.getElementById('tmdb-api-key-input');
+      var tmdbStatusEl = document.getElementById('tmdb-key-status');
+      var saveTmdbBtn = document.getElementById('btn-save-tmdb-key');
+      var clearTmdbBtn = document.getElementById('btn-clear-tmdb-key');
+
+      function refreshTmdbUi() {
+        var cur = (safeLSGet('valem_tmdb_api_key') || '').trim();
+        if (tmdbKeyInput) tmdbKeyInput.value = cur;
+        if (tmdbStatusEl) {
+          tmdbStatusEl.textContent = cur
+            ? 'TMDB API key saved in localStorage — trending TMDB movies & official YouTube trailers enabled.'
+            : 'Optional — leave blank to use free TVMaze + Internet Archive catalog with no key required.';
+        }
+      }
+      refreshTmdbUi();
+
+      if (saveTmdbBtn && tmdbKeyInput) {
+        saveTmdbBtn.addEventListener('click', function () {
+          var key = (tmdbKeyInput.value || '').trim();
+          safeLSSet('valem_tmdb_api_key', key);
+          refreshTmdbUi();
+          loadCinemaLiveCatalog();
+          showToast(key ? 'TMDB API key saved — refreshing Movies & TV.' : 'TMDB key cleared.');
+        });
+      }
+
+      if (clearTmdbBtn) {
+        clearTmdbBtn.addEventListener('click', function () {
+          safeLSSet('valem_tmdb_api_key', '');
+          refreshTmdbUi();
+          loadCinemaLiveCatalog();
+          showToast('TMDB API key removed.');
+        });
+      }
+
+      var resetAllCustomBtn = document.getElementById('btn-reset-all-custom');
+      if (resetAllCustomBtn) {
+        resetAllCustomBtn.addEventListener('click', function () {
+          applyColorPreset('coral-default');
+          applyRailMode('expanded');
+          applyCustomSettings(DEFAULT_CUSTOM_SETTINGS);
+          document.title = 'VALem — Isolated Workspace';
+          showToast('All VALem custom settings restored to defaults.');
+        });
+      }
 
       document.getElementById('btn-open-settings').addEventListener('click', function () {
         renderColorPresetsGrid();
@@ -2196,14 +3658,26 @@ export function buildValBrowseBlobHtml(
       document.getElementById('btn-close-settings').addEventListener('click', function () {
         settingsModal.classList.remove('open');
       });
+      settingsModal.addEventListener('click', function (ev) {
+        if (ev.target === settingsModal) {
+          settingsModal.classList.remove('open');
+        }
+      });
       document.querySelectorAll('[data-cloak]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          document.title = btn.getAttribute('data-cloak');
+          var t = btn.getAttribute('data-cloak');
+          document.title = t;
+          if (customCloakInput) customCloakInput.value = t;
+          safeLSSet('valem_cloak_title', t);
         });
       });
 
       /* ---------------- BOOT ---------------- */
+      var savedCloak = safeLSGet('valem_cloak_title');
+      if (savedCloak) document.title = savedCloak;
+      applyRailMode(railMode);
       applyColorPreset(activePresetId);
+      applyCustomSettings(customSettings);
       rebuildMergedGames();
       fetchGnZones();
     })();

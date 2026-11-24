@@ -74,6 +74,49 @@ export const CURATED_SOUNDCLOUD_STATIONS: CuratedStationPreset[] = [
   { id: 'electronic', label: 'Electronic', artist: 'NCS', url: 'https://soundcloud.com/nocopyrightsounds' },
 ];
 
+export type SoundCloudArtistCategory = 'rap' | 'pop' | 'kpop';
+
+export interface SoundCloudArtistExample {
+  id: string;
+  name: string;
+  handle: string;
+  category: SoundCloudArtistCategory;
+  genreLabel: string;
+  url: string;
+}
+
+export const SOUNDCLOUD_ARTIST_EXAMPLES: SoundCloudArtistExample[] = [
+  // 10 Rappers
+  { id: 'rap-kendrick', name: 'Kendrick Lamar', handle: 'kendrick-lamar-music', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/kendrick-lamar-music' },
+  { id: 'rap-drake', name: 'Drake (OVO)', handle: 'octobersveryown', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/octobersveryown' },
+  { id: 'rap-travis', name: 'Travis Scott', handle: 'travisscott-2', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/travisscott-2' },
+  { id: 'rap-jcole', name: 'J. Cole', handle: 'j-cole', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/j-cole' },
+  { id: 'rap-tyler', name: 'Tyler, The Creator', handle: 'tylerthecreator', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/tylerthecreator' },
+  { id: 'rap-future', name: 'Future', handle: 'futureisnow', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/futureisnow' },
+  { id: 'rap-carti', name: 'Playboi Carti', handle: 'playboicarti', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/playboicarti' },
+  { id: 'rap-metro', name: 'Metro Boomin', handle: 'metroboomin', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/metroboomin' },
+  { id: 'rap-21', name: '21 Savage', handle: '21savage', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/21savage' },
+  { id: 'rap-ye', name: 'Kanye West', handle: 'kanyewest', category: 'rap', genreLabel: 'Rap', url: 'https://soundcloud.com/kanyewest' },
+
+  // Famous Pop
+  { id: 'pop-weeknd', name: 'The Weeknd', handle: 'theweeknd', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/theweeknd' },
+  { id: 'pop-taylor', name: 'Taylor Swift', handle: 'taylorswiftofficial', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/taylorswiftofficial' },
+  { id: 'pop-billie', name: 'Billie Eilish', handle: 'billieeilish', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/billieeilish' },
+  { id: 'pop-ariana', name: 'Ariana Grande', handle: 'arianagrande', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/arianagrande' },
+  { id: 'pop-dualipa', name: 'Dua Lipa', handle: 'dualipa', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/dualipa' },
+  { id: 'pop-bruno', name: 'Bruno Mars', handle: 'brunomars', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/brunomars' },
+  { id: 'pop-olivia', name: 'Olivia Rodrigo', handle: 'oliviarodrigo', category: 'pop', genreLabel: 'Pop', url: 'https://soundcloud.com/oliviarodrigo' },
+
+  // K-Pop
+  { id: 'kpop-bts', name: 'BTS (BANGTAN)', handle: 'bangtan', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/bangtan' },
+  { id: 'kpop-blackpink', name: 'BLACKPINK', handle: 'blackpinkofficial', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/blackpinkofficial' },
+  { id: 'kpop-newjeans', name: 'NewJeans', handle: 'newjeans-music', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/newjeans-music' },
+  { id: 'kpop-straykids', name: 'Stray Kids', handle: 'straykidsofficial', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/straykidsofficial' },
+  { id: 'kpop-twice', name: 'TWICE', handle: 'twiceofficial', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/twiceofficial' },
+  { id: 'kpop-seventeen', name: 'SEVENTEEN', handle: 'seventeen17', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/seventeen17' },
+  { id: 'kpop-aespa', name: 'aespa', handle: 'aespa-official', category: 'kpop', genreLabel: 'K-Pop', url: 'https://soundcloud.com/aespa-official' },
+];
+
 export function buildSoundCloudWidgetUrl(userUrl: string): string {
   const check = normalizeSoundCloudUrl(userUrl);
   const cleanUrl = check.ok ? check.url : String(userUrl || '').trim();

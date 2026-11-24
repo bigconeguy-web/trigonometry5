@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   CURATED_SOUNDCLOUD_STATIONS,
+  SOUNDCLOUD_ARTIST_EXAMPLES,
   normalizeSoundCloudUrl,
   buildSoundCloudWidgetUrl,
   suggestTrackLabelFromUrl,
@@ -52,6 +53,19 @@ test('CURATED_SOUNDCLOUD_STATIONS ships valid SoundCloud URLs for all 5 station 
     const check = normalizeSoundCloudUrl(station.url);
     assert.equal(check.ok, true);
     assert.ok(station.label.length > 0);
+  }
+});
+
+test('SOUNDCLOUD_ARTIST_EXAMPLES ships 10 rappers, Pop, and K-Pop with valid SoundCloud URLs', () => {
+  const rap = SOUNDCLOUD_ARTIST_EXAMPLES.filter((a) => a.category === 'rap');
+  const pop = SOUNDCLOUD_ARTIST_EXAMPLES.filter((a) => a.category === 'pop');
+  const kpop = SOUNDCLOUD_ARTIST_EXAMPLES.filter((a) => a.category === 'kpop');
+  assert.equal(rap.length, 10);
+  assert.ok(pop.length >= 5);
+  assert.ok(kpop.length >= 5);
+  for (const artist of SOUNDCLOUD_ARTIST_EXAMPLES) {
+    const check = normalizeSoundCloudUrl(artist.url);
+    assert.equal(check.ok, true, `Invalid SoundCloud URL for ${artist.name}`);
   }
 });
 

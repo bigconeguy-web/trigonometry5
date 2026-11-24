@@ -12,6 +12,7 @@ import {
   checkPracticeAnswer,
   EquationMode,
   EquationParams,
+  evaluateEquationAt,
   FORMULA_SHEET_ITEMS,
   generatePracticeProblem,
 } from '../utils/mathPortalLogic';
@@ -330,6 +331,38 @@ export const EulerPathPortal: React.FC = () => {
                       </g>
                     ))}
 
+                    {/* Linear Rise / Run Slope Triangle */}
+                    {eqParams.mode === 'linear' && Math.abs(eqParams.m) > 0 && (
+                      <g clipPath="url(#euler-grid-clip)" opacity="0.72">
+                        <line
+                          x1={toSvgX(0)}
+                          y1={toSvgY(eqParams.b)}
+                          x2={toSvgX(2)}
+                          y2={toSvgY(eqParams.b)}
+                          stroke="#0284c7"
+                          strokeWidth="1.5"
+                          strokeDasharray="4 3"
+                        />
+                        <line
+                          x1={toSvgX(2)}
+                          y1={toSvgY(eqParams.b)}
+                          x2={toSvgX(2)}
+                          y2={toSvgY(2 * eqParams.m + eqParams.b)}
+                          stroke="#0284c7"
+                          strokeWidth="1.5"
+                          strokeDasharray="4 3"
+                        />
+                        <circle
+                          cx={toSvgX(2)}
+                          cy={toSvgY(2 * eqParams.m + eqParams.b)}
+                          r="3.5"
+                          fill="#0284c7"
+                          stroke="#ffffff"
+                          strokeWidth="1.25"
+                        />
+                      </g>
+                    )}
+
                     {/* Plotted Curve */}
                     <path
                       d={curvePath}
@@ -354,18 +387,36 @@ export const EulerPathPortal: React.FC = () => {
                   </svg>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 pt-1 text-xs">
-                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-1 text-xs">
+                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 min-w-0">
                     <span className="text-slate-500 block text-[11px]">y-intercept</span>
                     <span className="font-mono font-bold text-slate-900">{analysis.yIntercept}</span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80">
+                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 min-w-0">
                     <span className="text-slate-500 block text-[11px]">x-intercept(s)</span>
-                    <span className="font-mono font-bold text-slate-900 truncate block">{analysis.xIntercepts}</span>
+                    <span className="font-mono font-bold text-slate-900 block">{analysis.xIntercepts}</span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80">
+                  <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 min-w-0">
                     <span className="text-slate-500 block text-[11px]">Derivative</span>
-                    <span className="font-mono font-bold text-slate-900 truncate block">{analysis.derivativeText}</span>
+                    <span className="font-mono font-bold text-slate-900 block">{analysis.derivativeText}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 mb-2">
+                    <span className="font-semibold text-slate-700">Sampled Coordinate Values</span>
+                    <span className="font-mono">x ∈ {'{-2, -1, 0, 1, 2}'}</span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-1.5 text-center font-mono text-xs tabular-nums">
+                    {[-2, -1, 0, 1, 2].map((xVal) => {
+                      const yVal = Math.round(evaluateEquationAt(eqParams, xVal) * 100) / 100;
+                      return (
+                        <div key={xVal} className="py-1.5 px-1 rounded-md bg-slate-50 border border-slate-200/70">
+                          <div className="text-[10px] text-slate-500">x={xVal}</div>
+                          <div className="font-bold text-slate-900">{yVal}</div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

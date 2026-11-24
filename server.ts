@@ -73,6 +73,10 @@ async function startServer() {
     process.cwd(),
     'node_modules/@mercuryworkshop/epoxy-transport/dist'
   );
+  const libcurlPath = path.resolve(
+    process.cwd(),
+    'node_modules/@mercuryworkshop/libcurl-transport/dist'
+  );
 
   app.get('/sw.js', (_req: Request, res: Response) => {
     const publicSw = path.resolve(process.cwd(), 'public', 'sw.js');
@@ -91,6 +95,7 @@ async function startServer() {
   app.use('/scram', express.static(scramjetPath));
   app.use('/baremux', express.static(baremuxPath));
   app.use('/epoxy', express.static(epoxyPath));
+  app.use('/libcurl', express.static(libcurlPath));
 
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ ok: true, model: MODEL_NAME });

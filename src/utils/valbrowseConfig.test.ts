@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_WISP_URL,
   PANIC_REDIRECT_URL,
+  DEFAULT_BAREMUX_TRANSPORT,
+  BAREMUX_TRANSPORT_PATHS,
+  VALID_HOME_LAYOUTS,
+  DEFAULT_APP_SHORTCUTS,
+  normalizeShortcutUrl,
+  sanitizeAppShortcuts,
+  normalizeTransportMode,
+  normalizeHomeLayout,
   normalizeWispUrl,
   resolveInitialWispUrl,
   isScramjetScope,
@@ -171,4 +179,48 @@ test('triggerPanicRedirect hides document and calls location.replace(classroom.g
   assert.equal(mockDoc.title, 'Google Classroom');
   assert.equal((mockDoc.documentElement as unknown as { style: { display: string } }).style.display, 'none');
   assert.equal(replacedWith, PANIC_REDIRECT_URL);
+});
+
+test('BareMux transport defaults to Libcurl (/libcurl/index.mjs) and validates Epoxy toggle', () => {
+  assert.equal(DEFAULT_BAREMUX_TRANSPORT, 'libcurl');
+  assert.equal(BAREMUX_TRANSPORT_PATHS.libcurl, '/libcurl/index.mjs');
+  assert.equal(BAREMUX_TRANSPORT_PATHS.epoxy, '/epoxy/index.mjs');
+  assert.equal(normalizeTransportMode(undefined), 'libcurl');
+  assert.equal(normalizeTransportMode(''), 'libcurl');
+  assert.equal(normalizeTransportMode('libcurl'), 'libcurl');
+  assert.equal(normalizeTransportMode('EPOXY'), 'epoxy');
+});
+
+test('UI home layouts normalize cleanly across split, normal, side, and minimal arrangements', () => {
+  assert.deepEqual([...VALID_HOME_LAYOUTS], ['split', 'normal', 'side', 'minimal']);
+  assert.equal(normalizeHomeLayout(undefined), 'split');
+  assert.equal(normalizeHomeLayout('unknown'), 'split');
+  assert.equal(normalizeHomeLayout('normal'), 'normal');
+  assert.equal(normalizeHomeLayout('SIDE'), 'side');
+  assert.equal(normalizeHomeLayout('minimal'), 'minimal');
+});
+
+test('DEFAULT_APP_SHORTCUTS provides Discord, Snapchat, Kick, Twitch, Reddit, and Roblox (nowgg.fun)', () => {
+  const labels = DEFAULT_APP_SHORTCUTS.map((s) => s.label);
+  assert.deepEqual(labels, ['Discord', 'Snapchat', 'Kick', 'Twitch', 'Reddit', 'Roblox']);
+  const roblox = DEFAULT_APP_SHORTCUTS.find((s) => s.id === 'roblox');
+  assert.ok(roblox);
+  assert.equal(roblox.url, 'https://nowgg.fun');
+  assert.equal(roblox.subtitle, 'nowgg.fun');
+});
+
+test('normalizeShortcutUrl and sanitizeAppShortcuts validate custom shortcuts and block unsafe schemes', () => {
+  assert.equal(normalizeShortcutUrl('nowgg.fun'), 'https://nowgg.fun/');
+  assert.equal(normalizeShortcutUrl('https://youtube.com'), 'https://youtube.com/');
+  assert.equal(normalizeShortcutUrl('javascript:alert(1)'), null);
+  assert.equal(normalizeShortcutUrl('not a domain'), null);
+
+  const sanitized = sanitizeAppShortcuts([
+    { label: 'Spotify', url: 'open.spotify.com' },
+    { label: 'Bad', url: 'javascript:evil()' },
+    { label: 'Duplicate', url: 'https://open.spotify.com/' },
+  ]);
+  assert.equal(sanitized.length, 1);
+  assert.equal(sanitized[0].label, 'Spotify');
+  assert.equal(sanitized[0].subtitle, 'open.spotify.com');
 });

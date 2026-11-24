@@ -15,6 +15,7 @@
     "@google/genai": "^2.4.0",
     "@mercuryworkshop/bare-mux": "^2.1.9",
     "@mercuryworkshop/epoxy-transport": "^3.0.2",
+    "@mercuryworkshop/libcurl-transport": "^2.0.6",
     "@mercuryworkshop/scramjet": "2.0.0-alpha",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",

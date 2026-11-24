@@ -5,16 +5,20 @@ import {
   THEME_CATEGORIES,
   resolveThemeById,
   buildThemeCssVariables,
+  contrastRatio,
+  getContrastInk,
 } from './themeCatalog';
 
-test('THEMES_CATALOG includes exactly 24 unique themes (8 per category)', () => {
-  assert.equal(THEMES_CATALOG.length, 24);
+test('THEMES_CATALOG includes 124 unique themes (24 original + 100 new)', () => {
+  assert.equal(THEMES_CATALOG.length, 124);
   const ids = new Set(THEMES_CATALOG.map((t) => t.id));
-  assert.equal(ids.size, 24);
+  const names = new Set(THEMES_CATALOG.map((t) => t.name));
+  assert.equal(ids.size, 124, 'Every theme must have a unique id');
+  assert.equal(names.size, 124, 'Every theme must have a unique name');
 
   for (const cat of THEME_CATEGORIES) {
     const count = THEMES_CATALOG.filter((t) => t.category === cat).length;
-    assert.equal(count, 8, `Expected 8 themes in category ${cat}`);
+    assert.ok(count >= 40, `Expected >= 40 themes in category ${cat}, got ${count}`);
   }
 
   const requiredNames = [
@@ -42,14 +46,16 @@ test('THEMES_CATALOG includes exactly 24 unique themes (8 per category)', () => 
     'Slate Graphite',
     'Royal Gold',
     'Deep Ocean',
+    'Neon Coral',
+    'Sakura Petal',
+    'Swiss Ivory',
   ];
-  const catalogNames = new Set(THEMES_CATALOG.map((t) => t.name));
   for (const name of requiredNames) {
-    assert.equal(catalogNames.has(name), true, `Missing required theme "${name}"`);
+    assert.equal(names.has(name), true, `Missing required theme "${name}"`);
   }
 });
 
-test('all 24 themes specify valid hex tokens for required CSS properties', () => {
+test('all 124 themes specify valid hex tokens and meet WCAG AA contrast', () => {
   const hexRegex = /^#[0-9a-f]{6}$/i;
   for (const t of THEMES_CATALOG) {
     assert.match(t.bgPrimary, hexRegex);
@@ -59,7 +65,30 @@ test('all 24 themes specify valid hex tokens for required CSS properties', () =>
     assert.match(t.textMuted, hexRegex);
     assert.match(t.accent, hexRegex);
     assert.match(t.border, hexRegex);
+
+    const primaryBgContrast = contrastRatio(t.textPrimary, t.bgPrimary);
+    const primaryCardContrast = contrastRatio(t.textPrimary, t.bgCard);
+    const mutedBgContrast = contrastRatio(t.textMuted, t.bgPrimary);
+    assert.ok(
+      primaryBgContrast >= 4.5,
+      `${t.id} textPrimary vs bgPrimary contrast too low: ${primaryBgContrast.toFixed(2)}`
+    );
+    assert.ok(
+      primaryCardContrast >= 4.5,
+      `${t.id} textPrimary vs bgCard contrast too low: ${primaryCardContrast.toFixed(2)}`
+    );
+    assert.ok(
+      mutedBgContrast >= 3.0,
+      `${t.id} textMuted vs bgPrimary contrast too low: ${mutedBgContrast.toFixed(2)}`
+    );
   }
+});
+
+test('getContrastInk selects dark ink on bright accents and white ink on dark accents', () => {
+  assert.equal(getContrastInk('#00ff88'), '#09090b');
+  assert.equal(getContrastInk('#facc15'), '#09090b');
+  assert.equal(getContrastInk('#1d4ed8'), '#ffffff');
+  assert.equal(getContrastInk('#7c3aed'), '#ffffff');
 });
 
 test('resolveThemeById migrates legacy theme IDs and falls back cleanly', () => {

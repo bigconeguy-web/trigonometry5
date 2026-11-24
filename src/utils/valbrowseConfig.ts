@@ -4,13 +4,97 @@ import { normalizeTitleKey } from './ugsCatalog.js';
 export const DEFAULT_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
 export const PANIC_REDIRECT_URL = 'https://classroom.google.com';
 export const CLASSROOM_FAVICON_URL = 'https://ssl.gstatic.com/classroom/ic_product_classroom_144.png';
-export const STANDALONE_WINDOW_NAME = 'ValBrowseStandalone';
+export const STANDALONE_WINDOW_NAME = 'VALemStandalone';
 export const STANDALONE_WINDOW_FEATURES =
   'popup=yes,width=1280,height=800,left=100,top=100,menubar=no,toolbar=no,location=no,status=no,resizable=yes';
 
 export const VALBROWSE_WISP_STORAGE_KEY = 'valbrowse_wisp_url';
 export const LEGACY_WISP_STORAGE_KEY = 'gn_scramjet_wisp';
 export const VALBROWSE_FAVS_KEY = 'gn_favs';
+
+export type BareMuxTransportMode = 'libcurl' | 'epoxy';
+export const DEFAULT_BAREMUX_TRANSPORT: BareMuxTransportMode = 'libcurl';
+export const BAREMUX_TRANSPORT_STORAGE_KEY = 'valem_baremux_transport';
+export const BAREMUX_TRANSPORT_PATHS: Record<BareMuxTransportMode, string> = {
+  libcurl: '/libcurl/index.mjs',
+  epoxy: '/epoxy/index.mjs',
+};
+
+export function normalizeTransportMode(raw: string | null | undefined): BareMuxTransportMode {
+  return String(raw || '').trim().toLowerCase() === 'epoxy' ? 'epoxy' : 'libcurl';
+}
+
+export type ValemHomeLayout = 'split' | 'normal' | 'side' | 'minimal';
+export const DEFAULT_HOME_LAYOUT: ValemHomeLayout = 'split';
+export const VALID_HOME_LAYOUTS: readonly ValemHomeLayout[] = ['split', 'normal', 'side', 'minimal'];
+
+export function normalizeHomeLayout(raw: string | null | undefined): ValemHomeLayout {
+  const val = String(raw || '').trim().toLowerCase();
+  if (val === 'normal' || val === 'side' || val === 'minimal') return val;
+  return 'split';
+}
+
+export interface AppShortcutItem {
+  id: string;
+  label: string;
+  subtitle: string;
+  url: string;
+  iconKey: string;
+}
+
+export const VALEM_SHORTCUTS_STORAGE_KEY = 'valem_user_shortcuts';
+
+export const DEFAULT_APP_SHORTCUTS: readonly AppShortcutItem[] = [
+  { id: 'discord', label: 'Discord', subtitle: 'discord.com', url: 'https://discord.com/app', iconKey: 'discord' },
+  { id: 'snapchat', label: 'Snapchat', subtitle: 'web.snapchat.com', url: 'https://web.snapchat.com', iconKey: 'snapchat' },
+  { id: 'kick', label: 'Kick', subtitle: 'kick.com', url: 'https://kick.com', iconKey: 'kick' },
+  { id: 'twitch', label: 'Twitch', subtitle: 'twitch.tv', url: 'https://www.twitch.tv', iconKey: 'twitch' },
+  { id: 'reddit', label: 'Reddit', subtitle: 'reddit.com', url: 'https://www.reddit.com', iconKey: 'reddit' },
+  { id: 'roblox', label: 'Roblox', subtitle: 'nowgg.fun', url: 'https://nowgg.fun', iconKey: 'roblox' },
+];
+
+export function normalizeShortcutUrl(raw: string | null | undefined): string | null {
+  const trimmed = String(raw || '').trim();
+  if (!trimmed) return null;
+  if (/^(javascript|data|vbscript|file):/i.test(trimmed)) return null;
+  const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+    if (!parsed.hostname || !parsed.hostname.includes('.')) return null;
+    return parsed.toString();
+  } catch {
+    return null;
+  }
+}
+
+export function sanitizeAppShortcuts(rawList: unknown): AppShortcutItem[] {
+  if (!Array.isArray(rawList)) return DEFAULT_APP_SHORTCUTS.map((s) => ({ ...s }));
+  const out: AppShortcutItem[] = [];
+  const seenUrls = new Set<string>();
+  for (const item of rawList) {
+    if (!item || typeof item !== 'object') continue;
+    const rec = item as Partial<AppShortcutItem>;
+    const label = String(rec.label || '').trim().slice(0, 28);
+    const url = normalizeShortcutUrl(rec.url);
+    if (!label || !url || seenUrls.has(url)) continue;
+    seenUrls.add(url);
+    let host = '';
+    try {
+      host = new URL(url).hostname.replace(/^www\./, '');
+    } catch {
+      host = url;
+    }
+    out.push({
+      id: String(rec.id || '').trim() || `custom_${out.length + 1}`,
+      label,
+      subtitle: String(rec.subtitle || '').trim() || host,
+      url,
+      iconKey: String(rec.iconKey || '').trim() || 'globe',
+    });
+  }
+  return out;
+}
 
 export type GameProviderTag = 'gn' | 'ugs' | 'ckv' | 'builtin';
 
