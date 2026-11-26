@@ -1,27 +1,58 @@
 import type { StudyModuleItem } from '../data/studyCatalog.js';
 import { normalizeTitleKey } from './ugsCatalog.js';
 
-export const DEFAULT_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
+export const DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
+export const RENDER_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
+export const VUX_AI_TARGET_URL = 'https://duck.ai';
+export const LEGACY_DEFAULT_WISP_URLS = [
+  'wss://my-wisp-server-ocnq.onrender.com/wisp/',
+  'wss://my-wisp-server-ocnq.onrender.com/',
+];
 export const PANIC_REDIRECT_URL = 'https://classroom.google.com';
 export const CLASSROOM_FAVICON_URL = 'https://ssl.gstatic.com/classroom/ic_product_classroom_144.png';
 export const STANDALONE_WINDOW_NAME = 'VALemStandalone';
+export const STANDALONE_IFRAME_NAME = 'VALemStandaloneFrame';
 export const STANDALONE_WINDOW_FEATURES =
   'popup=yes,width=1280,height=800,left=100,top=100,menubar=no,toolbar=no,location=no,status=no,resizable=yes';
+
+export interface KeyboardTriggerLike {
+  key?: string;
+  repeat?: boolean;
+  altKey?: boolean;
+  shiftKey?: boolean;
+  metaKey?: boolean;
+}
+
+export function isStandaloneControlKeyTrigger(e: KeyboardTriggerLike | null | undefined): boolean {
+  if (!e) return false;
+  return e.key === 'Control' && !e.repeat && !e.altKey && !e.shiftKey && !e.metaKey;
+}
+
+export function isInsideStandaloneBlobFrame(
+  search: string | null | undefined,
+  windowName: string | null | undefined
+): boolean {
+  try {
+    const params = new URLSearchParams(String(search || ''));
+    return params.get('vb') === '1' && String(windowName || '') === STANDALONE_IFRAME_NAME;
+  } catch {
+    return false;
+  }
+}
 
 export const VALBROWSE_WISP_STORAGE_KEY = 'valbrowse_wisp_url';
 export const LEGACY_WISP_STORAGE_KEY = 'gn_scramjet_wisp';
 export const EULER_FAVS_KEY = 'euler_favs';
 
-export type BareMuxTransportMode = 'libcurl' | 'epoxy';
+export type BareMuxTransportMode = 'libcurl';
 export const DEFAULT_BAREMUX_TRANSPORT: BareMuxTransportMode = 'libcurl';
 export const BAREMUX_TRANSPORT_STORAGE_KEY = 'valem_baremux_transport';
 export const BAREMUX_TRANSPORT_PATHS: Record<BareMuxTransportMode, string> = {
   libcurl: '/libcurl/index.mjs',
-  epoxy: '/epoxy/index.mjs',
 };
 
-export function normalizeTransportMode(raw: string | null | undefined): BareMuxTransportMode {
-  return String(raw || '').trim().toLowerCase() === 'epoxy' ? 'epoxy' : 'libcurl';
+export function normalizeTransportMode(_raw: string | null | undefined): BareMuxTransportMode {
+  return 'libcurl';
 }
 
 export type ValemHomeLayout = 'split' | 'normal' | 'side' | 'minimal';
@@ -96,7 +127,7 @@ export function sanitizeAppShortcuts(rawList: unknown): AppShortcutItem[] {
   return out;
 }
 
-export type StudyProviderTag = 'gn' | 'ugs' | 'ckv' | 'builtin';
+export type StudyProviderTag = 'gn' | 'ugs' | 'ckv' | 'seraph' | 'gmshelf' | 'builtin';
 
 export interface UnifiedStudyModule {
   id: string;
@@ -122,6 +153,7 @@ export function normalizeWispUrl(
 
   const wsProto = originProtocol === 'http:' ? 'ws:' : 'wss:';
   let candidate = val;
+  const hadExplicitRootSlash = /\/\/[^/]+\/$/.test(val);
 
   if (candidate.startsWith('/')) {
     candidate = `${wsProto}//${originHost}${candidate}`;
@@ -133,8 +165,13 @@ export function normalizeWispUrl(
 
   try {
     const parsed = new URL(candidate);
+    const host = parsed.hostname.toLowerCase();
     if (!parsed.pathname || parsed.pathname === '/') {
-      parsed.pathname = '/wisp/';
+      if (host === 'wisp.mercurywork.shop' || hadExplicitRootSlash) {
+        parsed.pathname = '/';
+      } else {
+        parsed.pathname = '/wisp/';
+      }
     }
     return parsed.toString();
   } catch {
@@ -148,7 +185,7 @@ export function resolveInitialWispUrl(
   originHost: string = 'localhost:3000'
 ): string {
   const clean = String(savedValbrowseUrl || '').trim();
-  if (!clean) return DEFAULT_WISP_URL;
+  if (!clean || LEGACY_DEFAULT_WISP_URLS.includes(clean)) return DEFAULT_WISP_URL;
   return normalizeWispUrl(clean, originProtocol, originHost);
 }
 
@@ -188,7 +225,9 @@ export function mergeAllStudyCatalog(
   gnModules: UnifiedStudyModule[],
   ugsModules: UnifiedStudyModule[],
   ckvModules: UnifiedStudyModule[],
-  staticCatalog: StudyModuleItem[]
+  staticCatalog: StudyModuleItem[],
+  seraphModules: UnifiedStudyModule[] = [],
+  gmshelfModules: UnifiedStudyModule[] = []
 ): UnifiedStudyModule[] {
   const seen = new Set<string>();
   const merged: UnifiedStudyModule[] = [];
@@ -202,6 +241,8 @@ export function mergeAllStudyCatalog(
   };
 
   for (const g of gnModules) pushUnique(g);
+  for (const g of seraphModules) pushUnique(g);
+  for (const g of gmshelfModules) pushUnique(g);
   for (const g of ugsModules) pushUnique(g);
   for (const g of ckvModules) pushUnique(g);
 
@@ -248,7 +289,14 @@ export function filterAndSortModules(
     list = list.filter((g) => favSet.has(g.id) || favSet.has(g.name));
   } else if (provider === 'featured') {
     list = list.filter((g) => g.featured);
-  } else if (provider === 'gn' || provider === 'ugs' || provider === 'ckv' || provider === 'builtin') {
+  } else if (
+    provider === 'gn' ||
+    provider === 'ugs' ||
+    provider === 'ckv' ||
+    provider === 'seraph' ||
+    provider === 'gmshelf' ||
+    provider === 'builtin'
+  ) {
     list = list.filter((g) => g.provider === provider);
   }
 
@@ -330,6 +378,7 @@ export function buildStandaloneBlobWrapperHtml(
 </head>
 <body>
   <iframe
+    name="${STANDALONE_IFRAME_NAME}"
     src="${safeSrc}"
     title="Home - Classroom"
     allow="autoplay; gamepad; fullscreen; clipboard-read; clipboard-write"

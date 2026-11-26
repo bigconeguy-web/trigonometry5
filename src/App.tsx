@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertTriangle, ExternalLink, ShieldAlert, X } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { EULER_STUDY_CATALOG } from './data/studyCatalog';
 import { buildValBrowseBlobHtml } from './utils/valbrowseBlobHtml';
 import {
   buildStandaloneBlobWrapperHtml,
   buildValBrowseOriginUrl,
+  isInsideStandaloneBlobFrame,
+  isStandaloneControlKeyTrigger,
   STANDALONE_WINDOW_FEATURES,
   STANDALONE_WINDOW_NAME,
   triggerPanicRedirect,
@@ -12,22 +14,21 @@ import {
 import { EulerPathPortal } from './components/EulerPathPortal';
 
 export default function App() {
-  const isStandaloneVbFrame = useMemo(() => {
+  const isInsideBlob = useMemo(() => {
     try {
-      return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('vb') === '1';
+      return typeof window !== 'undefined' && isInsideStandaloneBlobFrame(window.location.search, window.name);
     } catch {
       return false;
     }
   }, []);
 
-  const [valbrowseOpen, setValbrowseOpen] = useState<boolean>(isStandaloneVbFrame);
   const [popupBlockedToast, setPopupBlockedToast] = useState(false);
 
   const valbrowseDocHtml = useMemo(() => {
-    if (!valbrowseOpen) return '';
+    if (!isInsideBlob) return '';
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
     return buildValBrowseBlobHtml(origin, EULER_STUDY_CATALOG);
-  }, [valbrowseOpen]);
+  }, [isInsideBlob]);
 
   const handleOpenStandaloneBlob = useCallback(() => {
     setPopupBlockedToast(false);
@@ -38,25 +39,10 @@ export default function App() {
     const win = window.open(url, STANDALONE_WINDOW_NAME, STANDALONE_WINDOW_FEATURES);
     if (!win) {
       setPopupBlockedToast(true);
-    } else {
-      setValbrowseOpen(false);
     }
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 10000);
-  }, []);
-
-  const handleReturnToMathSite = useCallback(() => {
-    setValbrowseOpen(false);
-    try {
-      const current = new URL(window.location.href);
-      if (current.searchParams.has('vb')) {
-        current.searchParams.delete('vb');
-        window.history.replaceState({}, '', `${current.pathname}${current.search}${current.hash}`);
-      }
-    } catch {
-      // ignore
-    }
   }, []);
 
   useEffect(() => {
@@ -65,24 +51,21 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [popupBlockedToast]);
 
-  // Global Ctrl+E secret standalone :blob popup launch, Escape panic close/redirect, & postMessage panic bridge
+  // Press Control on the main math site to open the standalone :blob popup; Escape inside blob triggers panic redirect
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'e') {
-        e.preventDefault();
-        if (!isStandaloneVbFrame) {
-          handleOpenStandaloneBlob();
-        }
+      if (!isInsideBlob && isStandaloneControlKeyTrigger(e)) {
+        handleOpenStandaloneBlob();
         return;
       }
-      if (valbrowseOpen && e.key === 'Escape') {
+      if (isInsideBlob && e.key === 'Escape') {
         e.preventDefault();
         triggerPanicRedirect(document, window);
       }
     };
 
     const onMessage = (ev: MessageEvent) => {
-      if (ev?.data?.type === 'valbrowse-panic') {
+      if (isInsideBlob && ev?.data?.type === 'valbrowse-panic') {
         triggerPanicRedirect(document, window);
       }
     };
@@ -93,75 +76,32 @@ export default function App() {
       window.removeEventListener('keydown', onKeyDown, true);
       window.removeEventListener('message', onMessage);
     };
-  }, [valbrowseOpen, isStandaloneVbFrame, handleOpenStandaloneBlob]);
+  }, [isInsideBlob, handleOpenStandaloneBlob]);
+
+  if (isInsideBlob && valbrowseDocHtml) {
+    return (
+      <div
+        className="fixed inset-0 z-50 bg-[#080406] flex flex-col"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Vux Workspace"
+      >
+        <iframe
+          data-testid="valbrowse-blob-iframe"
+          srcDoc={valbrowseDocHtml}
+          title="Vux Workspace"
+          allow="autoplay; gamepad; fullscreen"
+          className="w-full h-full border-0 bg-[#0b0608]"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <EulerPathPortal />
 
-      {/* Secret Workspace (triggered via ?vb=1 inside standalone blob popup, or inline fallback) */}
-      {valbrowseOpen && valbrowseDocHtml && (
-        <div
-          className="fixed inset-0 z-50 bg-[#080406] flex flex-col"
-          role="dialog"
-          aria-modal="true"
-          aria-label="VALem Workspace"
-        >
-          {!isStandaloneVbFrame && (
-            <div className="h-10 px-2.5 sm:px-3 bg-[#080406] border-b border-white/[0.08] flex items-center justify-between gap-2 shrink-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="w-2 h-2 rounded-full bg-[#ff5c7c] shrink-0" />
-                <span className="text-xs font-bold text-[#fdf2f4] truncate">
-                  VALem
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <button
-                  type="button"
-                  data-testid="open-standalone-blob-btn"
-                  onClick={handleOpenStandaloneBlob}
-                  className="h-7 px-2 sm:px-2.5 rounded-md bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-[11px] font-semibold text-zinc-200 inline-flex items-center gap-1 cursor-pointer transition whitespace-nowrap"
-                >
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                  <span className="sm:hidden">:blob Window</span>
-                  <span className="hidden sm:inline">Open Standalone :blob</span>
-                </button>
-                <button
-                  type="button"
-                  data-testid="valbrowse-panic-btn"
-                  onClick={() => triggerPanicRedirect(document, window)}
-                  className="h-7 px-2 sm:px-2.5 rounded-md bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-[11px] font-semibold text-rose-200 inline-flex items-center gap-1 cursor-pointer transition whitespace-nowrap"
-                  title="Panic (Esc) — Close or Redirect to Google Classroom"
-                >
-                  <ShieldAlert className="w-3 h-3 text-rose-400 shrink-0" />
-                  <span className="sm:hidden">Panic</span>
-                  <span className="hidden sm:inline">Panic (Esc)</span>
-                </button>
-                <button
-                  type="button"
-                  data-testid="close-blob-overlay"
-                  onClick={handleReturnToMathSite}
-                  className="h-7 px-2 sm:px-2.5 rounded-md bg-[#ff5c7c] hover:bg-[#ff456b] text-[11px] font-bold text-[#19070d] inline-flex items-center gap-1 cursor-pointer transition whitespace-nowrap"
-                >
-                  <X className="w-3.5 h-3.5 shrink-0" />
-                  <span className="sm:hidden">Back</span>
-                  <span className="hidden sm:inline">Return to Math</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          <iframe
-            data-testid="valbrowse-blob-iframe"
-            srcDoc={valbrowseDocHtml}
-            title="VALem Workspace"
-            allow="autoplay; gamepad; fullscreen"
-            className="w-full flex-1 border-0 bg-[#0b0608]"
-          />
-        </div>
-      )}
-
-      {/* Popup-Blocked Floating Toast */}
+      {/* Popup-Blocked Floating Toast (no inline non-blob fallback) */}
       {popupBlockedToast && (
         <div
           role="status"
@@ -169,22 +109,9 @@ export default function App() {
           className="fixed bottom-4 right-4 z-[70] max-w-sm rounded-xl bg-zinc-900 border border-amber-500/40 shadow-2xl px-4 py-3 text-xs text-zinc-100 flex items-start gap-2.5"
         >
           <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div className="flex-1 space-y-2 leading-relaxed">
-            <div>
-              Popup blocked — click the popup icon in Chrome&apos;s address bar to allow popups, then press{' '}
-              <strong>Ctrl+E</strong> again.
-            </div>
-            <button
-              type="button"
-              data-testid="popup-fallback-inline-btn"
-              onClick={() => {
-                setPopupBlockedToast(false);
-                setValbrowseOpen(true);
-              }}
-              className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-[11px] font-semibold text-white cursor-pointer"
-            >
-              Open in Current Window Instead
-            </button>
+          <div className="flex-1 leading-relaxed">
+            Popup blocked — allow popups for this site in your browser&apos;s address bar, then press{' '}
+            <strong>Control</strong> again.
           </div>
           <button
             type="button"

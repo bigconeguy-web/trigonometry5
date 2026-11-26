@@ -16,27 +16,28 @@ import {
   isScramjetScope,
   mergeAllStudyCatalog,
   filterAndSortModules,
+  isInsideStandaloneBlobFrame,
+  isStandaloneControlKeyTrigger,
+  STANDALONE_IFRAME_NAME,
   triggerPanicRedirect,
   type UnifiedStudyModule,
 } from './valbrowseConfig.js';
 import { EULER_STUDY_CATALOG } from '../data/studyCatalog.js';
 
-test('DEFAULT_WISP_URL uses wss:// and ends with /wisp/', () => {
-  assert.equal(DEFAULT_WISP_URL, 'wss://my-wisp-server-ocnq.onrender.com/wisp/');
+test('DEFAULT_WISP_URL uses wss://wisp.mercurywork.shop/', () => {
+  assert.equal(DEFAULT_WISP_URL, 'wss://wisp.mercurywork.shop/');
   assert.ok(DEFAULT_WISP_URL.startsWith('wss://'));
-  assert.ok(DEFAULT_WISP_URL.endsWith('/wisp/'));
+  assert.ok(DEFAULT_WISP_URL.endsWith('/'));
 });
 
-test('normalizeWispUrl normalizes empty, http/https, bare hosts, and /wisp/ suffix cleanly', () => {
+test('normalizeWispUrl normalizes empty, Mercury root, http/https, bare hosts, and /wisp/ suffix cleanly', () => {
   assert.equal(normalizeWispUrl(''), DEFAULT_WISP_URL);
   assert.equal(normalizeWispUrl('   '), DEFAULT_WISP_URL);
+  assert.equal(normalizeWispUrl('wisp.mercurywork.shop'), 'wss://wisp.mercurywork.shop/');
+  assert.equal(normalizeWispUrl('https://wisp.mercurywork.shop/'), 'wss://wisp.mercurywork.shop/');
   assert.equal(
-    normalizeWispUrl('https://my-wisp-server-ocnq.onrender.com'),
-    'wss://my-wisp-server-ocnq.onrender.com/wisp/'
-  );
-  assert.equal(
-    normalizeWispUrl('my-wisp-server-ocnq.onrender.com'),
-    'wss://my-wisp-server-ocnq.onrender.com/wisp/'
+    normalizeWispUrl('https://my-custom-wisp.onrender.com'),
+    'wss://my-custom-wisp.onrender.com/wisp/'
   );
   assert.equal(
     normalizeWispUrl('wss://custom-wisp.example/custom'),
@@ -48,9 +49,10 @@ test('normalizeWispUrl normalizes empty, http/https, bare hosts, and /wisp/ suff
   );
 });
 
-test('resolveInitialWispUrl defaults to permanent Render Wisp when storage is empty', () => {
+test('resolveInitialWispUrl defaults to wss://wisp.mercurywork.shop/ and migrates legacy Render default', () => {
   assert.equal(resolveInitialWispUrl(null), DEFAULT_WISP_URL);
   assert.equal(resolveInitialWispUrl(''), DEFAULT_WISP_URL);
+  assert.equal(resolveInitialWispUrl('wss://my-wisp-server-ocnq.onrender.com/wisp/'), DEFAULT_WISP_URL);
   assert.equal(
     resolveInitialWispUrl('wss://user-custom.onrender.com/wisp/'),
     'wss://user-custom.onrender.com/wisp/'
@@ -152,6 +154,18 @@ test('filterAndSortModules filters by provider, favorites, query, and sorts popu
   const searchRes = filterAndSortModules(list, { query: 'drift' });
   assert.equal(searchRes.length, 1);
   assert.equal(searchRes[0].id, 'gn:3');
+
+  const gmshelfItem: UnifiedStudyModule = {
+    id: 'gmshelf:truffled:balatro',
+    provider: 'gmshelf',
+    name: 'Balatro',
+    url: 'https://cdn.jsdelivr.net/gh/gmshelf/truffled@main/truffled/balatro/index.html',
+    baseUrl: 'https://cdn.jsdelivr.net/gh/gmshelf/truffled@main/truffled/balatro/',
+    cover: null,
+    featured: true,
+  };
+  const mergedWithGm = mergeAllStudyCatalog([], [], [], [], [], [gmshelfItem]);
+  assert.equal(filterAndSortModules(mergedWithGm, { provider: 'gmshelf' }).length, 1);
 });
 
 test('triggerPanicRedirect hides document and calls location.replace(classroom.google.com)', () => {
@@ -181,14 +195,13 @@ test('triggerPanicRedirect hides document and calls location.replace(classroom.g
   assert.equal(replacedWith, PANIC_REDIRECT_URL);
 });
 
-test('BareMux transport defaults to Libcurl (/libcurl/index.mjs) and validates Epoxy toggle', () => {
+test('BareMux transport uses Libcurl (/libcurl/index.mjs) instead of Epoxy', () => {
   assert.equal(DEFAULT_BAREMUX_TRANSPORT, 'libcurl');
   assert.equal(BAREMUX_TRANSPORT_PATHS.libcurl, '/libcurl/index.mjs');
-  assert.equal(BAREMUX_TRANSPORT_PATHS.epoxy, '/epoxy/index.mjs');
   assert.equal(normalizeTransportMode(undefined), 'libcurl');
   assert.equal(normalizeTransportMode(''), 'libcurl');
   assert.equal(normalizeTransportMode('libcurl'), 'libcurl');
-  assert.equal(normalizeTransportMode('EPOXY'), 'epoxy');
+  assert.equal(normalizeTransportMode('EPOXY'), 'libcurl');
 });
 
 test('UI home layouts normalize cleanly across split, normal, side, and minimal arrangements', () => {
@@ -223,4 +236,24 @@ test('normalizeShortcutUrl and sanitizeAppShortcuts validate custom shortcuts an
   assert.equal(sanitized.length, 1);
   assert.equal(sanitized[0].label, 'Spotify');
   assert.equal(sanitized[0].subtitle, 'open.spotify.com');
+});
+
+test('isStandaloneControlKeyTrigger fires only for standalone non-repeat Control key press', () => {
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'Control', repeat: false }), true);
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'Control', repeat: true }), false);
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'Control', altKey: true }), false);
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'Control', shiftKey: true }), false);
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'Control', metaKey: true }), false);
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'e' }), false);
+  assert.equal(isStandaloneControlKeyTrigger({ key: 'Escape' }), false);
+  assert.equal(isStandaloneControlKeyTrigger(null), false);
+});
+
+test('isInsideStandaloneBlobFrame requires both ?vb=1 and STANDALONE_IFRAME_NAME so main math site never renders inline proxy', () => {
+  assert.equal(isInsideStandaloneBlobFrame('?vb=1', STANDALONE_IFRAME_NAME), true);
+  assert.equal(isInsideStandaloneBlobFrame('?foo=1&vb=1', STANDALONE_IFRAME_NAME), true);
+  assert.equal(isInsideStandaloneBlobFrame('?vb=1', ''), false);
+  assert.equal(isInsideStandaloneBlobFrame('?vb=1', 'otherFrame'), false);
+  assert.equal(isInsideStandaloneBlobFrame('', STANDALONE_IFRAME_NAME), false);
+  assert.equal(isInsideStandaloneBlobFrame('?vb=0', STANDALONE_IFRAME_NAME), false);
 });

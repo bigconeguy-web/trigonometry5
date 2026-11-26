@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { patchScramjetBundle } from '../src/utils/scramjetPatch.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -66,6 +67,20 @@ for (const item of runtimeCopies) {
     }
     if (fs.existsSync(docsDir)) {
       fs.cpSync(item.src, path.join(docsDir, item.destName), { recursive: true, force: true });
+    }
+  }
+}
+
+for (const scramDir of [
+  path.join(distDir, 'scram'),
+  path.join(docsDir, 'scram'),
+  path.join(rootDir, 'public', 'scram'),
+]) {
+  for (const fileName of ['scramjet.all.js', 'scramjet.bundle.js']) {
+    const filePath = path.join(scramDir, fileName);
+    if (fs.existsSync(filePath)) {
+      const patched = patchScramjetBundle(fs.readFileSync(filePath, 'utf8'));
+      fs.writeFileSync(filePath, patched, 'utf8');
     }
   }
 }

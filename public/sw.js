@@ -1,6 +1,12 @@
 let scramjet = null;
 
 try {
+  importScripts("/baremux/index.js");
+} catch (err) {
+  console.error("BareMux worker bundle init failed safely:", err);
+}
+
+try {
   importScripts("/scram/scramjet.all.js");
   if (typeof $scramjetLoadWorker === "function") {
     const { ScramjetServiceWorker } = $scramjetLoadWorker();
@@ -10,6 +16,220 @@ try {
   console.error("Scramjet worker init failed safely:", err);
   scramjet = null;
 }
+
+const HOP_BY_HOP_REQUEST_HEADERS = new Set([
+  "host",
+  "connection",
+  "keep-alive",
+  "proxy-connection",
+  "transfer-encoding",
+  "te",
+  "upgrade",
+  "content-length",
+  "http2-settings",
+]);
+
+let bareClientInstance = null;
+let libcurlBridgeAdapter = null;
+
+function getBareClient() {
+  if (bareClientInstance) return bareClientInstance;
+  if (typeof BareMux !== "undefined" && typeof BareMux.BareClient === "function") {
+    bareClientInstance = new BareMux.BareClient("/baremux/worker.js");
+  }
+  return bareClientInstance;
+}
+
+function sanitizeLibcurlHeaders(rawHeaders) {
+  const entries = [];
+  if (!rawHeaders) return entries;
+  if (typeof rawHeaders.forEach === "function" && typeof rawHeaders.get === "function") {
+    rawHeaders.forEach((value, key) => {
+      const lower = String(key || "").toLowerCase();
+      if (!lower || HOP_BY_HOP_REQUEST_HEADERS.has(lower)) return;
+      entries.push([lower, String(value)]);
+    });
+    return entries;
+  }
+  if (Array.isArray(rawHeaders)) {
+    for (let i = 0; i < rawHeaders.length; i++) {
+      const pair = rawHeaders[i];
+      if (!Array.isArray(pair) || pair.length < 2) continue;
+      const lower = String(pair[0] || "").toLowerCase();
+      if (!lower || HOP_BY_HOP_REQUEST_HEADERS.has(lower)) continue;
+      entries.push([lower, String(pair[1])]);
+    }
+    return entries;
+  }
+  if (typeof rawHeaders === "object") {
+    const keys = Object.keys(rawHeaders);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const lower = String(key || "").toLowerCase();
+      if (!lower || HOP_BY_HOP_REQUEST_HEADERS.has(lower)) continue;
+      const val = rawHeaders[key];
+      if (val === undefined || val === null) continue;
+      if (Array.isArray(val)) {
+        for (let j = 0; j < val.length; j++) {
+          entries.push([lower, String(val[j])]);
+        }
+      } else {
+        entries.push([lower, String(val)]);
+      }
+    }
+  }
+  return entries;
+}
+
+function normalizeResponseRawHeaders(rawHeaders, fallbackHeaders) {
+  const out = {};
+  const appendPair = (k, v) => {
+    const key = String(k || "").toLowerCase();
+    if (!key) return;
+    if (Object.prototype.hasOwnProperty.call(out, key)) {
+      if (Array.isArray(out[key])) {
+        out[key].push(String(v));
+      } else {
+        out[key] = [out[key], String(v)];
+      }
+    } else {
+      out[key] = String(v);
+    }
+  };
+  if (Array.isArray(rawHeaders)) {
+    for (let i = 0; i < rawHeaders.length; i++) {
+      const entry = rawHeaders[i];
+      if (Array.isArray(entry) && entry.length >= 2) {
+        appendPair(entry[0], entry[1]);
+      }
+    }
+  } else if (rawHeaders && typeof rawHeaders === "object") {
+    const keys = Object.keys(rawHeaders);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      const v = rawHeaders[k];
+      if (Array.isArray(v)) {
+        for (let j = 0; j < v.length; j++) appendPair(k, v[j]);
+      } else if (v !== undefined && v !== null) {
+        appendPair(k, v);
+      }
+    }
+  } else if (fallbackHeaders && typeof fallbackHeaders.forEach === "function") {
+    fallbackHeaders.forEach((v, k) => appendPair(k, v));
+  }
+  return out;
+}
+
+async function requestWindowEnsureTransport() {
+  try {
+    if (typeof BroadcastChannel === "function") {
+      const bc = new BroadcastChannel("bare-mux");
+      bc.postMessage({ type: "refreshPort" });
+      bc.close();
+    }
+  } catch (_e) {}
+  try {
+    const winClients = await self.clients.matchAll({
+      type: "window",
+      includeUncontrolled: true,
+    });
+    for (let i = 0; i < winClients.length; i++) {
+      try {
+        winClients[i].postMessage({ scramjet$type: "ensureLibcurlTransport" });
+      } catch (_e) {}
+    }
+  } catch (_e) {}
+  await new Promise((resolve) => setTimeout(resolve, 350));
+}
+
+function isRecoverableBareMuxError(err) {
+  const msg = String((err && (err.message || err.cause)) || err || "");
+  return /no bare clients|No BareTransport|Invalid MessagePort|timeout/i.test(msg);
+}
+
+function createLibcurlEpoxyAdapter() {
+  if (libcurlBridgeAdapter) return libcurlBridgeAdapter;
+  const client = getBareClient();
+  if (!client) return null;
+
+  libcurlBridgeAdapter = {
+    async fetch(input, init = {}) {
+      const urlStr =
+        typeof input === "string"
+          ? input
+          : input && typeof input.href === "string"
+          ? input.href
+          : input && typeof input.url === "string"
+          ? input.url
+          : String(input);
+      const method = String(init.method || "GET").toUpperCase();
+      const headerEntries = sanitizeLibcurlHeaders(init.headers);
+
+      let preparedBody = undefined;
+      if (init.body !== undefined && init.body !== null && method !== "GET" && method !== "HEAD") {
+        if (
+          init.body instanceof ArrayBuffer ||
+          ArrayBuffer.isView(init.body) ||
+          typeof init.body === "string"
+        ) {
+          preparedBody = init.body;
+        } else {
+          preparedBody = await new Response(init.body).arrayBuffer();
+        }
+      }
+
+      const executeFetch = async () => {
+        const res = await client.fetch(urlStr, {
+          method,
+          headers: headerEntries,
+          body: preparedBody,
+          redirect: "manual",
+        });
+        const normalizedRaw = normalizeResponseRawHeaders(res.rawHeaders, res.headers);
+        try {
+          Object.defineProperty(res, "rawHeaders", {
+            value: normalizedRaw,
+            configurable: true,
+            writable: true,
+          });
+        } catch (_e) {
+          res.rawHeaders = normalizedRaw;
+        }
+        try {
+          if (!res.finalURL) {
+            res.finalURL = urlStr;
+          }
+        } catch (_e) {}
+        return res;
+      };
+
+      try {
+        return await executeFetch();
+      } catch (err) {
+        if (isRecoverableBareMuxError(err)) {
+          await requestWindowEnsureTransport();
+          return await executeFetch();
+        }
+        throw err;
+      }
+    },
+  };
+  return libcurlBridgeAdapter;
+}
+
+function bindLibcurlBridge() {
+  if (!scramjet) return false;
+  const adapter = createLibcurlEpoxyAdapter();
+  if (!adapter) return false;
+  scramjet.epoxy = adapter;
+  scramjet.initEpoxy = async () => {
+    scramjet.epoxy = adapter;
+    return adapter;
+  };
+  return true;
+}
+
+bindLibcurlBridge();
 
 const SCRAM_DB_NAME = "$scramjet";
 const REQUIRED_STORES = [
@@ -161,7 +381,7 @@ self.addEventListener("message", (event) => {
 
   if (event.data.scramjet$type === "resetDB") {
     scramjet.config = undefined;
-    scramjet.epoxy = undefined;
+    bindLibcurlBridge();
     event.waitUntil(
       (async () => {
         const deleted = await deleteScramjetDatabase();
@@ -175,25 +395,17 @@ self.addEventListener("message", (event) => {
 
   if (event.data.scramjet$type === "reloadConfigFromIDB") {
     scramjet.config = undefined;
-    scramjet.epoxy = undefined;
     event.waitUntil(
       (async () => {
         const loaded = await safeLoadScramjetConfig();
-        let epoxyOk = false;
-        if (loaded && typeof scramjet.initEpoxy === "function") {
-          try {
-            await scramjet.initEpoxy();
-            epoxyOk = true;
-          } catch (err) {
-            console.warn("Scramjet Epoxy reload warning:", err);
-          }
-        }
+        const libcurlOk = bindLibcurlBridge();
         if (replyPort) {
           try {
             replyPort.postMessage({
-              ok: Boolean(loaded && scramjet.config && scramjet.config.codec),
+              ok: Boolean(loaded && scramjet.config && scramjet.config.codec && libcurlOk),
               hasCodec: Boolean(scramjet.config && scramjet.config.codec),
-              epoxyOk,
+              libcurlOk,
+              transport: "libcurl",
               wisp: scramjet.config ? scramjet.config.wisp : null,
             });
           } catch (_e) {}
@@ -253,6 +465,8 @@ self.addEventListener("fetch", (event) => {
         );
       }
 
+      bindLibcurlBridge();
+
       try {
         if (scramjet.route(event)) {
           return await scramjet.fetch(event);
@@ -260,7 +474,7 @@ self.addEventListener("fetch", (event) => {
       } catch (err) {
         if (isIdbNotFoundError(err)) {
           scramjet.config = undefined;
-          scramjet.epoxy = undefined;
+          bindLibcurlBridge();
           await deleteScramjetDatabase();
         }
         return buildSwErrorResponse(

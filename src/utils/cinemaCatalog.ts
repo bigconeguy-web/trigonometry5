@@ -38,6 +38,7 @@ export interface CinemaTitleItem {
   watchPageUrl: string;
   isFullMovie: boolean;
   youtubeKey?: string | null;
+  imdbId?: string | null;
 }
 
 export const TVMAZE_SHOWS_URL = 'https://api.tvmaze.com/shows?page=0';
@@ -129,6 +130,7 @@ export function normalizeTvMazeShow(show: any): CinemaTitleItem | null {
     embedUrl: '',
     watchPageUrl: officialSite || tvmazeUrl,
     isFullMovie: false,
+    imdbId: show.externals && show.externals.imdb ? String(show.externals.imdb).trim() : null,
   };
 }
 
@@ -374,3 +376,268 @@ export function buildTvFallbackCatalog(): CinemaTitleItem[] {
     },
   ];
 }
+
+export type CinemaPlayerSourceMode = 'trailer' | 'archive' | 'custom';
+
+const DIRECT_EMBED_HOSTS = [
+  'youtube.com',
+  'youtu.be',
+  'youtube-nocookie.com',
+  'archive.org',
+  'vimeo.com',
+  'dailymotion.com',
+  'twitch.tv',
+  'soundcloud.com',
+  'streamable.com',
+];
+
+function stripScramPrefixIfAny(rawUrl: string): string {
+  const trimmed = String(rawUrl || '').trim();
+  const scramIdx = trimmed.indexOf('/scram/');
+  if (scramIdx !== -1) {
+    const after = trimmed.slice(scramIdx + '/scram/'.length);
+    try {
+      const decoded = decodeURIComponent(after);
+      if (/^https?:\/\//i.test(decoded)) return decoded;
+    } catch {
+      if (/^https?:\/\//i.test(after)) return after;
+    }
+  }
+  return trimmed;
+}
+
+export function shouldBypassProxyForEmbed(rawUrl: string | null | undefined): boolean {
+  const candidate = stripScramPrefixIfAny(String(rawUrl || ''));
+  if (!candidate) return false;
+  try {
+    const parsed = new URL(/^https?:\/\//i.test(candidate) ? candidate : `https://${candidate}`);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+    const host = parsed.hostname.toLowerCase();
+    if (DIRECT_EMBED_HOSTS.some((d) => host === d || host.endsWith(`.${d}`))) {
+      return true;
+    }
+    const lowerPath = parsed.pathname.toLowerCase();
+    if (lowerPath.includes('/embed') || /\.(mp4|webm|m3u8|ogv)(\?|$)/i.test(lowerPath)) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export function extractYouTubeVideoId(rawUrl: string): string | null {
+  try {
+    const parsed = new URL(rawUrl);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+    if (host === 'youtu.be') {
+      const id = parsed.pathname.replace(/^\/+/, '').split('/')[0];
+      return id || null;
+    }
+    if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+      if (parsed.pathname === '/watch') {
+        return parsed.searchParams.get('v') || null;
+      }
+      const m = parsed.pathname.match(/^\/(?:embed|shorts|live)\/([^/?#]+)/);
+      if (m && m[1]) return m[1];
+    }
+  } catch {
+    // ignore invalid URL
+  }
+  return null;
+}
+
+export function normalizeDirectEmbedUrl(rawUrl: string | null | undefined): string {
+  const stripped = stripScramPrefixIfAny(String(rawUrl || ''));
+  if (!stripped || /^(javascript|data|vbscript|file):/i.test(stripped)) {
+    return '';
+  }
+  const withProto = /^https?:\/\//i.test(stripped) ? stripped : `https://${stripped}`;
+  try {
+    const parsed = new URL(withProto);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+
+    const ytId = extractYouTubeVideoId(parsed.toString());
+    if (ytId) {
+      return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(ytId)}?autoplay=1&rel=0`;
+    }
+
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+    if (host === 'archive.org') {
+      const detailsMatch = parsed.pathname.match(/^\/details\/([^/?#]+)/);
+      if (detailsMatch && detailsMatch[1]) {
+        return `https://archive.org/embed/${encodeURIComponent(decodeURIComponent(detailsMatch[1]))}`;
+      }
+      const embedMatch = parsed.pathname.match(/^\/embed\/([^/?#]+)/);
+      if (embedMatch && embedMatch[1]) {
+        return `https://archive.org/embed/${encodeURIComponent(decodeURIComponent(embedMatch[1]))}`;
+      }
+    }
+
+    if (host === 'vimeo.com') {
+      const vimeoMatch = parsed.pathname.match(/^\/(\d+)/);
+      if (vimeoMatch && vimeoMatch[1]) {
+        return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+      }
+    }
+
+    if (host === 'dailymotion.com' || host === 'dai.ly' || host === 'geo.dailymotion.com') {
+      if (host === 'dai.ly') {
+        const dmShort = parsed.pathname.replace(/^\/+/, '').split('/')[0];
+        if (dmShort) return `https://www.dailymotion.com/embed/video/${encodeURIComponent(dmShort)}?autoplay=1`;
+      }
+      if (host === 'geo.dailymotion.com') {
+        const vidParam = parsed.searchParams.get('video');
+        if (vidParam) return `https://www.dailymotion.com/embed/video/${encodeURIComponent(vidParam)}?autoplay=1`;
+      }
+      const dmMatch = parsed.pathname.match(/^\/(?:embed\/)?video\/([^/?#_]+)/);
+      if (dmMatch && dmMatch[1]) {
+        return `https://www.dailymotion.com/embed/video/${encodeURIComponent(dmMatch[1])}?autoplay=1`;
+      }
+    }
+
+    return parsed.toString();
+  } catch {
+    return '';
+  }
+}
+
+export function pickBestArchiveMovieIdentifier(
+  docs: Array<{ identifier?: string; title?: string | string[] }>,
+  showTitle: string
+): string | null {
+  if (!Array.isArray(docs) || docs.length === 0) return null;
+  const cleanTitle = String(showTitle || '').toLowerCase().trim();
+  let bestId: string | null = null;
+  let bestScore = -999;
+
+  for (const d of docs) {
+    if (!d || !d.identifier) continue;
+    const id = String(d.identifier).trim();
+    const rawTitle = Array.isArray(d.title) ? d.title[0] : d.title;
+    const t = String(rawTitle || id).toLowerCase();
+    const lowId = id.toLowerCase();
+    let score = 0;
+
+    if (cleanTitle && t.includes(cleanTitle)) score += 6;
+    if (/trailer|promo|teaser|intro|clip|episode|feature|film|movie/.test(t)) score += 4;
+    if (lowId.startsWith('youtube-') || t.includes('video')) score += 1;
+    if (/podcast|soundtrack|score|audio|mp3|radio|coptx-/.test(`${lowId} ${t}`)) score -= 10;
+    if (/essay|review|disaster|promotes|violence|explained|analysis|reaction|debate/.test(t)) score -= 6;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestId = id;
+    }
+  }
+  return bestId;
+}
+
+export function pickBestDailymotionTrailerId(
+  videos: Array<{ id?: string; title?: string; duration?: number }>,
+  showTitle: string
+): string | null {
+  if (!Array.isArray(videos) || videos.length === 0) return null;
+  const cleanTitle = String(showTitle || '').toLowerCase().trim();
+  const titleTokens = cleanTitle.split(/\s+/).filter((t) => t.length >= 3);
+  let bestId: string | null = null;
+  let bestScore = -1;
+
+  for (const v of videos) {
+    if (!v || !v.id) continue;
+    const vidTitle = String(v.title || '').toLowerCase();
+    const dur = typeof v.duration === 'number' ? v.duration : 0;
+    let score = 0;
+    if (dur >= 25 && dur <= 360) score += 4;
+    else if (dur > 0 && dur <= 600) score += 2;
+    if (vidTitle.includes('trailer') || vidTitle.includes('teaser')) score += 3;
+    if (vidTitle.includes('official')) score += 2;
+    if (cleanTitle && vidTitle.includes(cleanTitle)) score += 4;
+    else if (titleTokens.some((tok) => vidTitle.includes(tok))) score += 2;
+    if (score > bestScore) {
+      bestScore = score;
+      bestId = String(v.id).trim();
+    }
+  }
+  return bestId;
+}
+
+export function resolveTemplateEmbedUrl(
+  template: string | null | undefined,
+  externalId: string,
+  season: number = 1,
+  episode: number = 1,
+  imdbId?: string | null
+): string {
+  const raw = String(template || '').trim();
+  if (!raw) return '';
+  const replaced = raw
+    .replace(/\{id\}/gi, encodeURIComponent(String(externalId || '')))
+    .replace(/\{imdb\}/gi, encodeURIComponent(String(imdbId || externalId || '')))
+    .replace(/\{season\}/gi, String(season || 1))
+    .replace(/\{episode\}/gi, String(episode || 1));
+  return normalizeDirectEmbedUrl(replaced);
+}
+
+export interface PlayerSourceCandidates {
+  defaultSource: CinemaPlayerSourceMode;
+  trailerUrl: string;
+  archiveUrl: string;
+  customUrl: string;
+  newTabUrl: string;
+}
+
+export function buildPlayerSourceCandidates(
+  item: Pick<CinemaTitleItem, 'source' | 'externalId' | 'title' | 'embedUrl' | 'watchPageUrl' | 'youtubeKey'>,
+  options: { embedTemplate?: string; customUrl?: string; season?: number; episode?: number } = {}
+): PlayerSourceCandidates {
+  const trailerUrl = item.youtubeKey
+    ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.youtubeKey)}?autoplay=1&rel=0`
+    : '';
+  const archiveUrl =
+    item.source === 'archive'
+      ? `https://archive.org/embed/${encodeURIComponent(item.externalId)}`
+      : normalizeDirectEmbedUrl(item.embedUrl).includes('archive.org/embed/')
+        ? normalizeDirectEmbedUrl(item.embedUrl)
+        : '';
+  const customFromOption = normalizeDirectEmbedUrl(options.customUrl);
+  const customFromTemplate = resolveTemplateEmbedUrl(
+    options.embedTemplate,
+    item.externalId,
+    options.season ?? 1,
+    options.episode ?? 1
+  );
+  const customUrl = customFromOption || customFromTemplate;
+
+  let defaultSource: CinemaPlayerSourceMode = 'trailer';
+  if (archiveUrl && item.source === 'archive') {
+    defaultSource = 'archive';
+  } else if (customUrl) {
+    defaultSource = 'custom';
+  } else if (trailerUrl) {
+    defaultSource = 'trailer';
+  } else if (archiveUrl) {
+    defaultSource = 'archive';
+  }
+
+  const activeUrl =
+    defaultSource === 'archive'
+      ? archiveUrl
+      : defaultSource === 'custom'
+        ? customUrl
+        : trailerUrl;
+
+  const newTabUrl =
+    activeUrl ||
+    item.watchPageUrl ||
+    `https://www.youtube.com/results?search_query=${encodeURIComponent(`${item.title} trailer`)}`;
+
+  return {
+    defaultSource,
+    trailerUrl,
+    archiveUrl,
+    customUrl,
+    newTabUrl,
+  };
+}
+

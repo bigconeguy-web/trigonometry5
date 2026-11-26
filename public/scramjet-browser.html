@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VALem</title>
+  <title>Vux</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -57,6 +57,29 @@
       overflow: hidden;
     }
 
+    html[data-global-fx="1"],
+    body[data-global-fx="1"] {
+      background: transparent !important;
+    }
+
+    body[data-global-fx="1"] .stage {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+
+    body[data-global-fx="1"] .tabs-strip,
+    body[data-global-fx="1"] .browser-chrome {
+      background: color-mix(in srgb, var(--bg-secondary) 76%, transparent);
+      backdrop-filter: blur(var(--glass-blur));
+    }
+
+    body[data-global-fx="1"] .home-search-box,
+    body[data-global-fx="1"] .shortcut-tile,
+    body[data-global-fx="1"] .clock-card {
+      background: color-mix(in srgb, var(--surface) 62%, transparent);
+      backdrop-filter: blur(var(--glass-blur));
+    }
+
     body.browser-fs-fallback {
       position: fixed;
       inset: 0;
@@ -65,8 +88,10 @@
       height: 100vh;
     }
 
-    /* Pill Tab Strip matching reference screenshot */
+    /* Pill Tab Strip */
     .tabs-strip {
+      position: relative;
+      z-index: 50;
       background: var(--bg-secondary);
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       padding: 0.45rem 0.75rem;
@@ -378,6 +403,76 @@
 
     .omnibar::placeholder {
       color: var(--text-muted);
+    }
+
+    .omnibar-star {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      transition: color 0.16s var(--ease), background 0.16s var(--ease), transform 0.16s var(--ease);
+    }
+
+    .omnibar-star:hover,
+    .omnibar-star.saved {
+      color: #fbbf24;
+      background: rgba(251, 191, 36, 0.14);
+      transform: scale(1.08);
+    }
+
+    .workspaces-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0.75rem;
+      width: min(360px, calc(100vw - 1.5rem));
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 0.85rem 0.95rem;
+      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.985);
+      pointer-events: none;
+      transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1), transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 65;
+    }
+
+    .workspaces-popover.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .ws-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+
+    .ws-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.45rem;
+      padding: 0.45rem 0.55rem;
+      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      font-size: 0.76rem;
     }
 
     /* Compact Now-Playing Mini Widget (Right Chrome) */
@@ -835,6 +930,19 @@
       text-align: left;
     }
 
+    .home-brand-lockup {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.72rem;
+    }
+
+    .home-emblem {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 6px 18px var(--primary-glow));
+    }
+
     .home-logo {
       font-family: var(--font-display);
       font-size: clamp(2.1rem, 4.4vw, 3rem);
@@ -1075,12 +1183,52 @@
       background: color-mix(in srgb, var(--surface) 58%, transparent);
     }
 
-    .shortcut-remove {
+    .shortcut-actions {
       position: absolute;
       top: 5px;
       right: 5px;
-      width: 18px;
-      height: 18px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity 0.16s var(--ease);
+    }
+
+    .shortcut-tile-shell:hover .shortcut-actions,
+    .shortcut-tile-shell:focus-within .shortcut-actions,
+    .shortcut-tile-shell.is-pinned .shortcut-pin-btn {
+      opacity: 0.95;
+    }
+
+    .shortcut-act-btn {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      font-size: 10px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .shortcut-act-btn:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .shortcut-act-btn.active {
+      color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.5);
+    }
+
+    .shortcut-remove {
+      width: 19px;
+      height: 19px;
       border-radius: 50%;
       border: 1px solid var(--border);
       background: var(--bg-secondary);
@@ -1091,13 +1239,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      opacity: 0;
       transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-    }
-
-    .shortcut-tile-shell:hover .shortcut-remove,
-    .shortcut-tile-shell:focus-within .shortcut-remove {
-      opacity: 0.9;
     }
 
     .shortcut-remove:hover {
@@ -1107,22 +1249,44 @@
     }
 
     .shortcut-box {
-      width: 38px;
-      height: 38px;
-      border-radius: calc(var(--ui-radius) - 2px);
-      background: var(--primary-soft);
-      border: 1px solid color-mix(in srgb, var(--primary) 26%, transparent);
+      width: 40px;
+      height: 40px;
+      border-radius: calc(var(--ui-radius) - 1px);
+      background: color-mix(in srgb, var(--surface) 75%, #000 25%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
       color: var(--primary);
       flex-shrink: 0;
-      transition: background 0.16s var(--ease), color 0.16s var(--ease);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.25);
+      transition: transform 0.18s var(--ease), border-color 0.18s var(--ease), box-shadow 0.18s var(--ease);
+    }
+
+    .shortcut-box svg,
+    .shortcut-box img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .shortcut-box img.shortcut-favicon-img {
+      position: absolute;
+      inset: 5px;
+      width: calc(100% - 10px);
+      height: calc(100% - 10px);
+      object-fit: contain;
+      border-radius: 6px;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.06);
     }
 
     .shortcut-tile:hover .shortcut-box {
-      background: var(--primary);
-      color: var(--primary-ink, #19070d);
+      transform: scale(1.06);
+      border-color: var(--primary);
+      box-shadow: 0 6px 16px var(--primary-soft);
     }
 
     .shortcut-text {
@@ -1343,13 +1507,29 @@
   </style>
 </head>
 <body>
-  <div class="tabs-strip" role="tablist" aria-label="VALem Tabs">
+  <div class="tabs-strip" role="tablist" aria-label="Vux Tabs">
     <div class="tabs-scroll" id="tabs-scroll">
       <button type="button" class="tab-mini-btn tab-new-inline" id="btn-new-tab" aria-label="New Tab" title="New Tab (Alt+T)">+</button>
     </div>
     <div class="tab-strip-actions">
+      <button type="button" class="tab-mini-btn" id="btn-workspaces" aria-expanded="false" aria-controls="workspaces-popover" title="Save or Restore Tab Workspaces">Sessions</button>
       <button type="button" class="tab-mini-btn" id="btn-close-others" style="display:none;" title="Close Other Tabs">Close Others</button>
       <span class="tab-count-badge" id="tab-count-badge">1 / 10</span>
+    </div>
+
+    <div class="workspaces-popover" id="workspaces-popover" role="dialog" aria-label="Tab Workspaces">
+      <div class="popover-head">
+        <div>
+          <div class="popover-title">Session &amp; Tab Workspaces</div>
+          <div class="popover-sub">Save open Vux tabs &amp; restore anytime</div>
+        </div>
+        <button type="button" class="ctl-btn solid" id="btn-ws-close" style="height:24px;min-width:24px;padding:0 0.4rem;font-size:0.72rem;">&#10005;</button>
+      </div>
+      <form class="popover-row" id="ws-save-form">
+        <input type="text" class="wisp-input" id="ws-name-input" placeholder="Workspace name (e.g. Study Set)" maxlength="32" />
+        <button type="submit" class="ctl-btn primary" style="height:33px;padding:0 0.75rem;">Save Tabs</button>
+      </form>
+      <div class="ws-list" id="ws-list"></div>
     </div>
   </div>
 
@@ -1358,24 +1538,26 @@
       <button type="button" class="ctl-btn" id="btn-back" aria-label="Back" title="Back">&#8592;</button>
       <button type="button" class="ctl-btn" id="btn-fwd" aria-label="Forward" title="Forward">&#8594;</button>
       <button type="button" class="ctl-btn" id="btn-reload" aria-label="Reload" title="Reload">&#8635;</button>
-      <button type="button" class="ctl-btn" id="btn-home" aria-label="Home" title="VALem Home">&#8962;</button>
+      <button type="button" class="ctl-btn" id="btn-home" aria-label="Home" title="Vux Home">&#8962;</button>
     </div>
 
     <form class="omnibar-wrap" id="top-form">
       <span class="omnibar-lock" aria-hidden="true">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       </span>
-      <input type="text" class="omnibar" id="top-url" placeholder="valem://home — search Brave or enter URL" autocomplete="off" />
+      <input type="text" class="omnibar" id="top-url" placeholder="vux://home — search Brave or enter URL" autocomplete="off" />
+      <button type="button" class="omnibar-star" id="btn-bookmark-tab" aria-label="Bookmark current page" title="Bookmark current page">&#9734;</button>
     </form>
 
-    <div class="mini-player" id="mini-player" aria-label="Ambient Synth Mini Player">
+    <div class="mini-player" id="mini-player" aria-label="Vux Audio Mini Player">
       <span aria-hidden="true">&#9834;</span>
       <span class="mini-player-label" id="mini-player-label">Nothing playing</span>
-      <button type="button" class="mini-player-btn" id="mini-prev" aria-label="Previous Synth Mode" title="Previous Station">&#9198;</button>
-      <button type="button" class="mini-player-btn" id="mini-play" aria-label="Play or Pause Lo-Fi Synth" title="Play / Pause Lo-Fi Synth">&#9654;</button>
-      <button type="button" class="mini-player-btn" id="mini-next" aria-label="Next Synth Mode" title="Next Station">&#9197;</button>
+      <button type="button" class="mini-player-btn" id="mini-prev" aria-label="Previous Track" title="Previous Station">&#9198;</button>
+      <button type="button" class="mini-player-btn" id="mini-play" aria-label="Play or Pause Audio" title="Play / Pause">&#9654;</button>
+      <button type="button" class="mini-player-btn" id="mini-next" aria-label="Next Track" title="Next Station">&#9197;</button>
     </div>
 
+    <button type="button" class="ctl-btn solid" id="btn-pop-pip" title="Pop current tab into floating Picture-in-Picture widget">PiP</button>
     <button type="button" class="ctl-btn solid" id="btn-wisp-toggle" aria-expanded="false" aria-controls="wisp-popover" title="Wisp &amp; Browser Settings">Wisp</button>
     <button type="button" class="ctl-btn solid" id="btn-fullscreen" title="Toggle Fullscreen (Alt+F)">Fullscreen</button>
 
@@ -1384,7 +1566,7 @@
       <div class="popover-head">
         <div>
           <div class="popover-title">Transport, Layout &amp; Search</div>
-          <div class="popover-sub">Libcurl / Epoxy Wisp transport, UI layout &amp; Brave Search</div>
+          <div class="popover-sub">Libcurl Wisp transport, UI layout &amp; Brave Search</div>
         </div>
         <button type="button" class="ctl-btn solid" id="btn-wisp-close" aria-label="Close Settings" style="height:26px;min-width:26px;padding:0 0.45rem;font-size:0.75rem;">&#10005;</button>
       </div>
@@ -1392,8 +1574,7 @@
       <div class="popover-field">
         <label for="transport-select">BareMux Proxy Transport</label>
         <select id="transport-select" class="popover-select">
-          <option value="libcurl" selected>Libcurl (Default — avoids HTTP/2 resets)</option>
-          <option value="epoxy">Epoxy (HTTP/2 Wisp)</option>
+          <option value="libcurl" selected>Libcurl (Active — avoids TLS &amp; HTTP/2 resets)</option>
         </select>
       </div>
 
@@ -1410,12 +1591,12 @@
       <div class="popover-field">
         <label for="wisp-input">Wisp Server URL (wss://)</label>
         <div class="popover-row">
-          <input type="text" class="wisp-input" id="wisp-input" placeholder="wss://my-wisp-server-ocnq.onrender.com/wisp/" />
+          <input type="text" class="wisp-input" id="wisp-input" placeholder="wss://wisp.mercurywork.shop/" />
           <button type="button" class="ctl-btn primary" style="height:33px;padding:0 0.85rem;" id="btn-wisp-save">Save</button>
         </div>
         <div class="popover-quick-actions">
-          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-default">Render Default</button>
-          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-local">Use Local /wisp/</button>
+          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-default">Mercury Default</button>
+          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-render">Render Wisp</button>
         </div>
         <span class="popover-status" id="wisp-status" aria-live="polite"></span>
       </div>
@@ -1443,7 +1624,6 @@
   <div class="error-banner" id="sj-error-banner" role="alert">
     <span id="sj-error-text"></span>
     <div class="error-actions">
-      <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-use-local-wisp">Use Local /wisp/</button>
       <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-reset-idb">Reset Storage &amp; Retry</button>
       <a class="ctl-btn solid" style="height:26px;font-size:0.78rem;display:none;" id="link-open-standalone" target="_blank" rel="noopener noreferrer">Open in New Tab</a>
       <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-retry-init">Retry</button>
@@ -1453,7 +1633,7 @@
   <div class="stage" id="omni-stage-root">
     <div class="sj-loading-overlay" id="sj-loading-overlay" aria-live="polite">
       <div class="sj-spinner" aria-hidden="true"></div>
-      <div class="sj-loading-text" id="sj-loading-text">Connecting VALem via Scramjet v2...</div>
+      <div class="sj-loading-text" id="sj-loading-text">Connecting Vux via Scramjet v2...</div>
       <button type="button" class="ctl-btn solid" id="btn-cancel-load" style="height:30px;font-size:0.8rem;">Cancel</button>
     </div>
 
@@ -1462,8 +1642,28 @@
         <div class="home-main-col">
           <div class="hero-top-row">
             <div class="hero-brand-wrap">
-              <div class="home-logo">VALem</div>
-              <p class="home-sub">Scramjet v2 private proxy with gn-math games, cinema &amp; books</p>
+              <div class="home-brand-lockup">
+                <svg class="home-emblem" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="vuxHomePrismGrad" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#ff6b8b"/>
+                      <stop offset="55%" stop-color="#ff3b6b"/>
+                      <stop offset="100%" stop-color="#a855f7"/>
+                    </linearGradient>
+                    <linearGradient id="vuxHomeFacetGrad" x1="24" y1="10" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                      <stop offset="100%" stop-color="#ffd6e0" stop-opacity="0.72"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M24 3L42 13.5V34.5L24 45L6 34.5V13.5L24 3Z" fill="url(#vuxHomePrismGrad)" fill-opacity="0.22" stroke="url(#vuxHomePrismGrad)" stroke-width="2"/>
+                  <path d="M24 7L38 15.2V32.8L24 41L10 32.8V15.2L24 7Z" fill="#0d070b" fill-opacity="0.78"/>
+                  <path d="M14.5 16.5L24 35L33.5 16.5H28.4L24 25.6L19.6 16.5H14.5Z" fill="url(#vuxHomeFacetGrad)"/>
+                  <path d="M24 25.6L28.4 16.5H33.5L24 35V25.6Z" fill="url(#vuxHomePrismGrad)" fill-opacity="0.88"/>
+                  <circle cx="24" cy="12" r="1.9" fill="#ffffff"/>
+                </svg>
+                <div class="home-logo">Vux</div>
+              </div>
+              <p class="home-sub">Scramjet v2 private proxy with Vux.ai, live chat, games, cinema &amp; MP3 studio</p>
             </div>
             <div class="clock-card" aria-label="Live Clock">
               <div class="clock-time" id="hero-clock-time">--:--</div>
@@ -1475,10 +1675,10 @@
             <strong>Sandboxed Preview Iframe Detected</strong>
             <p id="sandbox-card-msg">
               Your current preview iframe restricts Service Workers (/sw.js), which Scramjet needs to intercept and proxy traffic.
-              Open VALem in a standalone tab on the app server to browse through Scramjet.
+              Open Vux in a standalone tab on the app server to browse through Scramjet.
             </p>
             <div>
-              <a class="ctl-btn primary" id="sandbox-standalone-link" href="/scramjet-browser.html" target="_blank" rel="noopener noreferrer">Open Standalone VALem Tab</a>
+              <a class="ctl-btn primary" id="sandbox-standalone-link" href="/scramjet-browser.html" target="_blank" rel="noopener noreferrer">Open Standalone Vux Tab</a>
             </div>
           </div>
 
@@ -1550,7 +1750,7 @@
   <script src="/scram/scramjet.all.js"></script>
   <script>
     (function () {
-      var DEFAULT_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
+      var DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
       var DEFAULT_SEARCH_ENGINE = 'https://search.brave.com/search?q=';
       var PANIC_URL = 'https://classroom.google.com';
       try {
@@ -1661,7 +1861,6 @@
       var errorTextEl = document.getElementById('sj-error-text');
       var retryInitBtn = document.getElementById('btn-retry-init');
       var resetIdbBtn = document.getElementById('btn-reset-idb');
-      var useLocalWispBtn = document.getElementById('btn-use-local-wisp');
       var standaloneLink = document.getElementById('link-open-standalone');
       var sandboxCard = document.getElementById('sandbox-card');
       var sandboxCardMsg = document.getElementById('sandbox-card-msg');
@@ -1685,7 +1884,6 @@
       var wispCloseBtn = document.getElementById('btn-wisp-close');
       var wispInput = document.getElementById('wisp-input');
       var wispDefaultBtn = document.getElementById('btn-wisp-default');
-      var wispLocalBtn = document.getElementById('btn-wisp-local');
       var wispStatusEl = document.getElementById('wisp-status');
       var engineSelect = document.getElementById('engine-select');
       var heroEngineCycleBtn = document.getElementById('hero-engine-cycle');
@@ -1694,17 +1892,36 @@
 
       var activeTransport = 'libcurl';
       try {
-        var storedTransport = localStorage.getItem('valem_baremux_transport');
-        if (storedTransport === 'epoxy' || storedTransport === 'libcurl') {
-          activeTransport = storedTransport;
-        }
+        localStorage.setItem('valem_baremux_transport', 'libcurl');
       } catch (_e) {}
       if (transportSelect) {
-        transportSelect.value = activeTransport;
+        transportSelect.value = 'libcurl';
       }
 
       function normalizeHomeLayout(raw) {
         return (raw === 'normal' || raw === 'side' || raw === 'minimal') ? raw : 'split';
+      }
+
+      var loadedScramFonts = Object.create(null);
+      function applyScramFontFamily(fontName, googleSpec) {
+        if (!fontName) {
+          document.documentElement.style.setProperty('--font-ui', "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif");
+          document.documentElement.style.setProperty('--font-display', "'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif");
+          return;
+        }
+        var clean = String(fontName).replace(/['"]/g, '');
+        if (googleSpec && !loadedScramFonts[clean]) {
+          loadedScramFonts[clean] = true;
+          try {
+            var lnk = document.createElement('link');
+            lnk.rel = 'stylesheet';
+            lnk.href = 'https://fonts.googleapis.com/css2?family=' + googleSpec + '&display=swap';
+            document.head.appendChild(lnk);
+          } catch (_e) {}
+        }
+        var stack = "'" + clean + "', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif";
+        document.documentElement.style.setProperty('--font-ui', stack);
+        document.documentElement.style.setProperty('--font-display', stack);
       }
 
       function applyCustomSettingsToBrowser(cfg) {
@@ -1720,9 +1937,15 @@
         if (typeof cfg.glowStrength === 'number') root.style.setProperty('--glow-strength', String(cfg.glowStrength));
         if (typeof cfg.glassBlur === 'number') root.style.setProperty('--glass-blur', cfg.glassBlur + 'px');
         if (typeof cfg.fontScale === 'number') root.style.setProperty('--font-scale', String(cfg.fontScale));
+        if (typeof cfg.fontFamily === 'string') applyScramFontFamily(cfg.fontFamily, cfg.fontSpec || '');
         if (typeof cfg.showClock === 'boolean') document.body.setAttribute('data-show-clock', cfg.showClock ? '1' : '0');
         if (typeof cfg.showShortcuts === 'boolean') document.body.setAttribute('data-show-shortcuts', cfg.showShortcuts ? '1' : '0');
         if (typeof cfg.reducedMotion === 'boolean') document.body.setAttribute('data-reduced-motion', cfg.reducedMotion ? '1' : '0');
+        var fxOn = typeof cfg.hasGlobalFx === 'boolean'
+          ? cfg.hasGlobalFx
+          : Boolean((cfg.animatedBgId && cfg.animatedBgId !== 'off') || (cfg.dynamicBgId && cfg.dynamicBgId !== 'off'));
+        document.documentElement.setAttribute('data-global-fx', fxOn ? '1' : '0');
+        document.body.setAttribute('data-global-fx', fxOn ? '1' : '0');
         if (cfg.panicUrl && /^https?:\/\//i.test(String(cfg.panicUrl).trim())) {
           PANIC_URL = String(cfg.panicUrl).trim();
         }
@@ -1731,7 +1954,14 @@
       try {
         var rawCustom = localStorage.getItem('valem_custom_settings');
         if (rawCustom) applyCustomSettingsToBrowser(JSON.parse(rawCustom));
-      } catch (_e) {}
+        else {
+          document.documentElement.setAttribute('data-global-fx', '1');
+          document.body.setAttribute('data-global-fx', '1');
+        }
+      } catch (_e) {
+        document.documentElement.setAttribute('data-global-fx', '1');
+        document.body.setAttribute('data-global-fx', '1');
+      }
       if (!document.body.getAttribute('data-home-layout')) {
         document.body.setAttribute('data-home-layout', 'split');
       }
@@ -1760,7 +1990,7 @@
           label = engineSelect.options[engineSelect.selectedIndex].text.replace(/\s+Search$/i, '');
         }
         if (homeInputEl) homeInputEl.placeholder = 'Search ' + label + ' or enter a URL...';
-        if (topUrlEl) topUrlEl.placeholder = 'valem://home — search ' + label + ' or enter URL';
+        if (topUrlEl) topUrlEl.placeholder = 'vux://home — search ' + label + ' or enter URL';
         if (heroEngineCycleBtn) heroEngineCycleBtn.textContent = label;
       }
 
@@ -1793,11 +2023,10 @@
       if (standaloneLink) standaloneLink.href = window.location.href;
       if (sandboxLink) sandboxLink.href = window.location.href;
 
-      var localWispUrl = (location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + location.host + '/wisp/';
-
       function normalizeWispUrl(raw) {
         var val = String(raw || '').trim();
         if (!val) return DEFAULT_WISP_URL;
+        var hadExplicitRootSlash = /\/\/[^/]+\/$/.test(val);
         if (val.startsWith('/')) {
           val = (location.protocol === 'https:' ? 'wss:' : 'ws:') + '//' + location.host + val;
         } else if (/^https?:\/\//i.test(val)) {
@@ -1807,8 +2036,13 @@
         }
         try {
           var parsed = new URL(val);
+          var host = parsed.hostname.toLowerCase();
           if (!parsed.pathname || parsed.pathname === '/') {
-            parsed.pathname = '/wisp/';
+            if (host === 'wisp.mercurywork.shop' || hadExplicitRootSlash) {
+              parsed.pathname = '/';
+            } else {
+              parsed.pathname = '/wisp/';
+            }
           }
           return parsed.toString();
         } catch (_e) {
@@ -1818,10 +2052,8 @@
 
       var savedWisp = DEFAULT_WISP_URL;
       try {
-        var storedVal = localStorage.getItem('valbrowse_wisp_url');
-        if (storedVal && storedVal.trim()) {
-          savedWisp = normalizeWispUrl(storedVal);
-        }
+        localStorage.setItem('valbrowse_wisp_url', DEFAULT_WISP_URL);
+        localStorage.setItem('gn_scramjet_wisp', DEFAULT_WISP_URL);
       } catch (e) {}
 
       wispInput.value = savedWisp;
@@ -1876,6 +2108,10 @@
           clearTimeout(tab.timeoutId);
           tab.timeoutId = null;
         }
+        if (tab && tab.readyPollId) {
+          clearInterval(tab.readyPollId);
+          tab.readyPollId = null;
+        }
       }
 
       function attachFrameListeners(tab) {
@@ -1903,7 +2139,7 @@
             var docTitle = doc ? String(doc.title || '').trim() : '';
             var innerHref = cw && cw.location && cw.location.href;
             if (
-              docTitle === 'VALem' && doc && doc.getElementById('tabs-scroll')
+              (docTitle === 'Vux' || docTitle === 'VALem') && doc && doc.getElementById('tabs-scroll')
             ) {
               tab.isHome = true;
               try { tab.frameEl.src = 'about:blank'; } catch (_e) {}
@@ -1932,6 +2168,7 @@
           } catch (e) {}
           if (tab.id === activeTabId) {
             setLoading(false);
+            if (typeof syncBookmarkStarState === 'function') syncBookmarkStarState();
           }
           renderTabsStrip();
         });
@@ -1940,14 +2177,14 @@
       function createTab(options) {
         var opts = options || {};
         if (tabs.length >= MAX_TABS) {
-          showError('Maximum ' + MAX_TABS + ' VALem tabs open. Close a tab before opening another.');
+          showError('Maximum ' + MAX_TABS + ' Vux tabs open. Close a tab before opening another.');
           return getActiveTab();
         }
         var id = 'sjtab_' + (tabSeq++);
         var frameEl = document.createElement('iframe');
         frameEl.className = 'sj-frame';
-        frameEl.title = 'VALem Tab Frame';
-        frameEl.setAttribute('allow', 'autoplay; gamepad; fullscreen');
+        frameEl.title = 'Vux Tab Frame';
+        frameEl.setAttribute('allow', 'autoplay; gamepad; fullscreen; encrypted-media; picture-in-picture');
         framesHostEl.appendChild(frameEl);
 
         var tab = {
@@ -1959,7 +2196,8 @@
           loadingMessage: '',
           navToken: 0,
           timeoutId: null,
-          frameEl: frameEl
+          frameEl: frameEl,
+          scramFrame: null
         };
         attachFrameListeners(tab);
         tabs.push(tab);
@@ -2036,12 +2274,13 @@
           var isCur = active && tabs[i].id === active.id && !tabs[i].isHome;
           tabs[i].frameEl.classList.toggle('active', Boolean(isCur));
         }
+        if (typeof syncBookmarkStarState === 'function') syncBookmarkStarState();
         if (!active || active.isHome) {
           framesHostEl.classList.remove('has-frame');
           homeScreen.style.display = 'flex';
           topUrlEl.value = active && active.url ? active.url : '';
           if (active && active.loading) {
-            setLoading(true, active.loadingMessage || 'Connecting to VALem...');
+            setLoading(true, active.loadingMessage || 'Connecting to Vux...');
           } else {
             setLoading(false);
           }
@@ -2469,7 +2708,7 @@
 
         if (!window.isSecureContext || window.location.origin === 'null' || !('serviceWorker' in navigator)) {
           showError(
-            'Scramjet requires Service Workers on an HTTP(S) secure origin. Your current sandboxed preview iframe blocks Service Workers—open VALem in a standalone tab to browse.',
+            'Scramjet requires Service Workers on an HTTP(S) secure origin. Your current sandboxed preview iframe blocks Service Workers—open Vux in a standalone tab to browse.',
             { sandboxBlocked: true }
           );
           return false;
@@ -2482,11 +2721,21 @@
           var wispProbe = await testWispConnection(activeWisp);
           if (!wispProbe.ok) {
             setLoading(false);
-            showError('Proxy server unreachable: ' + wispProbe.reason + '. Check Wisp Settings or click "Use Local /wisp/".');
+            showError('Mercury Wisp server unreachable: ' + wispProbe.reason + '. Check Wisp Settings or click Retry.');
             return false;
           }
 
-          setLoading(true, 'Initializing VALem Service Worker & IndexedDB...');
+          if (typeof BareMux === 'undefined' || !BareMux.BareMuxConnection) {
+            throw new Error('BareMux script (/baremux/index.js) did not finish loading.');
+          }
+
+          setLoading(true, 'Connecting Libcurl transport via Mercury Wisp...');
+          var transportPath = '/libcurl/index.mjs';
+          var transportName = 'Libcurl';
+          connection = new BareMux.BareMuxConnection('/baremux/worker.js');
+          await connection.setTransport(transportPath, [{ wisp: activeWisp }]);
+
+          setLoading(true, 'Initializing Vux Service Worker & IndexedDB...');
           await ensureCleanScramjetIDB();
 
           try {
@@ -2516,26 +2765,35 @@
           }
 
           var registration = await navigator.serviceWorker.register('/sw.js', { scope: '/scram/' });
+          if (registration && typeof registration.update === 'function') {
+            try {
+              await registration.update();
+            } catch (_updErr) {}
+          }
           var activeWorker = await new Promise(function (resolve) {
-            if (registration && registration.active) {
+            var pendingSw = registration && (registration.installing || registration.waiting);
+            if (!pendingSw && registration && registration.active) {
               resolve(registration.active);
               return;
             }
-            var sw = registration && (registration.installing || registration.waiting);
-            if (!sw) {
-              resolve(null);
+            if (!pendingSw) {
+              resolve((registration && registration.active) || null);
+              return;
+            }
+            if (pendingSw.state === 'activated') {
+              resolve(pendingSw);
               return;
             }
             var done = false;
             var finish = function () {
               if (!done) {
                 done = true;
-                resolve((registration && registration.active) || sw);
+                resolve((registration && registration.active) || pendingSw);
               }
             };
             var timer = setTimeout(finish, 4500);
-            sw.addEventListener('statechange', function () {
-              if (sw.state === 'activated') {
+            pendingSw.addEventListener('statechange', function () {
+              if (pendingSw.state === 'activated') {
                 clearTimeout(timer);
                 finish();
               }
@@ -2550,14 +2808,6 @@
           if (swSync && swSync.hasCodec === false) {
             throw new Error('Scramjet Service Worker could not load config codec from IndexedDB.');
           }
-
-          if (typeof BareMux === 'undefined' || !BareMux.BareMuxConnection) {
-            throw new Error('BareMux script (/baremux/index.js) did not finish loading.');
-          }
-          var transportPath = activeTransport === 'epoxy' ? '/epoxy/index.mjs' : '/libcurl/index.mjs';
-          var transportName = activeTransport === 'epoxy' ? 'Epoxy' : 'Libcurl';
-          connection = new BareMux.BareMuxConnection('/baremux/worker.js');
-          await connection.setTransport(transportPath, [{ wisp: activeWisp }]);
 
           if (wispStatusEl) {
             wispStatusEl.textContent = 'Connected (' + transportName + '): ' + activeWisp;
@@ -2577,7 +2827,7 @@
 
           if (isSandboxOrSwBlockedError(err)) {
             showError(
-              'Service Workers are blocked by this sandboxed preview iframe (' + (err && err.message ? err.message : 'SecurityError') + '). Open VALem in a standalone tab to browse.',
+              'Service Workers are blocked by this sandboxed preview iframe (' + (err && err.message ? err.message : 'SecurityError') + '). Open Vux in a standalone tab to browse.',
               { sandboxBlocked: true }
             );
             return false;
@@ -2629,7 +2879,7 @@
         var isSearchQuery = !/^https?:\/\//i.test(trimmed) && !looksLikeDomainOrHost(trimmed);
         tab.url = targetUrl;
         tab.loading = true;
-        tab.loadingMessage = 'Connecting to VALem proxy...';
+        tab.loadingMessage = 'Connecting to Vux proxy...';
         try {
           tab.title = isSearchQuery ? ('Search: ' + trimmed.slice(0, 22)) : new URL(targetUrl).hostname.replace(/^www\./, '');
         } catch (_e) {
@@ -2666,6 +2916,20 @@
             return;
           }
 
+          if (!tab.scramFrame && typeof scramjet.createFrame === 'function') {
+            tab.scramFrame = scramjet.createFrame(tab.frameEl);
+            if (tab.scramFrame && typeof tab.scramFrame.addEventListener === 'function') {
+              tab.scramFrame.addEventListener('urlchange', function (ev) {
+                if (ev && ev.url && tab.url !== ev.url) {
+                  tab.url = ev.url;
+                  if (tab.id === activeTabId && topUrlEl && document.activeElement !== topUrlEl) {
+                    topUrlEl.value = ev.url;
+                  }
+                }
+              });
+            }
+          }
+
           var encodedUrl = scramjet.encodeUrl(targetUrl);
           tab.isHome = false;
           tab.loadingMessage = 'Loading ' + targetUrl + ' ...';
@@ -2674,19 +2938,74 @@
           }
 
           clearTabTimeout(tab);
+          if (tab.readyPollId) {
+            clearInterval(tab.readyPollId);
+            tab.readyPollId = null;
+          }
+          tab.readyPollId = setInterval(function () {
+            if (myToken !== tab.navToken || !tab.loading) {
+              clearInterval(tab.readyPollId);
+              tab.readyPollId = null;
+              return;
+            }
+            try {
+              var doc = tab.frameEl.contentDocument;
+              if (
+                doc &&
+                doc.location &&
+                doc.location.href !== 'about:blank' &&
+                doc.readyState !== 'loading' &&
+                doc.body &&
+                (doc.body.innerText.trim().length > 0 || doc.body.scrollHeight > 120)
+              ) {
+                tab.loading = false;
+                tab.loadingMessage = '';
+                clearInterval(tab.readyPollId);
+                tab.readyPollId = null;
+                clearTabTimeout(tab);
+                if (tab.id === activeTabId) {
+                  setLoading(false);
+                }
+                renderTabsStrip();
+              }
+            } catch (_e) {}
+          }, 450);
+
           tab.timeoutId = setTimeout(function () {
+            if (tab.readyPollId) {
+              clearInterval(tab.readyPollId);
+              tab.readyPollId = null;
+            }
             if (myToken === tab.navToken && tab.loading) {
+              var hasPartialContent = false;
+              try {
+                var doc = tab.frameEl.contentDocument;
+                hasPartialContent = Boolean(
+                  doc &&
+                  doc.location &&
+                  doc.location.href !== 'about:blank' &&
+                  doc.readyState !== 'loading' &&
+                  doc.body &&
+                  doc.body.innerHTML.length > 0
+                );
+              } catch (_e) {}
               tab.loading = false;
               tab.loadingMessage = '';
               if (tab.id === activeTabId) {
                 setLoading(false);
-                showError('The site is taking a while to respond via Wisp. You can wait, click Reload, or try another URL.');
+                if (!hasPartialContent) {
+                  showError('The site is taking a while to respond via Wisp. You can wait, click Reload, or try another URL.');
+                }
               }
               renderTabsStrip();
             }
-          }, 16000);
+          }, 26000);
 
-          tab.frameEl.src = encodedUrl;
+          if (tab.scramFrame && typeof tab.scramFrame.go === 'function') {
+            tab.scramFrame.go(targetUrl);
+          } else {
+            tab.frameEl.src = encodedUrl;
+          }
           renderTabsStrip();
         } catch (navErr) {
           proxyReadyPromise = null;
@@ -2708,7 +3027,7 @@
       }
 
       /* ---------------- EVENT LISTENERS ---------------- */
-      window.addEventListener('message', function (ev) {
+      window.addEventListener('message', async function (ev) {
         if (!ev || !ev.data) return;
         if (ev.data.type === 'scramjet-theme') {
           applyThemeTokens(ev.data);
@@ -2719,6 +3038,56 @@
             createTab({ initialQuery: ev.data.query });
           } else {
             navigateProxy(ev.data.query);
+          }
+        } else if (ev.data.type === 'valem-resolve-scram-url' && typeof ev.data.targetUrl === 'string') {
+          var reqId = ev.data.requestId || '';
+          var rawTarget = ev.data.targetUrl;
+          var customWisp = typeof ev.data.wispUrl === 'string' && ev.data.wispUrl.trim()
+            ? normalizeWispUrl(ev.data.wispUrl.trim())
+            : '';
+          try {
+            var okReady = await ensureProxyReady();
+            var effectiveWisp = customWisp || savedWisp || DEFAULT_WISP_URL;
+            if (okReady && customWisp && customWisp !== (savedWisp || DEFAULT_WISP_URL)) {
+              try {
+                var wakeHttp = customWisp.replace(/^ws:/i, 'http:').replace(/^wss:/i, 'https:');
+                var wakeOrigin = new URL(wakeHttp).origin + '/';
+                fetch(wakeOrigin, { mode: 'no-cors' }).catch(function () {});
+              } catch (_we) {}
+              try {
+                if (!connection && typeof BareMux !== 'undefined' && BareMux.BareMuxConnection) {
+                  connection = new BareMux.BareMuxConnection('/baremux/worker.js');
+                }
+                if (connection) {
+                  await connection.setTransport('/libcurl/index.mjs', [{ wisp: customWisp }]);
+                }
+              } catch (_te) {}
+            }
+            var encoded = (okReady && scramjet && typeof scramjet.encodeUrl === 'function')
+              ? scramjet.encodeUrl(rawTarget)
+              : ('/scram/' + encodeURIComponent(rawTarget));
+            var fullEncoded = encoded.charAt(0) === '/' ? (window.location.origin + encoded) : encoded;
+            if (ev.source && typeof ev.source.postMessage === 'function') {
+              ev.source.postMessage({
+                type: 'valem-scram-url-ready',
+                requestId: reqId,
+                encodedUrl: fullEncoded,
+                targetUrl: rawTarget,
+                wispUrl: effectiveWisp,
+                ok: Boolean(okReady)
+              }, '*');
+            }
+          } catch (bridgeErr) {
+            if (ev.source && typeof ev.source.postMessage === 'function') {
+              ev.source.postMessage({
+                type: 'valem-scram-url-ready',
+                requestId: reqId,
+                encodedUrl: '',
+                targetUrl: rawTarget,
+                ok: false,
+                error: bridgeErr && bridgeErr.message ? bridgeErr.message : 'Proxy initialization failed'
+              }, '*');
+            }
           }
         }
       });
@@ -2763,31 +3132,42 @@
         if (wispStatusEl) wispStatusEl.textContent = 'Connected to ' + next;
       }
 
-      useLocalWispBtn.addEventListener('click', function () {
-        switchToEndpoint(localWispUrl, 'local /wisp/');
-      });
-
-      if (wispLocalBtn) {
-        wispLocalBtn.addEventListener('click', function () {
-          switchToEndpoint(localWispUrl, 'local /wisp/');
+      if ('serviceWorker' in navigator && typeof navigator.serviceWorker.addEventListener === 'function') {
+        navigator.serviceWorker.addEventListener('message', function (ev) {
+          if (ev && ev.data && ev.data.scramjet$type === 'ensureLibcurlTransport') {
+            try {
+              if (!connection && typeof BareMux !== 'undefined' && BareMux.BareMuxConnection) {
+                connection = new BareMux.BareMuxConnection('/baremux/worker.js');
+              }
+              if (connection) {
+                connection.setTransport('/libcurl/index.mjs', [{ wisp: savedWisp || DEFAULT_WISP_URL }]).catch(function () {});
+              }
+            } catch (_e) {}
+          }
         });
       }
 
       if (wispDefaultBtn) {
         wispDefaultBtn.addEventListener('click', function () {
-          switchToEndpoint(DEFAULT_WISP_URL, 'Render default');
+          switchToEndpoint(DEFAULT_WISP_URL, 'Mercury default');
+        });
+      }
+
+      var wispRenderBtn = document.getElementById('btn-wisp-render');
+      if (wispRenderBtn) {
+        wispRenderBtn.addEventListener('click', function () {
+          switchToEndpoint('wss://my-wisp-server-ocnq.onrender.com/wisp/', 'Render Wisp');
         });
       }
 
       if (transportSelect) {
         transportSelect.addEventListener('change', async function () {
-          activeTransport = transportSelect.value === 'epoxy' ? 'epoxy' : 'libcurl';
+          activeTransport = 'libcurl';
           try {
-            localStorage.setItem('valem_baremux_transport', activeTransport);
+            localStorage.setItem('valem_baremux_transport', 'libcurl');
           } catch (_e) {}
-          var transportLabel = activeTransport === 'epoxy' ? 'Epoxy' : 'Libcurl';
-          if (wispStatusEl) wispStatusEl.textContent = 'Switching transport to ' + transportLabel + '...';
-          await switchToEndpoint(wispInput.value || savedWisp, transportLabel);
+          if (wispStatusEl) wispStatusEl.textContent = 'Connecting Libcurl transport...';
+          await switchToEndpoint(wispInput.value || savedWisp, 'Libcurl');
         });
       }
 
@@ -2930,26 +3310,55 @@
         { id: 'roblox', label: 'Roblox', subtitle: 'nowgg.fun', url: 'https://nowgg.fun', iconKey: 'roblox' }
       ];
 
-      function getShortcutIconSvg(iconKey) {
-        if (iconKey === 'discord') {
-          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.32 4.37a19.8 19.8 0 0 0-4.89-1.52.07.07 0 0 0-.08.04c-.21.38-.45.87-.61 1.25a18.27 18.27 0 0 0-5.48 0c-.16-.39-.41-.87-.62-1.25a.07.07 0 0 0-.08-.04A19.74 19.74 0 0 0 3.68 4.37a.07.07 0 0 0-.03.03C.53 9.05-.32 13.58.1 18.06a.08.08 0 0 0 .03.06 19.9 19.9 0 0 0 5.99 3.03.08.08 0 0 0 .08-.03c.46-.63.87-1.3 1.22-1.99a.08.08 0 0 0-.04-.11 13.1 13.1 0 0 1-1.87-.9.08.08 0 0 1-.01-.13c.13-.09.25-.19.37-.29a.08.08 0 0 1 .08-.01c3.93 1.79 8.18 1.79 12.06 0a.08.08 0 0 1 .08.01c.12.1.24.2.37.29a.08.08 0 0 1-.01.13c-.6.35-1.22.65-1.87.9a.08.08 0 0 0-.04.11c.36.7.77 1.36 1.22 1.99a.08.08 0 0 0 .08.03 19.83 19.83 0 0 0 6-3.03.08.08 0 0 0 .03-.06c.5-5.18-.84-9.68-3.55-13.66a.06.06 0 0 0-.03-.03zM8.02 15.33c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.08-2.16-2.42 0-1.33.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.34-.95 2.42-2.16 2.42z"/></svg>';
+      function getShortcutIconSvg(iconKey, url, label) {
+        var k = iconKey || inferShortcutIconKey(url || '');
+        if (k === 'discord') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#5865F2"/><path fill="#FFFFFF" d="M27.8 13.6a14.8 14.8 0 0 0-3.7-1.15.05.05 0 0 0-.06.03c-.16.29-.34.66-.46.95a13.7 13.7 0 0 0-4.16 0 9.6 9.6 0 0 0-.47-.95.06.06 0 0 0-.06-.03 14.8 14.8 0 0 0-3.7 1.15.05.05 0 0 0-.02.02C12.8 17.15 12.16 20.6 12.48 24a.06.06 0 0 0 .02.04 15 15 0 0 0 4.54 2.3.06.06 0 0 0 .06-.02c.35-.48.66-.99.93-1.52a.06.06 0 0 0-.03-.08 9.9 9.9 0 0 1-1.42-.68.06.06 0 0 1-.01-.1c.1-.07.19-.15.28-.22a.06.06 0 0 1 .06-.01c2.98 1.36 6.2 1.36 9.15 0a.06.06 0 0 1 .06.01c.09.07.18.15.28.22a.06.06 0 0 1 0 .1c-.45.27-.92.49-1.42.68a.06.06 0 0 0-.03.08c.27.53.58 1.04.93 1.52a.06.06 0 0 0 .06.02 14.9 14.9 0 0 0 4.55-2.3.06.06 0 0 0 .02-.04c.38-3.93-.64-7.35-2.7-10.38a.05.05 0 0 0-.02-.02zM17.48 21.92c-.9 0-1.64-.82-1.64-1.83 0-1.01.73-1.84 1.64-1.84.92 0 1.65.83 1.64 1.84 0 1.01-.73 1.83-1.64 1.83zm6.04 0c-.9 0-1.64-.82-1.64-1.83 0-1.01.73-1.84 1.64-1.84.92 0 1.65.83 1.64 1.84 0 1.01-.72 1.83-1.64 1.83z"/></svg>';
         }
-        if (iconKey === 'snapchat') {
-          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-2.9 0-4.8 1.9-4.8 5v2.2c-.7-.2-1.4-.1-1.7.3-.3.4-.1 1 .5 1.3.7.4 1.1 1 1 1.7-.3 1.7-1.7 3-3.5 3.4-.3.1-.5.4-.4.7.1.3.4.5.7.6.9.2 1.7.6 2.2 1.2.4.5.9.8 1.6.7 1-.1 1.9.2 2.7.7.6.4 1.2.6 1.7.6s1.1-.2 1.7-.6c.8-.5 1.7-.8 2.7-.7.7.1 1.2-.2 1.6-.7.5-.6 1.3-1 2.2-1.2.3-.1.6-.3.7-.6.1-.3-.1-.6-.4-.7-1.8-.4-3.2-1.7-3.5-3.4-.1-.7.3-1.3 1-1.7.6-.3.8-.9.5-1.3-.3-.4-1-.5-1.7-.3V8c0-3.1-1.9-5-4.8-5z"/></svg>';
+        if (k === 'snapchat') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#FFFC00"/><path fill="#FFFFFF" stroke="#111111" stroke-width="1.6" stroke-linejoin="round" d="M20 9.5c-3.45 0-5.7 2.25-5.7 5.95v2.6c-.82-.22-1.65-.1-2 .36-.34.46-.1 1.15.58 1.52.82.46 1.28 1.15 1.16 2-.34 2-2 3.55-4.1 4.02-.38.1-.6.45-.48.82.12.35.46.58.84.68 1.06.26 1.98.72 2.58 1.44.48.58 1.08.92 1.88.8 1.18-.12 2.24.26 3.18.84.72.46 1.4.7 2.06.7s1.34-.24 2.06-.7c.94-.58 2-.96 3.18-.84.8.12 1.4-.22 1.88-.8.6-.72 1.52-1.18 2.58-1.44.38-.1.72-.33.84-.68.12-.37-.1-.72-.48-.82-2.1-.47-3.76-2.02-4.1-4.02-.12-.85.34-1.54 1.16-2 .68-.37.92-1.06.58-1.52-.35-.46-1.18-.58-2-.36v-2.6c0-3.7-2.25-5.95-5.7-5.95z"/></svg>';
         }
-        if (iconKey === 'kick') {
-          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h5v6.2L14.5 3H20l-6.2 8.2L20.5 21h-5.6L9 13.5V21H4V3z"/></svg>';
+        if (k === 'kick') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#0B0E0F"/><path fill="#53FC18" d="M10.5 9h5.6v7.1L22.4 9H29l-6.9 9.2L29.5 31h-6.4l-7-9.6V31h-5.6V9z"/></svg>';
         }
-        if (iconKey === 'twitch') {
-          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2H3v16h5v4l4-4h5l4-4V2z"/><line x1="11" y1="7" x2="11" y2="12"/><line x1="16" y1="7" x2="16" y2="12"/></svg>';
+        if (k === 'twitch') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#9146FF"/><path fill="#FFFFFF" d="M12.2 9L9.5 13.7v15.4h5.6V32l3-2.9h4.6l6.8-6.8V9H12.2zm14.9 12.1l-3 3h-4.7l-2.6 2.6v-2.6h-3.9V11.4h14.2v9.7z"/><rect x="21.8" y="14.4" width="2.2" height="6.2" fill="#9146FF"/><rect x="16.4" y="14.4" width="2.2" height="6.2" fill="#9146FF"/></svg>';
         }
-        if (iconKey === 'reddit') {
-          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="7"/><path d="M12 7l2-4 4 1"/><circle cx="19" cy="4" r="1.5"/><circle cx="9.5" cy="13.5" r="1" fill="currentColor"/><circle cx="14.5" cy="13.5" r="1" fill="currentColor"/><path d="M9.5 17c1.4.8 3.6.8 5 0"/></svg>';
+        if (k === 'reddit') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#FF4500"/><circle cx="20" cy="22.5" r="9.2" fill="#FFFFFF"/><circle cx="11.2" cy="19.5" r="2.2" fill="#FFFFFF"/><circle cx="28.8" cy="19.5" r="2.2" fill="#FFFFFF"/><path d="M20 13.3l2.1-5.1 4.4 1" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="27.2" cy="9.5" r="1.9" fill="#FFFFFF"/><circle cx="16.6" cy="21.5" r="1.6" fill="#FF4500"/><circle cx="23.4" cy="21.5" r="1.6" fill="#FF4500"/><path d="M16.2 26c2.1 1.4 5.5 1.4 7.6 0" stroke="#FF4500" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>';
         }
-        if (iconKey === 'roblox') {
-          return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2.5" transform="rotate(14 12 12)"/><rect x="10.2" y="10.2" width="3.6" height="3.6" transform="rotate(14 12 12)"/></svg>';
+        if (k === 'roblox') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="rbxG" x1="6" y1="6" x2="34" y2="34" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#2c313d"/><stop offset="100%" stop-color="#13161d"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#rbxG)"/><g transform="rotate(14 20 20)"><rect x="10.2" y="10.2" width="19.6" height="19.6" rx="3.5" fill="#FFFFFF"/><rect x="17.3" y="17.3" width="5.4" height="5.4" rx="0.8" fill="#171a22"/></g></svg>';
         }
-        return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+        if (k === 'youtube') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#FF0000"/><polygon points="16.5,14 27,20 16.5,26" fill="#FFFFFF"/></svg>';
+        }
+        if (k === 'tiktok') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#09090B"/><path fill="#25F4EE" d="M23.5 10h2.8c.3 2.5 1.8 4.2 4.2 4.6v2.9a7.4 7.4 0 0 1-4.2-1.3v6.5a6.3 6.3 0 1 1-6.3-6.3c.4 0 .8 0 1.2.1v3a3.3 3.3 0 1 0 2.3 3.2V10z" transform="translate(-0.8,-0.6)"/><path fill="#FE2C55" d="M23.5 10h2.8c.3 2.5 1.8 4.2 4.2 4.6v2.9a7.4 7.4 0 0 1-4.2-1.3v6.5a6.3 6.3 0 1 1-6.3-6.3c.4 0 .8 0 1.2.1v3a3.3 3.3 0 1 0 2.3 3.2V10z" transform="translate(0.7,0.6)"/><path fill="#FFFFFF" d="M23.5 10h2.8c.3 2.5 1.8 4.2 4.2 4.6v2.9a7.4 7.4 0 0 1-4.2-1.3v6.5a6.3 6.3 0 1 1-6.3-6.3c.4 0 .8 0 1.2.1v3a3.3 3.3 0 1 0 2.3 3.2V10z"/></svg>';
+        }
+        if (k === 'spotify') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#1DB954"/><path d="M12.5 16.5c5-1.5 11.2-1.2 15.6 1.2" stroke="#0c0f0a" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M13.6 21c4.1-1.2 9.1-.9 12.8 1" stroke="#0c0f0a" stroke-width="2.3" stroke-linecap="round" fill="none"/><path d="M14.7 25.2c3.2-.9 7-.7 9.8.8" stroke="#0c0f0a" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
+        }
+        if (k === 'github') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#161B22"/><path fill="#FFFFFF" d="M20 9.5a10.5 10.5 0 0 0-3.32 20.46c.52.1.72-.23.72-.5v-1.78c-2.92.63-3.54-1.4-3.54-1.4-.48-1.21-1.17-1.54-1.17-1.54-.95-.65.07-.64.07-.64 1.05.07 1.61 1.08 1.61 1.08.94 1.61 2.46 1.15 3.06.88.1-.68.37-1.15.67-1.41-2.33-.27-4.78-1.16-4.78-5.18 0-1.14.41-2.08 1.08-2.81-.1-.27-.47-1.33.1-2.77 0 0 .88-.28 2.89 1.07a10.1 10.1 0 0 1 5.26 0c2-1.35 2.88-1.07 2.88-1.07.57 1.44.21 2.5.1 2.77.68.73 1.08 1.67 1.08 2.81 0 4.03-2.46 4.91-4.8 5.17.38.33.72.97.72 1.96v2.9c0 .28.19.61.73.5A10.5 10.5 0 0 0 20 9.5z"/></svg>';
+        }
+        if (k === 'instagram') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="igG" x1="4" y1="36" x2="36" y2="4" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#feda75"/><stop offset="30%" stop-color="#fa7e1e"/><stop offset="60%" stop-color="#d62976"/><stop offset="100%" stop-color="#4f5bd5"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#igG)"/><rect x="10.5" y="10.5" width="19" height="19" rx="5.2" stroke="#FFFFFF" stroke-width="2.2" fill="none"/><circle cx="20" cy="20" r="4.4" stroke="#FFFFFF" stroke-width="2.2" fill="none"/><circle cx="25.6" cy="14.4" r="1.4" fill="#FFFFFF"/></svg>';
+        }
+        if (k === 'x') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#0A0A0C"/><path fill="#FFFFFF" d="M21.9 18.6L28.8 10.5h-1.6l-6 7-4.8-7H10.8l7.3 10.6-7.3 8.4h1.6l6.4-7.4 5.1 7.4h5.6l-7.6-10.9zm-2.3 2.6l-.7-1-6-8.6h2.5l4.8 6.9.7 1 6.3 9h-2.5l-5.1-7.3z"/></svg>';
+        }
+        if (k === 'netflix') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#141414"/><path fill="#B20710" d="M13 9h4.2v22H13zM22.8 9H27v22h-4.2z"/><path fill="#E50914" d="M13 9h4.2l9.8 22h-4.2z"/></svg>';
+        }
+        if (k === 'duck') {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#DE5833"/><circle cx="20" cy="20" r="10.5" fill="#FFFFFF"/><circle cx="17.5" cy="18" r="1.8" fill="#1a1a1a"/><path d="M20 20.5c3.5 0 6.5 1.1 6.5 2.5 0 1.4-2.8 2-6.5 2-2.2 0-3.5-.8-3.5-2.2 0-1.2 1.3-2.3 3.5-2.3z" fill="#FBBF24"/></svg>';
+        }
+        var ch = String(label || '').trim().charAt(0).toUpperCase();
+        if (ch && /[A-Z0-9]/.test(ch)) {
+          return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#1c1218"/><text x="20" y="25.5" text-anchor="middle" fill="#fdf2f4" font-family="Outfit,sans-serif" font-weight="800" font-size="16">' + ch + '</text></svg>';
+        }
+        return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="10" fill="#1c1218"/><circle cx="20" cy="20" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="10.5" y1="20" x2="29.5" y2="20" stroke="currentColor" stroke-width="1.6"/><ellipse cx="20" cy="20" rx="4.5" ry="9.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
       }
 
       function normalizeShortcutUrlInput(raw) {
@@ -2982,11 +3391,15 @@
       var shortcutRowEl = document.getElementById('shortcut-row');
       var addShortcutModal = document.getElementById('add-shortcut-modal');
       var addShortcutForm = document.getElementById('add-shortcut-form');
+      var addShortcutTitleEl = document.getElementById('add-shortcut-title');
       var shortcutNameInput = document.getElementById('shortcut-name-input');
       var shortcutUrlInput = document.getElementById('shortcut-url-input');
+      var shortcutSaveBtn = document.getElementById('btn-shortcut-save');
       var shortcutFormErr = document.getElementById('shortcut-form-err');
       var shortcutCancelBtn = document.getElementById('btn-shortcut-cancel');
       var shortcutResetBtn = document.getElementById('btn-shortcut-reset');
+      var bookmarkTabBtn = document.getElementById('btn-bookmark-tab');
+      var editingShortcutIdx = -1;
 
       function saveUserShortcuts() {
         try {
@@ -2994,16 +3407,58 @@
         } catch (_e) {}
       }
 
-      function openAddShortcutModal() {
+      function inferShortcutIconKey(url) {
+        var host = '';
+        try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch (_e) {}
+        if (host.indexOf('discord') !== -1) return 'discord';
+        if (host.indexOf('snapchat') !== -1) return 'snapchat';
+        if (host.indexOf('kick') !== -1) return 'kick';
+        if (host.indexOf('twitch') !== -1) return 'twitch';
+        if (host.indexOf('reddit') !== -1) return 'reddit';
+        if (host.indexOf('roblox') !== -1 || host.indexOf('nowgg') !== -1) return 'roblox';
+        if (host.indexOf('youtube') !== -1 || host.indexOf('youtu.be') !== -1) return 'youtube';
+        if (host.indexOf('tiktok') !== -1) return 'tiktok';
+        if (host.indexOf('spotify') !== -1) return 'spotify';
+        if (host.indexOf('github') !== -1) return 'github';
+        if (host.indexOf('instagram') !== -1) return 'instagram';
+        if (host === 'x.com' || host.indexOf('twitter') !== -1) return 'x';
+        if (host.indexOf('netflix') !== -1) return 'netflix';
+        if (host.indexOf('duck') !== -1) return 'duck';
+        return 'globe';
+      }
+
+      function syncBookmarkStarState() {
+        if (!bookmarkTabBtn) return;
+        var active = getActiveTab();
+        var curUrl = active && !active.isHome ? String(active.url || '') : '';
+        var isSaved = Boolean(curUrl && userShortcuts.some(function (s) { return s.url === curUrl; }));
+        bookmarkTabBtn.classList.toggle('saved', isSaved);
+        bookmarkTabBtn.innerHTML = isSaved ? '&#9733;' : '&#9734;';
+        bookmarkTabBtn.title = isSaved ? 'Remove bookmark' : 'Bookmark current page';
+      }
+
+      function openAddShortcutModal(editIdx, prefillTitle, prefillUrl) {
         if (!addShortcutModal) return;
+        editingShortcutIdx = typeof editIdx === 'number' ? editIdx : -1;
         if (shortcutFormErr) shortcutFormErr.textContent = '';
-        if (shortcutNameInput) shortcutNameInput.value = '';
-        if (shortcutUrlInput) shortcutUrlInput.value = '';
+        if (editingShortcutIdx >= 0 && userShortcuts[editingShortcutIdx]) {
+          var existing = userShortcuts[editingShortcutIdx];
+          if (addShortcutTitleEl) addShortcutTitleEl.textContent = 'Edit Bookmark Shortcut';
+          if (shortcutSaveBtn) shortcutSaveBtn.textContent = 'Save Changes';
+          if (shortcutNameInput) shortcutNameInput.value = existing.label || '';
+          if (shortcutUrlInput) shortcutUrlInput.value = existing.url || '';
+        } else {
+          if (addShortcutTitleEl) addShortcutTitleEl.textContent = 'Add Bookmark / Shortcut';
+          if (shortcutSaveBtn) shortcutSaveBtn.textContent = 'Add Shortcut';
+          if (shortcutNameInput) shortcutNameInput.value = prefillTitle || '';
+          if (shortcutUrlInput) shortcutUrlInput.value = prefillUrl || '';
+        }
         addShortcutModal.classList.add('open');
         if (shortcutNameInput) shortcutNameInput.focus();
       }
 
       function closeAddShortcutModal() {
+        editingShortcutIdx = -1;
         if (addShortcutModal) addShortcutModal.classList.remove('open');
       }
 
@@ -3011,9 +3466,13 @@
         if (!shortcutRowEl) return;
         shortcutRowEl.innerHTML = '';
 
+        userShortcuts.sort(function (a, b) {
+          return Number(Boolean(b && b.pinned)) - Number(Boolean(a && a.pinned));
+        });
+
         userShortcuts.forEach(function (sc, idx) {
           var shell = document.createElement('div');
-          shell.className = 'shortcut-tile-shell';
+          shell.className = 'shortcut-tile-shell' + (sc.pinned ? ' is-pinned' : '');
 
           var btn = document.createElement('button');
           btn.type = 'button';
@@ -3024,7 +3483,23 @@
 
           var box = document.createElement('span');
           box.className = 'shortcut-box';
-          box.innerHTML = getShortcutIconSvg(sc.iconKey);
+          var resolvedKey = inferShortcutIconKey(sc.url || '') !== 'globe' ? inferShortcutIconKey(sc.url || '') : (sc.iconKey || 'globe');
+          box.innerHTML = getShortcutIconSvg(resolvedKey, sc.url, sc.label);
+          if (resolvedKey === 'globe' && sc.url) {
+            try {
+              var scHost = new URL(sc.url).hostname;
+              if (scHost) {
+                var favImg = document.createElement('img');
+                favImg.className = 'shortcut-favicon-img';
+                favImg.alt = '';
+                favImg.loading = 'lazy';
+                favImg.referrerPolicy = 'no-referrer';
+                favImg.src = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(scHost) + '&sz=64';
+                favImg.onerror = function () { favImg.style.display = 'none'; };
+                box.appendChild(favImg);
+              }
+            } catch (_fe) {}
+          }
 
           var textWrap = document.createElement('span');
           textWrap.className = 'shortcut-text';
@@ -3045,6 +3520,33 @@
             navigateProxy(sc.url);
           });
 
+          var actionsWrap = document.createElement('div');
+          actionsWrap.className = 'shortcut-actions';
+
+          var pinBtn = document.createElement('button');
+          pinBtn.type = 'button';
+          pinBtn.className = 'shortcut-act-btn shortcut-pin-btn' + (sc.pinned ? ' active' : '');
+          pinBtn.setAttribute('aria-label', (sc.pinned ? 'Unpin ' : 'Pin ') + sc.label);
+          pinBtn.title = sc.pinned ? 'Unpin shortcut' : 'Pin to top';
+          pinBtn.innerHTML = sc.pinned ? '&#9733;' : '&#9734;';
+          pinBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            sc.pinned = !sc.pinned;
+            saveUserShortcuts();
+            renderShortcutsRow();
+          });
+
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'shortcut-act-btn';
+          editBtn.setAttribute('aria-label', 'Edit shortcut ' + sc.label);
+          editBtn.title = 'Edit ' + sc.label;
+          editBtn.innerHTML = '&#9998;';
+          editBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            openAddShortcutModal(idx);
+          });
+
           var delBtn = document.createElement('button');
           delBtn.type = 'button';
           delBtn.className = 'shortcut-remove';
@@ -3056,10 +3558,15 @@
             userShortcuts.splice(idx, 1);
             saveUserShortcuts();
             renderShortcutsRow();
+            syncBookmarkStarState();
           });
 
+          actionsWrap.appendChild(pinBtn);
+          actionsWrap.appendChild(editBtn);
+          actionsWrap.appendChild(delBtn);
+
           shell.appendChild(btn);
-          shell.appendChild(delBtn);
+          shell.appendChild(actionsWrap);
           shortcutRowEl.appendChild(shell);
         });
 
@@ -3070,8 +3577,8 @@
         addBtn.type = 'button';
         addBtn.id = 'btn-add-shortcut';
         addBtn.className = 'shortcut-tile shortcut-tile-add';
-        addBtn.setAttribute('aria-label', 'Add Shortcut');
-        addBtn.title = 'Add a custom app shortcut';
+        addBtn.setAttribute('aria-label', 'Add Bookmark or Shortcut');
+        addBtn.title = 'Add a custom bookmark shortcut';
 
         var addBox = document.createElement('span');
         addBox.className = 'shortcut-box';
@@ -3082,20 +3589,55 @@
 
         var addLbl = document.createElement('span');
         addLbl.className = 'shortcut-label';
-        addLbl.textContent = 'Add Shortcut';
+        addLbl.textContent = 'Add Bookmark';
 
         var addDesc = document.createElement('span');
         addDesc.className = 'shortcut-desc';
-        addDesc.textContent = 'Pin any site';
+        addDesc.textContent = 'Pin or save any site';
 
         addText.appendChild(addLbl);
         addText.appendChild(addDesc);
         addBtn.appendChild(addBox);
         addBtn.appendChild(addText);
-        addBtn.addEventListener('click', openAddShortcutModal);
+        addBtn.addEventListener('click', function () { openAddShortcutModal(-1); });
 
         addShell.appendChild(addBtn);
         shortcutRowEl.appendChild(addShell);
+        syncBookmarkStarState();
+      }
+
+      if (bookmarkTabBtn) {
+        bookmarkTabBtn.addEventListener('click', function () {
+          var active = getActiveTab();
+          if (!active || active.isHome || !active.url) {
+            openAddShortcutModal(-1, '', topUrlEl ? topUrlEl.value : '');
+            return;
+          }
+          var existingIdx = -1;
+          for (var i = 0; i < userShortcuts.length; i++) {
+            if (userShortcuts[i].url === active.url) { existingIdx = i; break; }
+          }
+          if (existingIdx !== -1) {
+            userShortcuts.splice(existingIdx, 1);
+            saveUserShortcuts();
+            renderShortcutsRow();
+            syncBookmarkStarState();
+            return;
+          }
+          var host = active.title || active.url;
+          try { host = new URL(active.url).hostname.replace(/^www\./, ''); } catch (_e) {}
+          userShortcuts.unshift({
+            id: 'bm_' + Date.now(),
+            label: (active.title || host).slice(0, 28),
+            subtitle: host,
+            url: active.url,
+            iconKey: inferShortcutIconKey(active.url),
+            pinned: true
+          });
+          saveUserShortcuts();
+          renderShortcutsRow();
+          syncBookmarkStarState();
+        });
       }
 
       if (addShortcutForm) {
@@ -3114,23 +3656,25 @@
           }
           var host = normalized;
           try { host = new URL(normalized).hostname.replace(/^www\./, ''); } catch (_e) {}
-          var key = 'custom_' + Date.now();
-          var lowerHost = host.toLowerCase();
-          var iconKey = 'globe';
-          if (lowerHost.indexOf('discord') !== -1) iconKey = 'discord';
-          else if (lowerHost.indexOf('snapchat') !== -1) iconKey = 'snapchat';
-          else if (lowerHost.indexOf('kick') !== -1) iconKey = 'kick';
-          else if (lowerHost.indexOf('twitch') !== -1) iconKey = 'twitch';
-          else if (lowerHost.indexOf('reddit') !== -1) iconKey = 'reddit';
-          else if (lowerHost.indexOf('roblox') !== -1 || lowerHost.indexOf('nowgg') !== -1) iconKey = 'roblox';
+          var iconKey = inferShortcutIconKey(normalized);
 
-          userShortcuts.push({
-            id: key,
-            label: label,
-            subtitle: host,
-            url: normalized,
-            iconKey: iconKey
-          });
+          if (editingShortcutIdx >= 0 && userShortcuts[editingShortcutIdx]) {
+            userShortcuts[editingShortcutIdx] = Object.assign({}, userShortcuts[editingShortcutIdx], {
+              label: label,
+              subtitle: host,
+              url: normalized,
+              iconKey: iconKey
+            });
+          } else {
+            userShortcuts.push({
+              id: 'custom_' + Date.now(),
+              label: label,
+              subtitle: host,
+              url: normalized,
+              iconKey: iconKey,
+              pinned: false
+            });
+          }
           saveUserShortcuts();
           renderShortcutsRow();
           closeAddShortcutModal();
@@ -3155,6 +3699,143 @@
       }
 
       renderShortcutsRow();
+
+      /* ---------------- SESSION & TAB SAVER (WORKSPACES) ---------------- */
+      var WS_STORAGE_KEY = 'vux_tab_workspaces';
+      var wsToggleBtn = document.getElementById('btn-workspaces');
+      var wsPopover = document.getElementById('workspaces-popover');
+      var wsCloseBtn = document.getElementById('btn-ws-close');
+      var wsSaveForm = document.getElementById('ws-save-form');
+      var wsNameInput = document.getElementById('ws-name-input');
+      var wsListEl = document.getElementById('ws-list');
+
+      function loadWorkspaces() {
+        try {
+          var raw = localStorage.getItem(WS_STORAGE_KEY);
+          var parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (_e) {
+          return [];
+        }
+      }
+
+      function saveWorkspaces(list) {
+        try { localStorage.setItem(WS_STORAGE_KEY, JSON.stringify(list)); } catch (_e) {}
+      }
+
+      function setWorkspacesOpen(next) {
+        if (!wsPopover || !wsToggleBtn) return;
+        wsPopover.classList.toggle('open', next);
+        wsToggleBtn.classList.toggle('is-open', next);
+        wsToggleBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
+        if (next) renderWorkspacesList();
+      }
+
+      function renderWorkspacesList() {
+        if (!wsListEl) return;
+        var list = loadWorkspaces();
+        wsListEl.innerHTML = '';
+        if (!list.length) {
+          var empty = document.createElement('div');
+          empty.className = 'popover-sub';
+          empty.textContent = 'No saved workspaces yet. Save your active tabs above.';
+          wsListEl.appendChild(empty);
+          return;
+        }
+        list.forEach(function (ws, idx) {
+          var row = document.createElement('div');
+          row.className = 'ws-item';
+          var info = document.createElement('div');
+          info.style.cssText = 'min-width:0;flex:1;';
+          var nm = document.createElement('div');
+          nm.style.cssText = 'font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+          nm.textContent = ws.name;
+          var meta = document.createElement('div');
+          meta.className = 'popover-sub';
+          meta.textContent = (ws.tabs ? ws.tabs.length : 0) + ' tabs';
+          info.appendChild(nm);
+          info.appendChild(meta);
+
+          var acts = document.createElement('div');
+          acts.style.cssText = 'display:flex;gap:4px;flex-shrink:0;';
+          var restBtn = document.createElement('button');
+          restBtn.type = 'button';
+          restBtn.className = 'ctl-btn primary';
+          restBtn.style.cssText = 'height:24px;padding:0 0.5rem;font-size:0.71rem;';
+          restBtn.textContent = 'Restore';
+          restBtn.addEventListener('click', function () {
+            var targets = Array.isArray(ws.tabs) && ws.tabs.length ? ws.tabs : [{ url: '', title: 'Home' }];
+            for (var ti = tabs.length - 1; ti >= 0; ti--) {
+              clearTabTimeout(tabs[ti]);
+              if (tabs[ti].frameEl && tabs[ti].frameEl.parentNode) tabs[ti].frameEl.parentNode.removeChild(tabs[ti].frameEl);
+            }
+            tabs = [];
+            targets.slice(0, MAX_TABS).forEach(function (entry) {
+              createTab({ title: entry.title || 'Tab', initialQuery: entry.url || '' });
+            });
+            setWorkspacesOpen(false);
+          });
+
+          var delWsBtn = document.createElement('button');
+          delWsBtn.type = 'button';
+          delWsBtn.className = 'ctl-btn solid';
+          delWsBtn.style.cssText = 'height:24px;min-width:24px;padding:0 0.4rem;font-size:0.71rem;';
+          delWsBtn.innerHTML = '&times;';
+          delWsBtn.addEventListener('click', function () {
+            var cur = loadWorkspaces();
+            cur.splice(idx, 1);
+            saveWorkspaces(cur);
+            renderWorkspacesList();
+          });
+
+          acts.appendChild(restBtn);
+          acts.appendChild(delWsBtn);
+          row.appendChild(info);
+          row.appendChild(acts);
+          wsListEl.appendChild(row);
+        });
+      }
+
+      if (wsToggleBtn) {
+        wsToggleBtn.addEventListener('click', function (ev) {
+          ev.stopPropagation();
+          setWorkspacesOpen(!wsPopover.classList.contains('open'));
+        });
+      }
+      if (wsCloseBtn) {
+        wsCloseBtn.addEventListener('click', function () { setWorkspacesOpen(false); });
+      }
+      if (wsSaveForm) {
+        wsSaveForm.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          var name = (wsNameInput && wsNameInput.value ? wsNameInput.value : '').trim() || ('Session ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+          var snapshot = tabs.map(function (t) { return { title: t.title || 'New Tab', url: t.url || '' }; });
+          var cur = loadWorkspaces();
+          cur.unshift({ id: 'ws_' + Date.now(), name: name, tabs: snapshot });
+          saveWorkspaces(cur.slice(0, 12));
+          if (wsNameInput) wsNameInput.value = '';
+          renderWorkspacesList();
+        });
+      }
+      document.addEventListener('click', function (ev) {
+        if (!wsPopover || !wsPopover.classList.contains('open')) return;
+        if (!wsPopover.contains(ev.target) && ev.target !== wsToggleBtn) setWorkspacesOpen(false);
+      });
+
+      var pipPopBtn = document.getElementById('btn-pop-pip');
+      if (pipPopBtn) {
+        pipPopBtn.addEventListener('click', function () {
+          var active = getActiveTab();
+          var targetUrl = active && active.url ? active.url : 'https://en.wikipedia.org';
+          try {
+            window.parent.postMessage({
+              type: 'vux-open-pip',
+              url: targetUrl,
+              title: (active && active.title) ? active.title : 'Vux PiP'
+            }, '*');
+          } catch (_e) {}
+        });
+      }
 
       var homeWispBtn = document.getElementById('home-open-wisp');
       if (homeWispBtn) {
@@ -3255,14 +3936,34 @@
         syncMiniUi();
       }
 
+      var parentAudioManaged = false;
+      window.addEventListener('message', function (ev) {
+        if (ev && ev.data && ev.data.type === 'vux-audio-state') {
+          parentAudioManaged = true;
+          if (miniPlayerEl && miniLabelEl && miniPlayBtn) {
+            miniPlayerEl.classList.toggle('playing', Boolean(ev.data.playing));
+            miniLabelEl.textContent = ev.data.label || (ev.data.playing ? 'Playing Vux MP3' : 'Nothing playing');
+            miniPlayBtn.innerHTML = ev.data.playing ? '&#10074;&#10074;' : '&#9654;';
+          }
+        }
+      });
+
       if (miniPlayBtn) {
         miniPlayBtn.addEventListener('click', function () {
+          if (window.parent && window.parent !== window) {
+            try { window.parent.postMessage({ type: 'vux-audio-control', action: 'toggle' }, '*'); } catch (_e) {}
+            if (parentAudioManaged) return;
+          }
           if (synthPlaying) stopMiniSynth();
           else startMiniSynth();
         });
       }
       if (miniPrevBtn) {
         miniPrevBtn.addEventListener('click', function () {
+          if (window.parent && window.parent !== window) {
+            try { window.parent.postMessage({ type: 'vux-audio-control', action: 'prev' }, '*'); } catch (_e) {}
+            if (parentAudioManaged) return;
+          }
           synthIdx = (synthIdx - 1 + synthModes.length) % synthModes.length;
           if (synthPlaying) startMiniSynth();
           else syncMiniUi();
@@ -3270,6 +3971,10 @@
       }
       if (miniNextBtn) {
         miniNextBtn.addEventListener('click', function () {
+          if (window.parent && window.parent !== window) {
+            try { window.parent.postMessage({ type: 'vux-audio-control', action: 'next' }, '*'); } catch (_e) {}
+            if (parentAudioManaged) return;
+          }
           synthIdx = (synthIdx + 1) % synthModes.length;
           if (synthPlaying) startMiniSynth();
           else syncMiniUi();

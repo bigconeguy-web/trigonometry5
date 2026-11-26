@@ -14,6 +14,7 @@ import {
   normalizeMessages,
   normalizeStyle,
 } from './src/utils/aiChat.ts';
+import { patchScramjetBundle } from './src/utils/scramjetPatch.mjs';
 
 const PORT = Number(process.env.PORT) || 3000;
 const MODEL_NAME = 'gemini-4-hydrogen';
@@ -92,6 +93,24 @@ async function startServer() {
     }
   });
 
+  const patchedScramCache = new Map<string, string>();
+  app.get(['/scram/scramjet.all.js', '/scram/scramjet.bundle.js'], (req: Request, res: Response, next) => {
+    const fileName = path.basename(req.path);
+    const targetFile = path.join(scramjetPath, fileName);
+    if (!fs.existsSync(targetFile)) {
+      next();
+      return;
+    }
+    let body = patchedScramCache.get(fileName);
+    if (!body) {
+      body = patchScramjetBundle(fs.readFileSync(targetFile, 'utf8'));
+      patchedScramCache.set(fileName, body);
+    }
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(body);
+  });
+
   app.use('/scram', express.static(scramjetPath));
   app.use('/baremux', express.static(baremuxPath));
   app.use('/epoxy', express.static(epoxyPath));
@@ -99,6 +118,41 @@ async function startServer() {
 
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ ok: true, model: MODEL_NAME });
+  });
+
+  app.get('/api/cinema/trailer', async (req: Request, res: Response) => {
+    const q = String(req.query.q || '').trim().slice(0, 140);
+    if (!q) {
+      res.status(400).json({ error: 'Missing query' });
+      return;
+    }
+    try {
+      const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 5000);
+      const ytRes = await fetch(searchUrl, {
+        signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+      });
+      clearTimeout(timer);
+      if (!ytRes.ok) {
+        res.json({ videoId: null });
+        return;
+      }
+      const html = await ytRes.text();
+      const match = html.match(/"videoId":"([a-zA-Z0-9_-]{11})"/);
+      const videoId = match && match[1] ? match[1] : null;
+      res.json({
+        videoId,
+        watchUrl: videoId ? `https://www.youtube.com/watch?v=${videoId}` : searchUrl,
+        embedUrl: videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0` : null,
+      });
+    } catch {
+      res.json({ videoId: null });
+    }
   });
 
   app.post('/api/ai/chat', async (req: Request, res: Response) => {

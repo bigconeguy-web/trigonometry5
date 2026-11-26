@@ -1,9 +1,29 @@
 export type ThemeCategory = 'Dark & Neon' | 'Cozy & Pastel' | 'High-Contrast & Light';
 
+export type StudioThemeCategory =
+  | 'Dark Sleek'
+  | 'Neon Cyberpunk'
+  | 'Glassmorphism'
+  | 'Monochrome'
+  | 'Retro'
+  | 'Nature'
+  | 'Royal';
+
+export const STUDIO_THEME_CATEGORIES: readonly StudioThemeCategory[] = [
+  'Dark Sleek',
+  'Neon Cyberpunk',
+  'Glassmorphism',
+  'Monochrome',
+  'Retro',
+  'Nature',
+  'Royal',
+];
+
 export interface ThemeSpec {
   id: string;
   name: string;
   category: ThemeCategory;
+  studioCategory?: StudioThemeCategory;
   bgPrimary: string;
   bgSecondary: string;
   bgCard: string;
@@ -1598,7 +1618,130 @@ export const THEMES_CATALOG: ThemeSpec[] = [
     border: '#ccd9c3',
     isLight: true,
   },
+  // ============================================================================
+  // Additional 76 Studio Themes (Total: 200 Unique WCAG-AA Verified Themes)
+  // ============================================================================
+  ...([
+    ['obsidian-cyan', 'Obsidian Cyan', 'Dark & Neon', 'Dark Sleek', '#06090f', '#0b1019', '#121926', '#f1f5f9', '#8fa3bd', '#22d3ee', '#1e293b', false],
+    ['carbon-coral', 'Carbon Coral', 'Dark & Neon', 'Dark Sleek', '#0b0a0c', '#131115', '#1c181f', '#faf5f6', '#a899a1', '#fb7185', '#2d2630', false],
+    ['onyx-cobalt', 'Onyx Cobalt', 'Dark & Neon', 'Dark Sleek', '#07090f', '#0d111c', '#141a2b', '#eff6ff', '#8ea3c7', '#3b82f6', '#212b45', false],
+    ['slate-teal', 'Slate Teal', 'Dark & Neon', 'Dark Sleek', '#090e12', '#10181f', '#18242e', '#f0fdfa', '#88a6ab', '#14b8a6', '#263847', false],
+    ['graphite-mint', 'Graphite Mint', 'Dark & Neon', 'Dark Sleek', '#0a0d0c', '#111715', '#19221f', '#ecfdf5', '#8aa69c', '#34d399', '#25332e', false],
+    ['basalt-gold', 'Basalt Gold', 'Dark & Neon', 'Dark Sleek', '#0d0c0a', '#161410', '#211d17', '#fefce8', '#ada28d', '#eab308', '#332d23', false],
+    ['ink-indigo', 'Ink Indigo', 'Dark & Neon', 'Dark Sleek', '#080914', '#0f1124', '#171a36', '#eef2ff', '#9299c7', '#6366f1', '#262b54', false],
+    ['charcoal-rose', 'Charcoal Rose', 'Dark & Neon', 'Dark Sleek', '#100c0e', '#1a1317', '#241b20', '#fff1f2', '#b3949d', '#f43f5e', '#382931', false],
+    ['eclipse-sky', 'Eclipse Sky', 'Dark & Neon', 'Dark Sleek', '#070b12', '#0d1421', '#152033', '#f0f9ff', '#8ea8c7', '#38bdf8', '#22334f', false],
+    ['anthracite-lime', 'Anthracite Lime', 'Dark & Neon', 'Dark Sleek', '#0b0d09', '#13170f', '#1d2217', '#f7fee7', '#99a888', '#84cc16', '#2c3323', false],
+    ['velvet-noir', 'Velvet Noir', 'Dark & Neon', 'Dark Sleek', '#09070d', '#110d1a', '#1a1426', '#f5f3ff', '#9f91bd', '#a78bfa', '#2a213d', false],
+    ['cyber-orchid', 'Cyber Orchid', 'Dark & Neon', 'Neon Cyberpunk', '#110617', '#1a0a24', '#261036', '#fdf4ff', '#c28ed4', '#e879f9', '#451d5e', false],
+    ['neon-volt', 'Neon Volt', 'Dark & Neon', 'Neon Cyberpunk', '#080e04', '#101a08', '#18290c', '#f7fee7', '#93b874', '#a3e635', '#2c4717', false],
+    ['arcade-magenta', 'Arcade Magenta', 'Dark & Neon', 'Neon Cyberpunk', '#140510', '#1f0819', '#2e0d25', '#fdf2f8', '#cc8ab6', '#ec4899', '#521842', false],
+    ['tokyo-circuit', 'Tokyo Circuit', 'Dark & Neon', 'Neon Cyberpunk', '#050b14', '#0a1424', '#102038', '#ecfeff', '#7eb0c9', '#00f5d4', '#1b3559', false],
+    ['laser-tangerine', 'Laser Tangerine', 'Dark & Neon', 'Neon Cyberpunk', '#140804', '#1f0d07', '#2e140b', '#fff7ed', '#c7927d', '#ff6b35', '#522414', false],
+    ['hyper-violet', 'Hyper Violet', 'Dark & Neon', 'Neon Cyberpunk', '#0c051c', '#140a2e', '#1f1045', '#f5f3ff', '#9c8ad4', '#a855f7', '#351c73', false],
+    ['plasma-ice', 'Plasma Ice', 'Dark & Neon', 'Neon Cyberpunk', '#040d14', '#081724', '#0e2438', '#ecfeff', '#7ab0cc', '#06b6d4', '#193e5e', false],
+    ['acid-emerald', 'Acid Emerald', 'Dark & Neon', 'Neon Cyberpunk', '#030e08', '#061a10', '#0b2919', '#ecfdf5', '#6eb893', '#10b981', '#15472d', false],
+    ['chrome-pulse', 'Chrome Pulse', 'Dark & Neon', 'Neon Cyberpunk', '#090814', '#110f26', '#1a173b', '#eef2ff', '#9295cf', '#38bdf8', '#2c2761', false],
+    ['neural-crimson', 'Neural Crimson', 'Dark & Neon', 'Neon Cyberpunk', '#140408', '#21070d', '#300b14', '#fff1f2', '#cc7e8e', '#ff2e63', '#541424', false],
+    ['glitch-cyan', 'Glitch Cyan', 'Dark & Neon', 'Neon Cyberpunk', '#051014', '#091b21', '#0f2b33', '#f0fdfa', '#76b5bd', '#22d3ee', '#194652', false],
+    ['frost-pane', 'Frost Pane', 'Cozy & Pastel', 'Glassmorphism', '#101824', '#172233', '#202e45', '#f0f7ff', '#94abc7', '#60a5fa', '#2f4363', false],
+    ['smoked-quartz', 'Smoked Quartz', 'Cozy & Pastel', 'Glassmorphism', '#161419', '#201d24', '#2c2830', '#f7f5fa', '#a89eb3', '#c084fc', '#403b47', false],
+    ['mist-aurora', 'Mist Aurora', 'Cozy & Pastel', 'Glassmorphism', '#0d1a1a', '#132626', '#1b3636', '#ecfeff', '#8ab8b8', '#2dd4bf', '#2b5252', false],
+    ['crystal-lilac', 'Crystal Lilac', 'Cozy & Pastel', 'Glassmorphism', '#f5f3ff', '#ebe6ff', '#ffffff', '#221445', '#584785', '#7c3aed', '#d8cffc', true],
+    ['glacier-sheen', 'Glacier Sheen', 'Cozy & Pastel', 'Glassmorphism', '#eef6fb', '#e0eef7', '#ffffff', '#0c2338', '#42607d', '#0284c7', '#c5dff2', true],
+    ['rose-veil', 'Rose Veil', 'Cozy & Pastel', 'Glassmorphism', '#fff4f6', '#ffe8ec', '#ffffff', '#3d0b19', '#7d4051', '#e11d48', '#fecdd6', true],
+    ['pearl-mist', 'Pearl Mist', 'Cozy & Pastel', 'Glassmorphism', '#f7f7fb', '#ededf5', '#ffffff', '#191929', '#575773', '#4f46e5', '#dad9eb', true],
+    ['amber-glass', 'Amber Glass', 'Cozy & Pastel', 'Glassmorphism', '#1a140d', '#261d14', '#33271b', '#fffbeb', '#bda68a', '#fbbf24', '#4d3b29', false],
+    ['opal-lagoon', 'Opal Lagoon', 'Cozy & Pastel', 'Glassmorphism', '#0c171c', '#122229', '#1a303b', '#ecfeff', '#89aebd', '#38bdf8', '#2a4c5c', false],
+    ['linen-glass', 'Linen Glass', 'High-Contrast & Light', 'Glassmorphism', '#f9f8f6', '#efede8', '#ffffff', '#1c1b18', '#5c584f', '#0d9488', '#dbd6cc', true],
+    ['pure-obsidian-mono', 'Pure Obsidian Mono', 'High-Contrast & Light', 'Monochrome', '#080808', '#111111', '#1a1a1a', '#fafafa', '#a3a3a3', '#e5e5e5', '#2e2e2e', false],
+    ['zinc-studio', 'Zinc Studio', 'Dark & Neon', 'Monochrome', '#09090b', '#121216', '#1b1b21', '#f4f4f5', '#a1a1aa', '#d4d4d8', '#2e2e36', false],
+    ['graphite-ink', 'Graphite Ink', 'Dark & Neon', 'Monochrome', '#121316', '#1a1c20', '#24272c', '#f3f4f6', '#9ca3af', '#e5e7eb', '#373b42', false],
+    ['silver-print', 'Silver Print', 'High-Contrast & Light', 'Monochrome', '#f4f4f5', '#e4e4e7', '#ffffff', '#09090b', '#52525b', '#18181b', '#d4d4d8', true],
+    ['newsprint-bw', 'Newsprint Mono', 'High-Contrast & Light', 'Monochrome', '#f7f6f2', '#ebe9e1', '#ffffff', '#141413', '#57564f', '#262624', '#d4d1c5', true],
+    ['ash-slate', 'Ash Slate', 'Dark & Neon', 'Monochrome', '#141619', '#1d2024', '#272b30', '#f8fafc', '#9aa1ab', '#cbd5e1', '#3b414a', false],
+    ['platinum-day', 'Platinum Day', 'High-Contrast & Light', 'Monochrome', '#f8fafc', '#eef1f5', '#ffffff', '#0f172a', '#475569', '#334155', '#cbd5e1', true],
+    ['carbon-wire', 'Carbon Wire', 'High-Contrast & Light', 'Monochrome', '#050505', '#0d0d0d', '#171717', '#ffffff', '#a1a1aa', '#f4f4f5', '#2b2b2b', false],
+    ['chalk-minimal', 'Chalk Minimal', 'High-Contrast & Light', 'Monochrome', '#ffffff', '#f3f4f6', '#fafafa', '#111827', '#4b5563', '#1f2937', '#e5e7eb', true],
+    ['iron-charcoal', 'Iron Charcoal', 'Dark & Neon', 'Monochrome', '#161618', '#202024', '#2b2b30', '#f5f5f7', '#a0a0ab', '#e4e4eb', '#3f3f47', false],
+    ['retro-atari', 'Retro Atari', 'Dark & Neon', 'Retro', '#170f0a', '#24170f', '#332116', '#fff7ed', '#c49d80', '#f97316', '#523422', false],
+    ['crt-phosphor', 'CRT Phosphor', 'Dark & Neon', 'Retro', '#051208', '#091f0e', '#0e2e16', '#dcfce7', '#74b887', '#4ade80', '#184a25', false],
+    ['commodore-64', 'Commodore Slate', 'Dark & Neon', 'Retro', '#10142e', '#171d42', '#202859', '#eef2ff', '#929cd4', '#60a5fa', '#33408a', false],
+    ['cassette-cream', 'Cassette Cream', 'Cozy & Pastel', 'Retro', '#fbf6eb', '#f2e9d5', '#ffffff', '#291f14', '#6b5742', '#d97706', '#e0d0b0', true],
+    ['polaroid-77', 'Polaroid 77', 'Cozy & Pastel', 'Retro', '#faf5ee', '#f0e6d8', '#ffffff', '#241912', '#6b5344', '#dc2626', '#dfd0bc', true],
+    ['arcade-cabinet', 'Arcade Cabinet', 'Dark & Neon', 'Retro', '#140b1c', '#1e102b', '#2b173d', '#fdf2f8', '#b98fd1', '#facc15', '#472763', false],
+    ['nes-cartridge', '8-Bit Cartridge', 'Dark & Neon', 'Retro', '#17171a', '#212126', '#2d2d33', '#f8fafc', '#a4a4b0', '#ef4444', '#46464f', false],
+    ['gameboy-olive', 'Handheld Olive', 'High-Contrast & Light', 'Retro', '#eef2e2', '#e0e8cb', '#f7faef', '#1a2410', '#4a5c35', '#3f6212', '#c4d1a3', true],
+    ['miami-1984', 'Miami 1984', 'Dark & Neon', 'Retro', '#16091f', '#220e30', '#301445', '#fdf4ff', '#c28cd9', '#22d3ee', '#4f2270', false],
+    ['kodachrome-gold', 'Kodachrome Gold', 'Cozy & Pastel', 'Retro', '#1c150c', '#291e12', '#382918', '#fefce8', '#c4ab87', '#f59e0b', '#574026', false],
+    ['vinyl-espresso', 'Vinyl Espresso', 'Cozy & Pastel', 'Retro', '#17110d', '#241b14', '#33261d', '#faf5f0', '#bfa593', '#fb923c', '#4f3b2d', false],
+    ['moss-canopy', 'Moss Canopy', 'Cozy & Pastel', 'Nature', '#0b1710', '#122419', '#1a3324', '#ecfdf5', '#87b59a', '#4ade80', '#2b523b', false],
+    ['redwood-bark', 'Redwood Bark', 'Cozy & Pastel', 'Nature', '#170f0b', '#241712', '#332019', '#fff7ed', '#bfa091', '#fb923c', '#523428', false],
+    ['alpine-meadow', 'Alpine Meadow', 'High-Contrast & Light', 'Nature', '#f2f9f5', '#e2f2e8', '#ffffff', '#0c2618', '#3c6950', '#16a34a', '#bee0cb', true],
+    ['kelp-forest', 'Kelp Forest', 'Dark & Neon', 'Nature', '#081412', '#0e211e', '#14302c', '#f0fdfa', '#80b0a8', '#2dd4bf', '#214d46', false],
+    ['canyon-terracotta', 'Canyon Dusk', 'Cozy & Pastel', 'Nature', '#1c0f0c', '#2b1713', '#3b201a', '#fff7ed', '#c9988c', '#f97316', '#5e332a', false],
+    ['glacier-stream', 'Glacier Stream', 'Cozy & Pastel', 'Nature', '#eff8fc', '#deeff7', '#ffffff', '#0b2533', '#3d6378', '#0ea5e9', '#bee0f0', true],
+    ['bamboo-zen', 'Bamboo Zen', 'High-Contrast & Light', 'Nature', '#f6f8f0', '#eaf0dc', '#ffffff', '#1b2410', '#515e3d', '#65a30d', '#cfdbb6', true],
+    ['autumn-maple', 'Autumn Maple', 'Cozy & Pastel', 'Nature', '#1a0c09', '#29130e', '#381a13', '#fff7ed', '#c79385', '#ef4444', '#59291e', false],
+    ['tidal-pool', 'Tidal Pool', 'Dark & Neon', 'Nature', '#07141a', '#0c2029', '#122f3b', '#ecfeff', '#7daec2', '#06b6d4', '#1f4c5e', false],
+    ['pine-needle', 'Pine Needle', 'Dark & Neon', 'Nature', '#08120c', '#0e1f15', '#162e20', '#ecfdf5', '#82ad93', '#22c55e', '#244a34', false],
+    ['meadow-buttercup', 'Meadow Light', 'High-Contrast & Light', 'Nature', '#fcfcf2', '#f5f5dc', '#ffffff', '#26230a', '#635c2c', '#ca8a04', '#e3dfa8', true],
+    ['sovereign-plum', 'Sovereign Plum', 'Dark & Neon', 'Royal', '#13081c', '#1d0d2b', '#29133d', '#faf5ff', '#b592d1', '#c084fc', '#432063', false],
+    ['imperial-gold', 'Imperial Gold', 'Dark & Neon', 'Royal', '#120e07', '#1c160b', '#292010', '#fefce8', '#bfb084', '#facc15', '#47381b', false],
+    ['sapphire-crown', 'Sapphire Crown', 'Dark & Neon', 'Royal', '#070d1f', '#0d1736', '#14224f', '#eff6ff', '#8ea4db', '#60a5fa', '#233a80', false],
+    ['velvet-ruby', 'Velvet Ruby', 'Dark & Neon', 'Royal', '#1a070d', '#290c15', '#38101d', '#fff1f2', '#c78598', '#fb7185', '#5c1c30', false],
+    ['emerald-throne', 'Emerald Throne', 'Dark & Neon', 'Royal', '#06140f', '#0b2119', '#113025', '#ecfdf5', '#80b5a2', '#34d399', '#1d4f3d', false],
+    ['ivory-herald', 'Ivory Herald', 'High-Contrast & Light', 'Royal', '#fcfaf5', '#f5efe0', '#ffffff', '#261a08', '#695434', '#b45309', '#e3d5b3', true],
+    ['amethyst-crest', 'Amethyst Crest', 'Cozy & Pastel', 'Royal', '#160d24', '#211436', '#2e1c4a', '#f5f3ff', '#b099d6', '#a78bfa', '#4a2e75', false],
+    ['cobalt-monarch', 'Cobalt Monarch', 'High-Contrast & Light', 'Royal', '#f4f7ff', '#e6edff', '#ffffff', '#0d1a40', '#41558f', '#2563eb', '#c7d5fa', true],
+    ['burgundy-velvet', 'Burgundy Velvet', 'Dark & Neon', 'Royal', '#17080c', '#240c13', '#33121c', '#fff1f2', '#c28898', '#f43f5e', '#521e2e', false],
+    ['obsidian-crown', 'Obsidian Crown', 'Dark & Neon', 'Royal', '#0b0a10', '#13111c', '#1d1a2b', '#fafafa', '#9e97b8', '#fbbf24', '#312c47', false],
+    ['teal-dynasty', 'Teal Dynasty', 'Dark & Neon', 'Royal', '#061417', '#0b2126', '#113038', '#ecfeff', '#80b0ba', '#2dd4bf', '#1d4e59', false],
+    ['champagne-parchment', 'Champagne Crest', 'High-Contrast & Light', 'Royal', '#fdfbf7', '#f7f1e3', '#ffffff', '#291f10', '#6e5c40', '#d97706', '#e6d8ba', true],
+  ] as const).map(([id, name, category, studioCategory, bgPrimary, bgSecondary, bgCard, textPrimary, textMuted, accent, border, isLight]) => ({
+    id,
+    name,
+    category,
+    studioCategory,
+    bgPrimary,
+    bgSecondary,
+    bgCard,
+    textPrimary,
+    textMuted,
+    accent,
+    border,
+    ...(isLight ? { isLight: true } : {}),
+  })),
 ];
+
+export function resolveStudioThemeCategory(theme: ThemeSpec): StudioThemeCategory {
+  if (theme.studioCategory) return theme.studioCategory;
+  const hay = `${theme.id} ${theme.name}`.toLowerCase();
+  if (/oled|noir|midnight|obsidian|charcoal|carbon|graphite|slate/.test(hay) && !/gold|royal|frost/.test(hay)) {
+    return /mono|zinc|ash|chalk|silver|steel|paper|newsprint/.test(hay) ? 'Monochrome' : 'Dark Sleek';
+  }
+  if (/neon|cyber|synth|laser|plasma|hyper|vapor|matrix|electric|volt|crimson|tokyo/.test(hay)) {
+    return 'Neon Cyberpunk';
+  }
+  if (/glass|frost|ice|mist|crystal|arctic|turquoise|polar|cloud|pearl|quartz/.test(hay)) {
+    return 'Glassmorphism';
+  }
+  if (/mono|zinc|ash|paper|marble|chalk|silver|graphite|slate|ink/.test(hay)) {
+    return 'Monochrome';
+  }
+  if (/retro|amber|terminal|sunset|peach|desert|bronze|espresso|solarized|sepia/.test(hay)) {
+    return 'Retro';
+  }
+  if (/emerald|forest|matcha|mint|sage|ocean|coral|sakura|blossom|lagoon|sky/.test(hay)) {
+    return 'Nature';
+  }
+  if (/royal|gold|velvet|plum|dracula|indigo|lavender|violet|ruby|burgundy|cobalt/.test(hay)) {
+    return 'Royal';
+  }
+  if (theme.category === 'Dark & Neon') return 'Dark Sleek';
+  if (theme.category === 'Cozy & Pastel') return 'Glassmorphism';
+  return 'Monochrome';
+}
 
 const LEGACY_THEME_MAP: Record<string, string> = {
   midnight: 'midnight-oled',

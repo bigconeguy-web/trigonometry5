@@ -1,7 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Film, Play, Maximize2, X, Globe, Loader2 } from 'lucide-react';
+import { Search, Film, Play, Maximize2, X, Globe, Loader2, ExternalLink } from 'lucide-react';
 import { CURATED_MOVIES, type CuratedMovieItem } from '../../utils/gnMathService';
+import {
+  normalizeDirectEmbedUrl,
+  type CinemaPlayerSourceMode,
+} from '../../utils/cinemaCatalog';
 
 interface MoviesViewProps {
   onOpenInProxy: (url: string) => void;
@@ -25,6 +29,8 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
   const [activeMovie, setActiveMovie] = useState<CuratedMovieItem | null>(null);
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+  const [playerSource, setPlayerSource] = useState<CinemaPlayerSourceMode>('archive');
+  const [customEmbedInput, setCustomEmbedInput] = useState('');
   const [streamMeta, setStreamMeta] = useState('');
   const [loadingStream, setLoadingStream] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -84,10 +90,12 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
     }
   };
 
-  const openTheater = async (movie: CuratedMovieItem) => {
-    setActiveMovie(movie);
+  const loadArchiveSource = async (movie: CuratedMovieItem) => {
+    setPlayerSource('archive');
     setStreamUrl(null);
-    setEmbedUrl(null);
+    const defaultEmbed = `https://archive.org/embed/${encodeURIComponent(movie.id)}`;
+    setEmbedUrl(defaultEmbed);
+    setCustomEmbedInput(defaultEmbed);
     setLoadingStream(true);
     setStreamMeta(`Resolving MP4 stream for "${movie.title}"...`);
 
@@ -115,12 +123,62 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
         }
       }
     } catch {
-      // fall through to embed
+      // fall through to direct Archive embed
     }
 
-    setEmbedUrl(`https://archive.org/embed/${encodeURIComponent(movie.id)}`);
+    setEmbedUrl(defaultEmbed);
     setStreamMeta(`${movie.title} · Archive Theater Embed`);
     setLoadingStream(false);
+  };
+
+  const openTheater = async (movie: CuratedMovieItem) => {
+    setActiveMovie(movie);
+    await loadArchiveSource(movie);
+  };
+
+  const switchSource = async (mode: CinemaPlayerSourceMode) => {
+    if (!activeMovie) return;
+    setPlayerSource(mode);
+    if (mode === 'archive') {
+      loadArchiveSource(activeMovie);
+      return;
+    }
+    setStreamUrl(null);
+    if (mode === 'custom') {
+      setLoadingStream(false);
+      const normalized = normalizeDirectEmbedUrl(customEmbedInput);
+      setEmbedUrl(normalized || null);
+      setStreamMeta(normalized ? `${activeMovie.title} · Custom Embed URL` : 'Paste a direct YouTube / Archive / Dailymotion / embed URL below');
+      return;
+    }
+    const normalized = normalizeDirectEmbedUrl(customEmbedInput);
+    if (normalized && (normalized.includes('youtube-nocookie.com') || normalized.includes('dailymotion.com'))) {
+      setLoadingStream(false);
+      setEmbedUrl(normalized);
+      setStreamMeta(`${activeMovie.title} · Trailer Embed`);
+      return;
+    }
+    setLoadingStream(true);
+    setEmbedUrl(null);
+    setStreamMeta(`Resolving official trailer for "${activeMovie.title}"...`);
+    try {
+      const res = await fetch(
+        `/api/cinema/trailer?q=${encodeURIComponent(`${activeMovie.title} official trailer`)}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.embedUrl) {
+          setEmbedUrl(data.embedUrl);
+          setCustomEmbedInput(data.embedUrl);
+          setStreamMeta(`${activeMovie.title} · Official Trailer`);
+          setLoadingStream(false);
+          return;
+        }
+      }
+    } catch {
+      // fall back to direct Archive embed
+    }
+    loadArchiveSource(activeMovie);
   };
 
   const closeTheater = () => {
@@ -135,6 +193,14 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
     setStreamUrl(null);
     setEmbedUrl(null);
   };
+
+  const newTabPlayerHref = activeMovie
+    ? embedUrl ||
+      streamUrl ||
+      (playerSource === 'trailer'
+        ? `https://www.youtube.com/results?search_query=${encodeURIComponent(`${activeMovie.title} trailer`)}`
+        : `https://archive.org/embed/${encodeURIComponent(activeMovie.id)}`)
+    : 'https://archive.org';
 
   return (
     <motion.div
@@ -264,6 +330,15 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
                 <span className="text-sm font-bold text-slate-100 truncate">{activeMovie.title}</span>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={newTabPlayerHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-8 px-2.5 rounded-lg bg-[#121826] hover:bg-[#192235] border border-white/[0.08] text-xs font-semibold text-slate-200 inline-flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Open Player in New Tab</span>
+                </a>
                 <button
                   type="button"
                   onClick={() => {
@@ -298,6 +373,53 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
               </div>
             </div>
 
+            <div className="px-4 py-2.5 bg-[#0a0e17] border-b border-white/[0.07] flex flex-wrap items-center justify-between gap-2 shrink-0">
+              <div className="flex items-center gap-1.5">
+                {(['trailer', 'archive', 'custom'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => switchSource(mode)}
+                    className={`h-7 px-3 rounded-md text-xs font-semibold cursor-pointer transition-colors ${
+                      playerSource === mode
+                        ? 'bg-indigo-500 text-white'
+                        : 'bg-[#121826] text-slate-300 hover:text-white border border-white/[0.08]'
+                    }`}
+                  >
+                    {mode === 'trailer' ? 'Trailer' : mode === 'archive' ? 'Internet Archive' : 'Custom Embed URL'}
+                  </button>
+                ))}
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const clean = normalizeDirectEmbedUrl(customEmbedInput);
+                  if (!clean) return;
+                  setPlayerSource('custom');
+                  setLoadingStream(false);
+                  setStreamUrl(null);
+                  setEmbedUrl(clean);
+                  setCustomEmbedInput(clean);
+                  setStreamMeta(`${activeMovie.title} · Direct Embed`);
+                }}
+                className="flex items-center gap-2 flex-1 max-w-lg"
+              >
+                <input
+                  type="text"
+                  value={customEmbedInput}
+                  onChange={(e) => setCustomEmbedInput(e.target.value)}
+                  placeholder="https://archive.org/embed/... or YouTube URL"
+                  className="flex-1 h-7 px-2.5 rounded-md bg-[#0d121c] border border-white/[0.08] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+                />
+                <button
+                  type="submit"
+                  className="h-7 px-3 rounded-md bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold text-white cursor-pointer"
+                >
+                  Load Embed
+                </button>
+              </form>
+            </div>
+
             <div className="flex-1 flex flex-col items-center justify-center p-4 gap-3 min-h-0">
               {loadingStream ? (
                 <div className="flex flex-col items-center gap-3 text-slate-400">
@@ -312,7 +434,7 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
                     controls
                     autoPlay
                     playsInline
-                    className="w-full max-w-[1100px] max-h-[calc(100vh-140px)] rounded-xl bg-black border border-white/[0.08]"
+                    className="w-full max-w-[1100px] max-h-[calc(100vh-180px)] rounded-xl bg-black border border-white/[0.08]"
                   />
                   <span className="text-xs font-mono text-slate-400">{streamMeta}</span>
                 </>
@@ -320,10 +442,25 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
                 <iframe
                   title={activeMovie.title}
                   src={embedUrl}
-                  allow="autoplay; fullscreen"
+                  allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  referrerPolicy="no-referrer"
                   className="w-full h-full border-0 rounded-lg bg-black"
                 />
-              ) : null}
+              ) : (
+                <div className="flex flex-col items-center gap-3 text-center max-w-md">
+                  <span className="text-xs font-mono text-slate-300">{streamMeta}</span>
+                  <a
+                    href={newTabPlayerHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-8 px-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-xs font-semibold text-white inline-flex items-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Open Player in New Tab</span>
+                  </a>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -331,3 +468,4 @@ export const MoviesView: React.FC<MoviesViewProps> = ({ onOpenInProxy }) => {
     </motion.div>
   );
 };
+

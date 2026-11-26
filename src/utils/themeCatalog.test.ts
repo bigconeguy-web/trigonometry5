@@ -3,22 +3,29 @@ import assert from 'node:assert/strict';
 import {
   THEMES_CATALOG,
   THEME_CATEGORIES,
+  STUDIO_THEME_CATEGORIES,
+  resolveStudioThemeCategory,
   resolveThemeById,
   buildThemeCssVariables,
   contrastRatio,
   getContrastInk,
 } from './themeCatalog';
 
-test('THEMES_CATALOG includes 124 unique themes (24 original + 100 new)', () => {
-  assert.equal(THEMES_CATALOG.length, 124);
+test('THEMES_CATALOG includes 200 unique themes across all 7 Studio categories', () => {
+  assert.equal(THEMES_CATALOG.length, 200);
   const ids = new Set(THEMES_CATALOG.map((t) => t.id));
   const names = new Set(THEMES_CATALOG.map((t) => t.name));
-  assert.equal(ids.size, 124, 'Every theme must have a unique id');
-  assert.equal(names.size, 124, 'Every theme must have a unique name');
+  assert.equal(ids.size, 200, 'Every theme must have a unique id');
+  assert.equal(names.size, 200, 'Every theme must have a unique name');
 
   for (const cat of THEME_CATEGORIES) {
     const count = THEMES_CATALOG.filter((t) => t.category === cat).length;
     assert.ok(count >= 40, `Expected >= 40 themes in category ${cat}, got ${count}`);
+  }
+
+  for (const sCat of STUDIO_THEME_CATEGORIES) {
+    const count = THEMES_CATALOG.filter((t) => resolveStudioThemeCategory(t) === sCat).length;
+    assert.ok(count >= 10, `Expected >= 10 themes in Studio category ${sCat}, got ${count}`);
   }
 
   const requiredNames = [
@@ -55,7 +62,7 @@ test('THEMES_CATALOG includes 124 unique themes (24 original + 100 new)', () => 
   }
 });
 
-test('all 124 themes specify valid hex tokens and meet WCAG AA contrast', () => {
+test('all 200 themes specify valid hex tokens and meet WCAG AA contrast', () => {
   const hexRegex = /^#[0-9a-f]{6}$/i;
   for (const t of THEMES_CATALOG) {
     assert.match(t.bgPrimary, hexRegex);

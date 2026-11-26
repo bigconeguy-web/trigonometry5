@@ -1,6 +1,6 @@
 {
-  "name": "Scholastica - Open Academic Modules & Interactive Curriculum",
-  "description": "Minimalist study portal for open academic simulations, cognitive practicums, and interactive research modules.",
+  "name": "Vux — Private Proxy Browser, Chat & Media Workspace",
+  "description": "Vux isolated workspace with Scramjet v2 Libcurl proxy, Discord-style chat, StudyHub MP3 player, Seraph & gn-math games, Movies & TV, and Customization Studio.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
