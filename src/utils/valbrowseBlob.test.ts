@@ -107,20 +107,44 @@ test('buildValBrowseBlobHtml embeds valid JS, Vux branding, Studio customization
   assert.ok(html.includes('id="vux-notes-drawer"'));
   assert.ok(html.includes('id="vux-badges-modal"'));
 
-  // Vux AI Sidebar & Slide-Over Panel
+  // Vux.ai Custom-Skinned Single Workspace (replaces multi-provider AI drawer)
   assert.ok(html.includes('id="btn-rail-ai"'));
-  assert.ok(html.includes('id="rail-ai-quick-form"'));
-  assert.ok(html.includes('id="rail-ai-quick-input"'));
-  assert.ok(html.includes('id="ai-drawer"'));
-  assert.ok(html.includes('id="ai-model-pills"'));
+  assert.ok(html.includes('data-view="ai"'));
+  assert.ok(html.includes('id="view-ai"'));
+  assert.ok(html.includes('id="ai-panel-newchat"'));
+  assert.ok(html.includes('id="ai-model-indicator"'));
+  assert.ok(html.includes('id="ai-panel-reload"'));
   assert.ok(html.includes('id="ai-panel-frame"'));
+  assert.ok(html.includes('https://duck.ai'));
+  assert.ok(html.includes('wss://my-wisp-server-ocnq.onrender.com/wisp/'));
+  assert.ok(html.includes('injectAiFrameSkin'));
   assert.ok(html.includes('valem-resolve-scram-url'));
+  assert.ok(html.includes('embed=ai'));
+  assert.ok(html.includes('flushVisibleCatalogView'));
+  assert.ok(!html.includes('id="ai-drawer"'), 'Legacy multi-AI drawer must be removed');
+  assert.ok(!html.includes('id="ai-model-pills"'), 'Legacy multi-AI pills must be removed');
+  assert.ok(!html.includes('id="rail-ai-quick-form"'), 'Legacy quick AI form must be removed');
+  assert.ok(!html.includes('data-ai-provider='), 'Legacy multi-AI provider switcher must be removed');
 
-  // Seraph Games Provider
+  // Seraph, GMShelf & CKV Full Uncapped Games Providers
   assert.ok(html.includes('id="view-seraph"'));
   assert.ok(html.includes('id="badge-seraph"'));
   assert.ok(html.includes('data-mfilter="seraph"'));
   assert.ok(html.includes('id="seraph-search"'));
+  assert.ok(html.includes('id="view-gmshelf"'));
+  assert.ok(html.includes('id="badge-gmshelf"'));
+  assert.ok(html.includes('data-mfilter="gmshelf"'));
+  assert.ok(html.includes('id="gmshelf-search"'));
+  assert.ok(html.includes('id="view-ckv"'));
+  assert.ok(html.includes('id="badge-ckv"'));
+  assert.ok(html.includes('data-mfilter="ckv"'));
+  assert.ok(html.includes('id="ckv-search"'));
+  assert.ok(html.includes('ckvTreeApiUrl'));
+  assert.ok(html.includes('fetchCkvCatalog'));
+  assert.ok(html.includes('fetchGmshelfCatalog'));
+  assert.ok(html.includes('renderCardsChunked'));
+  assert.ok(!html.includes('list.slice(0, 150)'), 'Must not truncate game catalogs to 150 items');
+  assert.ok(!html.includes('list.slice(0, 120)'), 'Must not truncate gn-math catalog to 120 items');
 
   assert.ok(html.includes('gn-math Script'));
   assert.ok(html.includes('Movies &amp; TV'));
@@ -237,6 +261,9 @@ test('public/scramjet-browser.html inline script parses cleanly with Vux theme, 
   assert.ok(html.includes('ensureLibcurlTransport'));
   assert.ok(html.includes('scramjet.createFrame'));
   assert.ok(html.includes('tab.readyPollId'));
+  assert.ok(html.includes('embed-ai-mode'));
+  assert.ok(html.includes('startEmbeddedAiSession'));
+  assert.ok(html.includes('applyEmbeddedAiSkinToTab'));
   assert.ok(!html.includes('Use Local /wisp/'), 'Must strictly use Mercury Wisp without local /wisp/ fallback');
 });
 

@@ -88,6 +88,33 @@
       height: 100vh;
     }
 
+    html.embed-ai-mode,
+    html.embed-ai-mode body {
+      background: var(--bg) !important;
+      height: 100% !important;
+      width: 100% !important;
+    }
+
+    html.embed-ai-mode .tabs-strip,
+    html.embed-ai-mode .browser-chrome,
+    html.embed-ai-mode .home-screen,
+    html.embed-ai-mode .wisp-popover,
+    html.embed-ai-mode .workspaces-popover,
+    html.embed-ai-mode .shortcut-modal-backdrop,
+    html.embed-ai-mode .sandbox-card {
+      display: none !important;
+    }
+
+    html.embed-ai-mode .stage,
+    html.embed-ai-mode .frames-host,
+    html.embed-ai-mode .sj-frame {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: var(--bg) !important;
+    }
+
     /* Pill Tab Strip */
     .tabs-strip {
       position: relative;
@@ -1806,6 +1833,11 @@
       }, true);
 
       var params = new URLSearchParams(window.location.search);
+      var embedMode = params.get('embed') || '';
+      if (embedMode === 'ai') {
+        document.documentElement.classList.add('embed-ai-mode');
+      }
+
       function applyThemeTokens(t) {
         var root = document.documentElement;
         if (t.bg) root.style.setProperty('--bg', t.bg);
@@ -1827,6 +1859,9 @@
           root.style.setProperty('--primary-soft', 'color-mix(in srgb, ' + t.primary + ' 16%, transparent)');
           root.style.setProperty('--primary-glow', 'color-mix(in srgb, ' + t.primary + ' 28%, transparent)');
         }
+        if (t.font) {
+          root.style.setProperty('--font-ui', t.font);
+        }
         if (t.light === '1' || t.light === true) {
           document.body.classList.add('light-mode');
         } else if (t.light === '0' || t.light === false) {
@@ -1842,6 +1877,7 @@
         muted: params.get('muted'),
         border: params.get('border'),
         primary: params.get('primary'),
+        font: params.get('font'),
         light: params.get('light')
       });
 
@@ -2170,8 +2206,188 @@
             setLoading(false);
             if (typeof syncBookmarkStarState === 'function') syncBookmarkStarState();
           }
+          if (embedMode === 'ai') {
+            applyEmbeddedAiSkinToTab(tab);
+            setTimeout(function () { applyEmbeddedAiSkinToTab(tab); }, 450);
+            setTimeout(function () { applyEmbeddedAiSkinToTab(tab); }, 1400);
+            try {
+              window.parent.postMessage({ type: 'vux-ai-ready', ok: true, wisp: savedWisp || DEFAULT_WISP_URL }, '*');
+            } catch (_pe) {}
+          }
           renderTabsStrip();
         });
+      }
+
+      var aiEmbedObserver = null;
+      function syncEmbeddedAiModel(doc) {
+        if (!doc || !doc.body || embedMode !== 'ai') return;
+        try {
+          var candidates = doc.querySelectorAll('button, [role="button"], [class*="model" i], [data-testid*="model" i]');
+          for (var i = 0; i < candidates.length; i++) {
+            var txt = String(candidates[i].textContent || '').replace(/\s+/g, ' ').trim();
+            if (txt && txt.length <= 36 && /(gpt|claude|llama|mistral|o3|o4|luna|haiku|sonnet|nano|mini)/i.test(txt)) {
+              window.parent.postMessage({ type: 'vux-ai-model-update', model: txt }, '*');
+              return;
+            }
+          }
+        } catch (_e) {}
+      }
+
+      function makeVuxAiCrestSvg(doc, sizePx) {
+        var wrap = doc.createElement('span');
+        wrap.setAttribute('data-vux-crest', '1');
+        wrap.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:' + sizePx + 'px;height:' + sizePx + 'px;flex-shrink:0;';
+        wrap.innerHTML =
+          '<svg data-vux-crest="1" width="' + sizePx + '" height="' + sizePx + '" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<defs><linearGradient id="vuxAiCrestG" x1="6" y1="4" x2="42" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ff6b8b"/><stop offset="55%" stop-color="#ff3b6b"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs>' +
+          '<path d="M24 3L42 13.5V34.5L24 45L6 34.5V13.5L24 3Z" fill="url(#vuxAiCrestG)" fill-opacity="0.22" stroke="url(#vuxAiCrestG)" stroke-width="2.4"/>' +
+          '<path d="M14.5 16.5L24 35L33.5 16.5H28.4L24 25.6L19.6 16.5H14.5Z" fill="#ffffff"/>' +
+          '<path d="M24 25.6L28.4 16.5H33.5L24 35V25.6Z" fill="url(#vuxAiCrestG)"/>' +
+          '<circle cx="24" cy="12" r="2" fill="#ffffff"/>' +
+          '</svg>';
+        return wrap;
+      }
+
+      var aiSkinDebounceId = 0;
+      function applyEmbeddedAiSkinToTab(tab) {
+        if (embedMode !== 'ai' || !tab || !tab.frameEl) return;
+        try {
+          var doc = tab.frameEl.contentDocument;
+          if (!doc || !doc.head) return;
+          if (doc.documentElement && doc.documentElement.classList.contains('no-js')) {
+            doc.documentElement.classList.remove('no-js');
+          }
+          doc.querySelectorAll('.noscript-container, noscript, #app-loader').forEach(function (n) {
+            if (n && n.style) n.style.display = 'none';
+          });
+          var cs = getComputedStyle(document.documentElement);
+          var bg = cs.getPropertyValue('--bg').trim() || '#0b0608';
+          var surf = cs.getPropertyValue('--surface').trim() || '#140b0e';
+          var surf2 = cs.getPropertyValue('--bg-secondary').trim() || '#080406';
+          var text = cs.getPropertyValue('--text').trim() || '#fdf2f4';
+          var muted = cs.getPropertyValue('--text-muted').trim() || '#9f878f';
+          var accent = cs.getPropertyValue('--primary').trim() || '#ff5c7c';
+          var fontUi = cs.getPropertyValue('--font-ui').trim() || "'Plus Jakarta Sans', system-ui, sans-serif";
+          var isLight = document.body.classList.contains('light-mode');
+          var borderCol = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.1)';
+
+          var st = doc.getElementById('vux-ai-harmony-css');
+          if (!st) {
+            st = doc.createElement('style');
+            st.id = 'vux-ai-harmony-css';
+            doc.head.appendChild(st);
+          }
+          st.textContent =
+            ':root, html, body {' +
+            'background: ' + bg + ' !important;' +
+            'color: ' + text + ' !important;' +
+            'font-family: ' + fontUi + ' !important;' +
+            'color-scheme: ' + (isLight ? 'light' : 'dark') + ' !important;' +
+            '--duckai-color-attachment-bg: ' + surf + ' !important;' +
+            '--theme-col-bg-card-header: ' + surf + ' !important;' +
+            '--sds-color-palette-gray-0: ' + bg + ' !important;' +
+            '--sds-color-text-primary: ' + text + ' !important;' +
+            '--sds-color-text-secondary: ' + muted + ' !important;' +
+            '--theme-col-txt-card-body: ' + text + ' !important;' +
+            '--theme-apple-txt: ' + text + ' !important;' +
+            '--theme-apple-txt-light: ' + muted + ' !important;' +
+            '--theme-divider-dropdown: 1px solid ' + borderCol + ' !important;' +
+            '}' +
+            '[data-vux-ai-surface="bg"] { background: ' + bg + ' !important; background-color: ' + bg + ' !important; color: ' + text + ' !important; border-color: ' + borderCol + ' !important; }' +
+            '[data-vux-ai-surface="sidebar"] { background: ' + surf2 + ' !important; background-color: ' + surf2 + ' !important; color: ' + text + ' !important; border-color: ' + borderCol + ' !important; }' +
+            '[data-vux-ai-surface="chip"] { background: ' + surf + ' !important; background-color: ' + surf + ' !important; color: ' + text + ' !important; border: 1px solid ' + borderCol + ' !important; }' +
+            'header a[href*="duckduckgo"], [aria-label*="DuckDuckGo" i], [title*="DuckDuckGo" i], img[alt*="Duck" i], svg[aria-label*="Duck" i], footer, [data-testid="footer"], [class*="promo" i], a[href*="duckduckgo.com"], .noscript-container, [data-vux-ai-hidden="1"] { display: none !important; }' +
+            'main, [role="main"], [class*="chat" i], [class*="conversation" i], [class*="wrapper" i], [class*="shell" i] { background-color: transparent !important; color: ' + text + ' !important; font-family: ' + fontUi + ' !important; }' +
+            'body, body *:not(svg):not(path):not(circle):not(rect):not(polygon):not(line) { color: ' + text + ' !important; font-family: ' + fontUi + ' !important; }' +
+            'body svg:not([data-vux-crest="1"]) { color: ' + text + ' !important; }' +
+            'textarea, input[type="text"], form, [class*="composer" i] {' +
+            'background-color: ' + surf + ' !important;' +
+            'color: ' + text + ' !important;' +
+            'border-color: color-mix(in srgb, ' + accent + ' 38%, ' + borderCol + ') !important;' +
+            '}' +
+            'textarea::placeholder, input::placeholder, [class*="muted" i], [class*="secondary" i], [class*="disclaimer" i] { color: ' + muted + ' !important; }' +
+            'button[type="submit"], button[data-testid*="send" i] { background-color: ' + accent + ' !important; color: #ffffff !important; border-color: transparent !important; }' +
+            '[class*="card" i], [class*="bubble" i], [class*="message" i], [class*="suggestion" i] { border-color: ' + borderCol + ' !important; }' +
+            'aside, nav, [class*="sidebar" i] { background-color: ' + surf2 + ' !important; color: ' + text + ' !important; border-color: ' + borderCol + ' !important; }' +
+            '::-webkit-scrollbar{width:7px;height:7px;}::-webkit-scrollbar-thumb{background:' + accent + ';opacity:0.45;border-radius:99px;}';
+
+          if (!isLight) {
+            doc.querySelectorAll('div, section, main, aside, header, nav, footer, ul, [role="dialog"], [role="menu"]').forEach(function (el) {
+              if (el.getAttribute('data-vux-ai-surface')) return;
+              var bgVal = getComputedStyle(el).backgroundColor || '';
+              var m = bgVal.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
+              if (!m) return;
+              var r = Number(m[1]), g = Number(m[2]), b = Number(m[3]), a = m[4] === undefined ? 1 : Number(m[4]);
+              if (a > 0.15 && r > 200 && g > 200 && b > 200) {
+                var rect = el.getBoundingClientRect();
+                if (rect.width > 160 && rect.width <= 320 && rect.height >= 360) {
+                  el.setAttribute('data-vux-ai-surface', 'sidebar');
+                } else {
+                  el.setAttribute('data-vux-ai-surface', 'bg');
+                }
+              }
+            });
+            doc.querySelectorAll('button').forEach(function (btn) {
+              var bType = (btn.getAttribute('type') || '').toLowerCase();
+              if (bType === 'submit') return;
+              var bgVal = getComputedStyle(btn).backgroundColor || '';
+              var m = bgVal.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)$/);
+              if (m && Number(m[1]) > 180 && Number(m[2]) > 180 && Number(m[3]) > 180) {
+                btn.setAttribute('data-vux-ai-surface', 'chip');
+              } else if (m && (Number(m[4] === undefined ? 1 : m[4]) > 0.25) && Number(m[1]) < 45 && Number(m[2]) < 45 && Number(m[3]) < 45 && (btn.innerText || '').trim().length > 0) {
+                btn.setAttribute('data-vux-ai-surface', 'chip');
+              }
+            });
+          }
+
+          // Replace hero & sidebar Duck mascot SVGs with our glowing Vux.ai crest
+          doc.querySelectorAll('svg').forEach(function (svg) {
+            if (svg.getAttribute('data-vux-crest') === '1' || svg.closest('[data-vux-crest="1"]')) return;
+            var rect = svg.getBoundingClientRect();
+            var pTxt = (svg.parentElement && svg.parentElement.innerText ? svg.parentElement.innerText : '').trim();
+            var isHeroDuck = rect.width >= 60 && rect.height >= 60;
+            var isSidebarDuck = rect.width >= 18 && rect.width <= 34 && /^(Duck\.ai|Vux\.ai)$/i.test(pTxt);
+            if (isHeroDuck || isSidebarDuck) {
+              var crest = makeVuxAiCrestSvg(doc, isHeroDuck ? 72 : 24);
+              if (svg.parentNode) svg.parentNode.replaceChild(crest, svg);
+            }
+          });
+
+          // Replace Duck.ai / DuckDuckGo text nodes safely even inside mixed-child spans
+          if (doc.body && typeof doc.createTreeWalker === 'function') {
+            var tw = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
+            var node;
+            while ((node = tw.nextNode())) {
+              var val = node.nodeValue || '';
+              if (/Duck\.ai/i.test(val)) {
+                node.nodeValue = val.replace(/Duck\.ai,?\s*by\s*DuckDuckGo/gi, 'Vux.ai').replace(/Duck\.ai/gi, 'Vux.ai');
+              } else if (/anonymizes your chats/i.test(val)) {
+                node.nodeValue = 'Encrypted session isolated through Vux Scramjet v2 & Wisp.';
+              }
+            }
+          }
+
+          // Hide DuckDuckGo footer promos & explainer chip
+          doc.querySelectorAll('span, div, a, button, p').forEach(function (el) {
+            var flat = (el.innerText || '').replace(/\s+/g, ' ').trim();
+            if (/^(DuckDuckGo|Get the App|How Vux\.ai Works|How Duck\.ai Works|by \| Get the App|by\|Get the App)$/i.test(flat)) {
+              var hideTarget = el.closest('button, a') || el;
+              hideTarget.setAttribute('data-vux-ai-hidden', '1');
+            }
+          });
+
+          syncEmbeddedAiModel(doc);
+          if (!aiEmbedObserver && doc.body && typeof MutationObserver === 'function') {
+            aiEmbedObserver = new MutationObserver(function () {
+              syncEmbeddedAiModel(doc);
+              if (aiSkinDebounceId) clearTimeout(aiSkinDebounceId);
+              aiSkinDebounceId = setTimeout(function () {
+                applyEmbeddedAiSkinToTab(tab);
+              }, 120);
+            });
+            aiEmbedObserver.observe(doc.body, { childList: true, subtree: true });
+          }
+        } catch (_e) {}
       }
 
       function createTab(options) {
@@ -3027,12 +3243,56 @@
       }
 
       /* ---------------- EVENT LISTENERS ---------------- */
+      async function getScramServiceWorker() {
+        try {
+          if (!('serviceWorker' in navigator)) return null;
+          if (navigator.serviceWorker.controller) return navigator.serviceWorker.controller;
+          var reg = await navigator.serviceWorker.getRegistration('/scram/');
+          return (reg && (reg.active || reg.waiting || reg.installing)) || null;
+        } catch (_e) {
+          return null;
+        }
+      }
+
       window.addEventListener('message', async function (ev) {
         if (!ev || !ev.data) return;
         if (ev.data.type === 'scramjet-theme') {
           applyThemeTokens(ev.data);
+          if (embedMode === 'ai') applyEmbeddedAiSkinToTab(getActiveTab());
+        } else if (ev.data.type === 'vux-ai-skin') {
+          applyThemeTokens(ev.data);
+          if (embedMode === 'ai') applyEmbeddedAiSkinToTab(getActiveTab());
+        } else if (ev.data.type === 'vux-ai-newchat') {
+          var activeAi = getActiveTab();
+          var handledClick = false;
+          try {
+            var adoc = activeAi && activeAi.frameEl && activeAi.frameEl.contentDocument;
+            if (adoc) {
+              var btns = adoc.querySelectorAll('button, a');
+              for (var bi = 0; bi < btns.length; bi++) {
+                var lbl = (btns[bi].getAttribute('aria-label') || btns[bi].textContent || '').trim();
+                if (/new\s*chat|clear\s*chat|start\s*new/i.test(lbl)) {
+                  btns[bi].click();
+                  handledClick = true;
+                  setTimeout(function () { applyEmbeddedAiSkinToTab(activeAi); }, 300);
+                  break;
+                }
+              }
+            }
+          } catch (_e) {}
+          if (!handledClick && activeAi) {
+            aiEmbedObserver = null;
+            navigateTab(activeAi, params.get('url') || 'https://duck.ai');
+          }
+        } else if (ev.data.type === 'vux-ai-reload') {
+          var relTab = getActiveTab();
+          if (relTab) {
+            aiEmbedObserver = null;
+            navigateTab(relTab, params.get('url') || 'https://duck.ai');
+          }
         } else if (ev.data.type === 'valem-custom-settings' && ev.data.settings) {
           applyCustomSettingsToBrowser(ev.data.settings);
+          if (embedMode === 'ai') applyEmbeddedAiSkinToTab(getActiveTab());
         } else if (ev.data.type === 'omni-navigate' && typeof ev.data.query === 'string') {
           if (ev.data.newTab) {
             createTab({ initialQuery: ev.data.query });
@@ -3050,16 +3310,18 @@
             var effectiveWisp = customWisp || savedWisp || DEFAULT_WISP_URL;
             if (okReady && customWisp && customWisp !== (savedWisp || DEFAULT_WISP_URL)) {
               try {
-                var wakeHttp = customWisp.replace(/^ws:/i, 'http:').replace(/^wss:/i, 'https:');
-                var wakeOrigin = new URL(wakeHttp).origin + '/';
-                fetch(wakeOrigin, { mode: 'no-cors' }).catch(function () {});
-              } catch (_we) {}
-              try {
                 if (!connection && typeof BareMux !== 'undefined' && BareMux.BareMuxConnection) {
                   connection = new BareMux.BareMuxConnection('/baremux/worker.js');
                 }
                 if (connection) {
                   await connection.setTransport('/libcurl/index.mjs', [{ wisp: customWisp }]);
+                }
+                if (scramjet && typeof scramjet.modifyConfig === 'function') {
+                  await scramjet.modifyConfig({ prefix: SCRAM_PREFIX, wisp: customWisp });
+                }
+                var swTarget = await getScramServiceWorker();
+                if (swTarget) {
+                  await sendSwMessage(swTarget, { scramjet$type: 'reloadConfigFromIDB' }, 1500);
                 }
               } catch (_te) {}
             }
@@ -4015,8 +4277,92 @@
         }
       });
 
-      var initialGo = params.get('q');
-      createTab({ title: 'Home', initialQuery: initialGo || '' });
+      async function startEmbeddedAiSession() {
+        var targetAiUrl = params.get('url') || 'https://duck.ai';
+        var preferredWisp = normalizeWispUrl(params.get('wisp') || 'wss://my-wisp-server-ocnq.onrender.com/wisp/');
+        savedWisp = preferredWisp;
+        wispInput.value = preferredWisp;
+        try {
+          window.parent.postMessage({ type: 'vux-ai-wisp-status', label: 'Connecting Render Wisp...' }, '*');
+        } catch (_e) {}
+        proxyReadyPromise = null;
+        var ok = await initScramjetStack(preferredWisp, true).catch(function () { return false; });
+
+        // Fast reachability check specifically for duck.ai over Render Wisp; fail over to Mercury Wisp if Render hangs
+        var selectedWisp = preferredWisp;
+        var wispBadge = 'Render Wisp · Connected';
+        if (ok && typeof BareMux !== 'undefined' && BareMux.BareClient && preferredWisp !== DEFAULT_WISP_URL) {
+          var reachOk = false;
+          try {
+            var testClient = new BareMux.BareClient('/baremux/worker.js');
+            var probeResp = await Promise.race([
+              testClient.fetch(targetAiUrl, {
+                method: 'GET',
+                headers: [['accept', 'text/html,*/*;q=0.8'], ['user-agent', navigator.userAgent]],
+                redirect: 'manual'
+              }),
+              new Promise(function (_res, rej) { setTimeout(function () { rej(new Error('probe-timeout')); }, 3200); })
+            ]);
+            if (probeResp && Number(probeResp.status) > 0 && Number(probeResp.status) < 500) {
+              reachOk = true;
+            }
+          } catch (_probeErr) {
+            reachOk = false;
+          }
+          if (!reachOk) {
+            selectedWisp = DEFAULT_WISP_URL;
+            savedWisp = DEFAULT_WISP_URL;
+            wispInput.value = DEFAULT_WISP_URL;
+            wispBadge = 'Mercury Wisp · Connected';
+            try {
+              if (connection) {
+                await connection.setTransport('/libcurl/index.mjs', [{ wisp: DEFAULT_WISP_URL }]);
+              }
+              if (scramjet && typeof scramjet.modifyConfig === 'function') {
+                await scramjet.modifyConfig({ prefix: SCRAM_PREFIX, wisp: DEFAULT_WISP_URL });
+              }
+              var swNode = await getScramServiceWorker();
+              if (swNode) {
+                await sendSwMessage(swNode, { scramjet$type: 'reloadConfigFromIDB' }, 1500);
+              }
+            } catch (_fbErr) {}
+          }
+        } else if (!ok && preferredWisp !== DEFAULT_WISP_URL) {
+          selectedWisp = DEFAULT_WISP_URL;
+          savedWisp = DEFAULT_WISP_URL;
+          wispBadge = 'Mercury Wisp · Connected';
+          proxyReadyPromise = null;
+          await initScramjetStack(DEFAULT_WISP_URL, true).catch(function () { return false; });
+        }
+
+        try {
+          window.parent.postMessage({ type: 'vux-ai-wisp-status', label: wispBadge, wisp: selectedWisp }, '*');
+        } catch (_e2) {}
+
+        var aiTab = createTab({ title: 'Vux.ai', initialQuery: targetAiUrl });
+        if (aiTab && aiTab.readyPollId) {
+          // Ensure skinning fires as soon as the proxied document becomes interactive
+          var skinTick = setInterval(function () {
+            if (!aiTab || !aiTab.frameEl) { clearInterval(skinTick); return; }
+            try {
+              var d = aiTab.frameEl.contentDocument;
+              if (d && d.location && d.location.href !== 'about:blank' && d.body && d.body.innerHTML.length > 200) {
+                applyEmbeddedAiSkinToTab(aiTab);
+                window.parent.postMessage({ type: 'vux-ai-ready', ok: true, wisp: selectedWisp }, '*');
+                if (d.readyState === 'complete') clearInterval(skinTick);
+              }
+            } catch (_se) {}
+          }, 400);
+          setTimeout(function () { clearInterval(skinTick); }, 15000);
+        }
+      }
+
+      if (embedMode === 'ai') {
+        startEmbeddedAiSession();
+      } else {
+        var initialGo = params.get('q');
+        createTab({ title: 'Home', initialQuery: initialGo || '' });
+      }
     })();
   </script>
 </body>

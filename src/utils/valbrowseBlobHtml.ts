@@ -41,7 +41,12 @@ import {
   getInitialVuxChatMessages,
 } from './vuxFeatures.js';
 import { getFallbackUgsCatalog, UGS_CDN_BASE } from './ugsCatalog.js';
-import { getFallbackCkvCatalog, CKV_CDN_BASE } from './ckvCatalog.js';
+import {
+  getFallbackCkvCatalog,
+  CKV_CDN_BASE,
+  CKV_TREE_API_URL,
+  CKV_GMSHELF_MIRRORS,
+} from './ckvCatalog.js';
 import {
   SERAPH_CDN_BASE,
   SERAPH_INDEX_MIRRORS,
@@ -113,6 +118,9 @@ export function buildValBrowseBlobHtml(
       featured: true,
     })),
     fallbackUgs: getFallbackUgsCatalog(UGS_CDN_BASE).map((g) => ({ ...g, provider: 'ugs' })),
+    ckvCdnBase: CKV_CDN_BASE,
+    ckvTreeApiUrl: CKV_TREE_API_URL,
+    ckvGmshelfMirrors: CKV_GMSHELF_MIRRORS,
     fallbackCkv: getFallbackCkvCatalog(CKV_CDN_BASE).map((g) => ({ ...g, provider: 'ckv' })),
     seraphCdnBase: SERAPH_CDN_BASE,
     seraphIndexMirrors: SERAPH_INDEX_MIRRORS,
@@ -882,6 +890,8 @@ export function buildValBrowseBlobHtml(
       display: flex;
       flex-direction: column;
       cursor: pointer;
+      content-visibility: auto;
+      contain-intrinsic-size: 205px;
       transition: transform 0.16s var(--ease), border-color 0.16s var(--ease), background 0.16s var(--ease);
     }
 
@@ -921,12 +931,17 @@ export function buildValBrowseBlobHtml(
       align-items: center;
       justify-content: center;
       gap: 6px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--muted);
-      background: linear-gradient(135deg, var(--surface-2) 0%, var(--bg) 100%);
-      padding: 10px;
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 64%),
+        linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, var(--surface-2)) 0%, var(--bg) 100%);
+      padding: 12px;
       text-align: center;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
     }
 
     .provider-chip {
@@ -2126,10 +2141,10 @@ export function buildValBrowseBlobHtml(
           <span class="rail-badge" id="badge-chat">4 ch</span>
         </button>
 
-        <button type="button" class="rail-btn" id="btn-rail-ai" data-view="ai" aria-label="Vux.ai (duck.ai via Wisp)" title="Vux.ai (duck.ai via Render Wisp)">
+        <button type="button" class="rail-btn" id="btn-rail-ai" data-view="ai" aria-label="Vux.ai Private Assistant" title="Vux.ai">
           ${VUX_AI_CREST_SVG}
           <span class="rail-label">Vux.ai</span>
-          <span class="rail-badge">WISP</span>
+          <span class="rail-badge">AI</span>
         </button>
 
         <div class="rail-group-label">Arcade Hub</div>
@@ -2150,6 +2165,12 @@ export function buildValBrowseBlobHtml(
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="2"/><rect x="3" y="14" width="18" height="6" rx="2"/><line x1="7" y1="7" x2="11" y2="7"/><line x1="7" y1="17" x2="13" y2="17"/></svg>
           <span class="rail-label">GMShelf</span>
           <span class="rail-badge" id="badge-gmshelf">0</span>
+        </button>
+
+        <button type="button" class="rail-btn" data-view="ckv" aria-label="CKV Games Library" title="CKV Games">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 19 6.5 19 17.5 12 22 5 17.5 5 6.5 12 2"/><path d="M9.5 12l2 2 3.5-4"/></svg>
+          <span class="rail-label">CKV Games</span>
+          <span class="rail-badge" id="badge-ckv">0</span>
         </button>
 
         <div class="rail-divider"></div>
@@ -2288,22 +2309,24 @@ export function buildValBrowseBlobHtml(
         </div>
       </section>
 
-      <!-- 1C. Vux.ai Full-Height Proxied Workspace (duck.ai via Render Wisp) -->
+      <!-- 1C. Native Vux.ai Full-Height Proxied Workspace (Custom-Skinned Over Render Wisp) -->
       <section class="view-panel" id="view-ai" aria-label="Vux.ai">
         <div class="vux-ai-shell">
           <div class="vux-ai-topbar">
             <div class="vux-ai-brand">
               <span class="vux-ai-crest-box">${VUX_AI_CREST_SVG}</span>
               <div>
-                <div style="font-family:var(--font-display);font-size:17px;font-weight:800;letter-spacing:-0.025em;display:flex;align-items:center;gap:8px;">
+                <div style="font-family:var(--font-display);font-size:17px;font-weight:800;letter-spacing:-0.025em;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                   <span>Vux.ai</span>
-                  <span class="vux-ai-status-pill" id="ai-panel-status">duck.ai · Render Wisp</span>
+                  <span class="vux-ai-status-pill" id="ai-model-indicator">Model: Private Cloud AI</span>
+                  <span class="vux-ai-status-pill" id="ai-panel-status">Render Wisp</span>
                 </div>
-                <div class="sub">Private AI chat routed through Scramjet v2 &amp; ${RENDER_WISP_URL}</div>
+                <div class="sub">Native theme-matched AI workspace over Scramjet v2 &amp; ${RENDER_WISP_URL}</div>
               </div>
             </div>
             <div class="pill-row">
-              <button type="button" class="btn btn-primary" id="ai-panel-reload" style="height:31px;padding:0 12px;">Reload Vux.ai</button>
+              <button type="button" class="btn btn-primary" id="ai-panel-newchat" style="height:31px;padding:0 12px;">New Chat</button>
+              <button type="button" class="btn" id="ai-panel-reload" style="height:31px;padding:0 11px;">Reload</button>
               <button type="button" class="btn" id="ai-panel-open-tab" style="height:31px;padding:0 11px;">Open in Browser</button>
               <button type="button" class="btn" id="ai-panel-fs" style="height:31px;padding:0 11px;">Fullscreen</button>
             </div>
@@ -2312,13 +2335,13 @@ export function buildValBrowseBlobHtml(
           <div class="vux-ai-stage" id="ai-panel-stage">
             <iframe
               id="ai-panel-frame"
-              title="Vux.ai Proxied Chat"
+              title="Vux.ai Assistant"
               allow="autoplay; fullscreen; clipboard-read; clipboard-write"
             ></iframe>
             <div class="overlay-status" id="ai-panel-loading">
               <div class="vux-ai-crest-box" style="width:44px;height:44px;margin-bottom:4px;">${VUX_AI_CREST_SVG}</div>
               <div class="spinner"></div>
-              <div id="ai-panel-loading-msg" style="font-size:13px;font-weight:600;">Connecting Vux.ai (duck.ai) via Render Wisp...</div>
+              <div id="ai-panel-loading-msg" style="font-size:13px;font-weight:600;">Initializing Vux.ai via Render Wisp...</div>
               <button type="button" class="btn" id="ai-panel-dismiss-load" style="height:28px;font-size:11px;">Dismiss Loader</button>
             </div>
           </div>
@@ -2427,6 +2450,35 @@ export function buildValBrowseBlobHtml(
             </div>
 
             <div class="modules-grid" id="gmshelf-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2D. CKV Games Provider (Full WanoCapy/ChickenKingsVault & gmshelf/ckv) -->
+      <section class="view-panel" id="view-ckv" aria-label="CKV Games Provider">
+        <div class="view-scroll">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">Dedicated Games Provider · ChickenKingsVault (Full Catalog)</div>
+                <h1 class="h1">CKV Games (<span id="ckv-total-count">0</span>)</h1>
+              </div>
+              <div class="pill-row">
+                <span class="sub" id="ckv-status">Syncing full CKV game vault...</span>
+                <button type="button" class="btn" id="btn-refresh-ckv">Sync CKV</button>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="pill-row" id="ckv-sort-pills">
+                <button type="button" class="pill-btn active" data-ckvsort="featured">Featured First</button>
+                <button type="button" class="pill-btn" data-ckvsort="az">A-Z</button>
+                <button type="button" class="pill-btn" data-ckvsort="za">Z-A</button>
+              </div>
+              <input type="text" class="input" id="ckv-search" placeholder="Search all CKV games..." style="width:240px;" />
+            </div>
+
+            <div class="modules-grid" id="ckv-grid"></div>
           </div>
         </div>
       </section>
@@ -3118,11 +3170,11 @@ export function buildValBrowseBlobHtml(
         </button>
         <button type="button" class="vb-welcome-tile" data-welcome-go="ai">
           <strong style="font-size:13px;color:var(--accent);">Vux.ai (Render Wisp)</strong>
-          <span class="sub">Private duck.ai workspace routed cleanly through Scramjet v2 + Render Wisp.</span>
+          <span class="sub">Native dark-glass AI assistant powered privately through Scramjet v2 + Render Wisp.</span>
         </button>
-        <button type="button" class="vb-welcome-tile" data-welcome-go="gmshelf">
-          <strong style="font-size:13px;color:var(--accent);">GMShelf &amp; Seraph Arcade</strong>
-          <span class="sub">Play GMShelf, Seraph, gn-math &amp; classic games right inside Vux.</span>
+        <button type="button" class="vb-welcome-tile" data-welcome-go="ckv">
+          <strong style="font-size:13px;color:var(--accent);">CKV, GMShelf &amp; Seraph Arcade</strong>
+          <span class="sub">Play 100% of CKV, GMShelf, Seraph, gn-math &amp; classic games inside Vux.</span>
         </button>
       </div>
 
@@ -3306,12 +3358,27 @@ export function buildValBrowseBlobHtml(
         if (viewId === 'ai' && typeof loadVuxAi === 'function') {
           var aiF = document.getElementById('ai-panel-frame');
           if (!aiF || !aiF.getAttribute('src')) loadVuxAi(false);
+          else if (typeof injectAiFrameSkin === 'function') injectAiFrameSkin();
         }
-        if (viewId === 'seraph' && !seraphFetchedOnce) {
-          fetchSeraphCatalog();
+        if (viewId === 'modules' && dirtyViews.modules) {
+          dirtyViews.modules = false;
+          renderModulesGrid();
         }
-        if (viewId === 'gmshelf' && !gmshelfFetchedOnce) {
-          fetchGmshelfCatalog();
+        if (viewId === 'gnmath' && dirtyViews.gnmath) {
+          dirtyViews.gnmath = false;
+          renderGnGrid();
+        }
+        if (viewId === 'seraph') {
+          if (dirtyViews.seraph) { dirtyViews.seraph = false; renderSeraphGrid(); }
+          if (!seraphFetchedOnce) fetchSeraphCatalog();
+        }
+        if (viewId === 'gmshelf') {
+          if (dirtyViews.gmshelf) { dirtyViews.gmshelf = false; renderGmshelfGrid(); }
+          if (!gmshelfFetchedOnce) fetchGmshelfCatalog();
+        }
+        if (viewId === 'ckv') {
+          if (dirtyViews.ckv) { dirtyViews.ckv = false; renderCkvGrid(); }
+          if (!ckvFetchedOnce) fetchCkvCatalog();
         }
         if (viewId === 'books' && !booksLoadedOnce) {
           booksLoadedOnce = true;
@@ -3372,7 +3439,7 @@ export function buildValBrowseBlobHtml(
           }
         } else if (ev.data.type === 'gn-switch-tab' && typeof ev.data.tab === 'string') {
           var targetTab = ev.data.tab === 'games' ? 'modules' : ev.data.tab;
-          var allowed = { browser: 1, chat: 1, ai: 1, modules: 1, seraph: 1, gmshelf: 1, gnmath: 1, movies: 1, books: 1, music: 1 };
+          var allowed = { browser: 1, chat: 1, ai: 1, modules: 1, seraph: 1, gmshelf: 1, ckv: 1, gnmath: 1, movies: 1, books: 1, music: 1 };
           if (allowed[targetTab]) {
             switchView(targetTab);
           }
@@ -3408,15 +3475,33 @@ export function buildValBrowseBlobHtml(
         if (rawFavs) favorites = JSON.parse(rawFavs) || [];
       } catch (_e) {}
 
+      var dirtyViews = {
+        modules: true,
+        gnmath: true,
+        seraph: true,
+        gmshelf: true,
+        ckv: true
+      };
+
+      function flushVisibleCatalogView() {
+        if (currentView === 'modules' && dirtyViews.modules) { dirtyViews.modules = false; renderModulesGrid(); }
+        else if (currentView === 'gnmath' && dirtyViews.gnmath) { dirtyViews.gnmath = false; renderGnGrid(); }
+        else if (currentView === 'seraph' && dirtyViews.seraph) { dirtyViews.seraph = false; renderSeraphGrid(); }
+        else if (currentView === 'gmshelf' && dirtyViews.gmshelf) { dirtyViews.gmshelf = false; renderGmshelfGrid(); }
+        else if (currentView === 'ckv' && dirtyViews.ckv) { dirtyViews.ckv = false; renderCkvGrid(); }
+      }
+
       function toggleFavorite(moduleId) {
         var idx = favorites.indexOf(moduleId);
         if (idx === -1) favorites.unshift(moduleId);
         else favorites.splice(idx, 1);
         safeLSSet('euler_favs', JSON.stringify(favorites));
-        renderModulesGrid();
-        renderSeraphGrid();
-        renderGmshelfGrid();
-        renderGnGrid();
+        dirtyViews.modules = true;
+        dirtyViews.gnmath = true;
+        dirtyViews.seraph = true;
+        dirtyViews.gmshelf = true;
+        dirtyViews.ckv = true;
+        flushVisibleCatalogView();
       }
 
       var gnZones = [];
@@ -3428,11 +3513,13 @@ export function buildValBrowseBlobHtml(
       var activeModuleFilter = 'all';
       var activeSeraphGenre = 'All';
       var activeGmshelfGenre = 'All';
+      var activeCkvSort = 'featured';
       var activePopularityPeriod = 'featured';
       var popularityMap = {};
       var gnZonesLoadedOnce = false;
       var seraphFetchedOnce = false;
       var gmshelfFetchedOnce = false;
+      var ckvFetchedOnce = false;
 
       function normalizeKey(s) {
         return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -3469,10 +3556,16 @@ export function buildValBrowseBlobHtml(
         var gmshelfTotal = document.getElementById('gmshelf-total-count');
         if (gmshelfBadge) gmshelfBadge.textContent = String(gmshelfModules.length);
         if (gmshelfTotal) gmshelfTotal.textContent = String(gmshelfModules.length);
-        renderModulesGrid();
-        renderSeraphGrid();
-        renderGmshelfGrid();
-        renderGnGrid();
+        var ckvBadge = document.getElementById('badge-ckv');
+        var ckvTotal = document.getElementById('ckv-total-count');
+        if (ckvBadge) ckvBadge.textContent = String(ckvModules.length);
+        if (ckvTotal) ckvTotal.textContent = String(ckvModules.length);
+        dirtyViews.modules = true;
+        dirtyViews.gnmath = true;
+        dirtyViews.seraph = true;
+        dirtyViews.gmshelf = true;
+        dirtyViews.ckv = true;
+        flushVisibleCatalogView();
       }
 
       function inferGmshelfCategoryClient(name, rawUrl) {
@@ -3485,45 +3578,63 @@ export function buildValBrowseBlobHtml(
         return 'Arcade';
       }
 
-      function resolveGmshelfUrlClient(rawPath, baseOrigin, fallbackBase) {
+      function resolveGmshelfUrlClient(rawPath, cdnBase) {
         var v = String(rawPath || '').trim();
-        if (!v || /^(javascript|data|vbscript):/i.test(v)) return '';
+        if (!v || /^(javascript|data|mailto|vbscript):/i.test(v)) return '';
         if (/^https?:\\/\\//i.test(v)) return v;
-        if (v.charAt(0) === '/') return String(baseOrigin || '').replace(/\\/+$/, '') + v;
-        return String(fallbackBase || baseOrigin || '').replace(/\\/+$/, '') + '/' + v.replace(/^\\.\\/+/, '');
+        var cleanBase = String(cdnBase || 'https://cdn.jsdelivr.net/gh/gmshelf/truffled@main').replace(/\\/+$/, '');
+        if (v.charAt(0) === '/') return cleanBase + v;
+        return cleanBase + '/' + v.replace(/^\\.\\/+/, '');
+      }
+
+      function deriveGmshelfBaseClient(gameUrl) {
+        try {
+          var u = new URL(gameUrl);
+          var parts = u.pathname.split('/');
+          parts.pop();
+          return u.origin + parts.join('/') + '/';
+        } catch (_e) {
+          return String(gameUrl || '').slice(0, String(gameUrl || '').lastIndexOf('/') + 1);
+        }
       }
 
       function parseGmshelfManifestClient(rawJson, srcMeta) {
         var rows = Array.isArray(rawJson) ? rawJson : (rawJson && Array.isArray(rawJson.games) ? rawJson.games : []);
         if (!rows.length) return [];
+        var col = (srcMeta && srcMeta.collection) || 'truffled';
+        var cdnBase = (srcMeta && srcMeta.cdnBase) || 'https://cdn.jsdelivr.net/gh/gmshelf/truffled@main';
         var out = [];
         var seen = Object.create(null);
         rows.forEach(function (row) {
           if (!row || !row.name || !row.url) return;
-          var name = String(row.name).trim();
-          var key = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-          if (!key || seen[key]) return;
-          var gameUrl = resolveGmshelfUrlClient(row.url, srcMeta.siteBase, srcMeta.cdnBase);
+          var name = String(row.name).replace(/<[^>]+>/g, '').replace(/\\s+/g, ' ').trim();
+          if (!name || name === 'Untitled Game') return;
+          if (/^-[a-z0-9]$/i.test(name)) name = name.slice(1).toUpperCase();
+          var cleanUrl = String(row.url).split('?')[0].split('#')[0];
+          var parts = cleanUrl.split('/').filter(Boolean);
+          var slug = (parts.length >= 2 ? parts[1].replace(/\\.html?$/i, '').toLowerCase() : '') || normalizeKey(name);
+          if (!slug || seen[slug]) return;
+          var gameUrl = resolveGmshelfUrlClient(row.url, cdnBase);
           if (!gameUrl) return;
-          seen[key] = true;
+          seen[slug] = true;
           var imgRaw = String(row.img || '').trim();
           var cover = null;
-          if (imgRaw && imgRaw.indexOf('placeholder.png') === -1) {
-            cover = resolveGmshelfUrlClient(imgRaw, srcMeta.cdnBase, srcMeta.cdnBase);
-          } else if (srcMeta.id === 'truffled') {
-            var m = String(row.url).match(/\\/([^/]+?)\\.html?$/i);
-            if (m && m[1]) cover = srcMeta.cdnBase + '/covers/' + encodeURIComponent(m[1]) + '.webp';
+          if (imgRaw && !/placeholder\\./i.test(imgRaw)) {
+            cover = resolveGmshelfUrlClient(imgRaw, cdnBase);
+          } else if (col === 'truffled' || col === 'seraph') {
+            cover = cdnBase.replace(/\\/+$/, '') + '/covers/' + encodeURIComponent(slug) + '.webp';
           }
           out.push({
-            id: 'gmshelf:' + srcMeta.id + ':' + key,
+            id: 'gmshelf:' + col + ':' + slug,
             provider: 'gmshelf',
+            collection: col,
             name: name,
-            slug: key,
+            slug: slug,
             category: inferGmshelfCategoryClient(name, row.url),
             url: gameUrl,
-            baseUrl: gameUrl.slice(0, gameUrl.lastIndexOf('/') + 1),
+            baseUrl: deriveGmshelfBaseClient(gameUrl),
             cover: cover,
-            featured: out.length < 30
+            featured: out.length < 40
           });
         });
         return out;
@@ -3532,34 +3643,164 @@ export function buildValBrowseBlobHtml(
       async function fetchGmshelfCatalog() {
         gmshelfFetchedOnce = true;
         var stEl = document.getElementById('gmshelf-status');
-        if (stEl) stEl.textContent = 'Syncing GMShelf catalog...';
+        if (stEl) stEl.textContent = 'Syncing full GMShelf manifests (truffled + ckv + ugs)...';
         var sources = Array.isArray(CFG.gmshelfSources) ? CFG.gmshelfSources : [];
         var combined = [];
         var seen = Object.create(null);
         for (var i = 0; i < sources.length; i++) {
           var src = sources[i];
-          try {
-            var res = await fetch(src.manifestUrl + '?t=' + Date.now());
-            if (!res.ok) continue;
-            var json = await res.json();
-            var parsed = parseGmshelfManifestClient(json, src);
-            parsed.forEach(function (item) {
-              var k = normalizeKey(item.name);
-              if (k && !seen[k]) {
-                seen[k] = true;
-                item.featured = combined.length < 36;
-                combined.push(item);
+          var urls = Array.isArray(src.manifestUrls) ? src.manifestUrls : [];
+          for (var j = 0; j < urls.length; j++) {
+            try {
+              var res = await fetch(urls[j] + '?t=' + Date.now());
+              if (!res.ok) continue;
+              var json = await res.json();
+              var parsed = parseGmshelfManifestClient(json, src);
+              if (parsed.length > 0) {
+                parsed.forEach(function (item) {
+                  var k = normalizeKey(item.name);
+                  if (k && !seen[k]) {
+                    seen[k] = true;
+                    item.featured = item.featured || combined.length < 48;
+                    combined.push(item);
+                  }
+                });
+                break;
               }
-            });
-          } catch (_e) {}
+            } catch (_e) {}
+          }
         }
         if (combined.length > 0) {
           gmshelfModules = combined;
           rebuildMergedModules();
-          if (stEl) stEl.textContent = 'Synced ' + combined.length + ' GMShelf games';
+          if (stEl) stEl.textContent = 'Synced 100% — ' + combined.length + ' GMShelf games';
           return;
         }
         if (stEl) stEl.textContent = 'Showing ' + gmshelfModules.length + ' curated GMShelf games';
+      }
+
+      function encodeCkvPathClient(repoPath) {
+        return String(repoPath || '').replace(/^\\/+/, '').split('/').map(function (s) {
+          return encodeURIComponent(s);
+        }).join('/');
+      }
+
+      function parseCkvTreeClient(treeItems, cdnBase) {
+        if (!Array.isArray(treeItems)) return [];
+        var cleanBase = String(cdnBase || CFG.ckvCdnBase || 'https://cdn.jsdelivr.net/gh/WanoCapy/ChickenKingsVault@main').replace(/\\/+$/, '');
+        var exactImg = Object.create(null);
+        var normImg = Object.create(null);
+        function scoreExt(p) {
+          var l = p.toLowerCase();
+          if (/\\.png$/.test(l)) return 5;
+          if (/\\.webp$/.test(l)) return 4;
+          if (/\\.jpe?g$/.test(l)) return 3;
+          if (/\\.avif$/.test(l)) return 2;
+          return 1;
+        }
+        for (var i = 0; i < treeItems.length; i++) {
+          var it = treeItems[i];
+          if (!it || it.type !== 'blob' || typeof it.path !== 'string') continue;
+          var p = it.path.replace(/^\\/+/, '');
+          if (!/^gameimages\\/.+\\.(?:png|jpe?g|webp|avif|jfif|gif|svg|ico)$/i.test(p)) continue;
+          var stem = p.slice('gameimages/'.length).replace(/\\.[^.]+$/, '');
+          var ex = stem.toLowerCase();
+          if (!exactImg[ex] || scoreExt(p) > scoreExt(exactImg[ex])) exactImg[ex] = p;
+          var nk = normalizeKey(stem);
+          if (nk && (!normImg[nk] || scoreExt(p) > scoreExt(normImg[nk]))) normImg[nk] = p;
+        }
+        var baseUrl = cleanBase + '/gamefiles/';
+        var out = [];
+        for (var j = 0; j < treeItems.length; j++) {
+          var row = treeItems[j];
+          if (!row || row.type !== 'blob' || typeof row.path !== 'string') continue;
+          var fp = row.path.replace(/^\\/+/, '');
+          if (!/^gamefiles\\/.+\\.html?$/i.test(fp)) continue;
+          var fStem = fp.slice('gamefiles/'.length).replace(/\\.html?$/i, '');
+          var title = fStem.replace(/[-_]+/g, ' ').replace(/\\s+/g, ' ').trim();
+          title = title ? title.split(' ').map(function (w) { return w ? w.charAt(0).toUpperCase() + w.slice(1) : ''; }).join(' ') : 'Untitled Game';
+          var matched = exactImg[fStem.toLowerCase()] || normImg[normalizeKey(fStem)];
+          out.push({
+            id: 'ckv:' + fp,
+            provider: 'ckv',
+            name: title,
+            category: inferGmshelfCategoryClient(title, fp),
+            url: cleanBase + '/' + encodeCkvPathClient(fp),
+            baseUrl: baseUrl,
+            cover: matched ? (cleanBase + '/' + encodeCkvPathClient(matched)) : null,
+            featured: out.length < 36
+          });
+        }
+        out.sort(function (a, b) { return a.name.localeCompare(b.name); });
+        return out;
+      }
+
+      function parseCkvJsonFallbackClient(rawJson) {
+        var rows = rawJson && Array.isArray(rawJson.games) ? rawJson.games : (Array.isArray(rawJson) ? rawJson : []);
+        var base = 'https://cdn.jsdelivr.net/gh/gmshelf/ckv@main';
+        var out = [];
+        var seen = Object.create(null);
+        rows.forEach(function (r) {
+          if (!r || !r.name || !r.url) return;
+          var name = String(r.name).trim();
+          var k = normalizeKey(name);
+          if (!k || seen[k]) return;
+          seen[k] = true;
+          var u = resolveGmshelfUrlClient(r.url, base);
+          if (!u) return;
+          var img = r.img && !/placeholder\\./i.test(String(r.img)) ? resolveGmshelfUrlClient(r.img, base) : null;
+          out.push({
+            id: 'ckv:gmshelf:' + k,
+            provider: 'ckv',
+            name: name,
+            category: inferGmshelfCategoryClient(name, r.url),
+            url: u,
+            baseUrl: deriveGmshelfBaseClient(u),
+            cover: img,
+            featured: out.length < 36
+          });
+        });
+        out.sort(function (a, b) { return a.name.localeCompare(b.name); });
+        return out;
+      }
+
+      async function fetchCkvCatalog() {
+        ckvFetchedOnce = true;
+        var stEl = document.getElementById('ckv-status');
+        if (stEl) stEl.textContent = 'Syncing full CKV game vault...';
+        if (CFG.ckvTreeApiUrl) {
+          try {
+            var res = await fetch(CFG.ckvTreeApiUrl);
+            if (res.ok) {
+              var treeJson = await res.json();
+              if (treeJson && Array.isArray(treeJson.tree)) {
+                var fullList = parseCkvTreeClient(treeJson.tree, CFG.ckvCdnBase);
+                if (fullList.length > 0) {
+                  ckvModules = fullList;
+                  rebuildMergedModules();
+                  if (stEl) stEl.textContent = 'Synced 100% — ' + fullList.length + ' CKV games';
+                  return;
+                }
+              }
+            }
+          } catch (_e) {}
+        }
+        var mirrors = Array.isArray(CFG.ckvGmshelfMirrors) ? CFG.ckvGmshelfMirrors : [];
+        for (var i = 0; i < mirrors.length; i++) {
+          try {
+            var mr = await fetch(mirrors[i] + '?t=' + Date.now());
+            if (!mr.ok) continue;
+            var mj = await mr.json();
+            var altList = parseCkvJsonFallbackClient(mj);
+            if (altList.length > 0) {
+              ckvModules = altList;
+              rebuildMergedModules();
+              if (stEl) stEl.textContent = 'Synced 100% — ' + altList.length + ' CKV games';
+              return;
+            }
+          } catch (_e) {}
+        }
+        if (stEl) stEl.textContent = 'Showing ' + ckvModules.length + ' CKV games';
       }
 
       function parseSeraphHtmlClient(rawHtml, cdnBase) {
@@ -3679,6 +3920,9 @@ export function buildValBrowseBlobHtml(
 
         var fb = document.createElement('div');
         fb.className = 'thumb-fallback';
+        var hueSeed = 0;
+        for (var hi = 0; hi < mod.name.length; hi++) hueSeed = (hueSeed * 31 + mod.name.charCodeAt(hi)) % 360;
+        fb.style.background = 'radial-gradient(circle at 22% 18%, hsla(' + hueSeed + ',78%,54%,0.34), transparent 64%), linear-gradient(135deg, hsla(' + ((hueSeed + 40) % 360) + ',52%,20%,0.95) 0%, var(--bg) 100%)';
         fb.textContent = mod.name;
         thumb.appendChild(fb);
 
@@ -3687,6 +3931,7 @@ export function buildValBrowseBlobHtml(
           img.src = mod.cover;
           img.alt = mod.name;
           img.loading = 'lazy';
+          img.decoding = 'async';
           img.referrerPolicy = 'no-referrer';
           img.style.position = 'relative';
           img.style.zIndex = '2';
@@ -3727,16 +3972,63 @@ export function buildValBrowseBlobHtml(
         return card;
       }
 
+      function renderCardsChunked(grid, list, emptyMsg) {
+        if (!grid) return;
+        var token = (grid._renderToken || 0) + 1;
+        grid._renderToken = token;
+        if (grid._renderRaf) {
+          cancelAnimationFrame(grid._renderRaf);
+          grid._renderRaf = 0;
+        }
+        grid.innerHTML = '';
+        if (!list.length) {
+          var empty = document.createElement('div');
+          empty.className = 'sub';
+          empty.textContent = emptyMsg || 'No games found.';
+          grid.appendChild(empty);
+          return;
+        }
+        var cursor = 0;
+        var firstBatch = 60;
+        var stepBatch = 120;
+        function flush(limit) {
+          if (grid._renderToken !== token) return;
+          var end = Math.min(list.length, cursor + limit);
+          var frag = document.createDocumentFragment();
+          for (var i = cursor; i < end; i++) {
+            var item = list[i];
+            var hits = typeof item.numericId === 'number' ? (popularityMap[item.numericId] || 0) : 0;
+            frag.appendChild(createStudyCard(item, hits));
+          }
+          grid.appendChild(frag);
+          cursor = end;
+          if (cursor < list.length) {
+            grid._renderRaf = requestAnimationFrame(function () {
+              flush(stepBatch);
+            });
+          } else {
+            grid._renderRaf = 0;
+          }
+        }
+        flush(firstBatch);
+      }
+
       function renderModulesGrid() {
         var grid = document.getElementById('modules-grid');
         if (!grid) return;
         var q = (document.getElementById('modules-search').value || '').trim().toLowerCase();
         var sort = document.getElementById('modules-sort').value;
-        var list = mergedModules.filter(function (m) {
+        var pool = mergedModules;
+        if (activeModuleFilter === 'gn') pool = gnZones;
+        else if (activeModuleFilter === 'seraph') pool = seraphModules;
+        else if (activeModuleFilter === 'gmshelf') pool = gmshelfModules;
+        else if (activeModuleFilter === 'ugs') pool = ugsModules;
+        else if (activeModuleFilter === 'ckv') pool = ckvModules;
+        else if (activeModuleFilter === 'builtin') pool = CFG.staticModules;
+
+        var list = pool.filter(function (m) {
           if (activeModuleFilter === 'favorites') {
             if (favorites.indexOf(m.id) === -1 && favorites.indexOf(m.name) === -1) return false;
-          } else if (activeModuleFilter !== 'all' && m.provider !== activeModuleFilter) {
-            return false;
           }
           if (q && m.name.toLowerCase().indexOf(q) === -1 && String(m.category || '').toLowerCase().indexOf(q) === -1) return false;
           return true;
@@ -3753,11 +4045,7 @@ export function buildValBrowseBlobHtml(
           return Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name);
         });
 
-        grid.innerHTML = '';
-        list.slice(0, 150).forEach(function (m) {
-          var hits = typeof m.numericId === 'number' ? popularityMap[m.numericId] : 0;
-          grid.appendChild(createStudyCard(m, hits));
-        });
+        renderCardsChunked(grid, list, 'No games matched your filter.');
       }
 
       function renderGnGrid() {
@@ -3773,18 +4061,7 @@ export function buildValBrowseBlobHtml(
           if (activePopularityPeriod === 'classic') return Number(a.numericId || 0) - Number(b.numericId || 0);
           return Number(b.featured) - Number(a.featured) || Number(a.numericId || 0) - Number(b.numericId || 0);
         });
-        grid.innerHTML = '';
-        if (list.length === 0) {
-          var empty = document.createElement('div');
-          empty.className = 'sub';
-          empty.textContent = 'Syncing gn-math zones.json...';
-          grid.appendChild(empty);
-          return;
-        }
-        list.slice(0, 120).forEach(function (m) {
-          var hits = typeof m.numericId === 'number' ? popularityMap[m.numericId] : 0;
-          grid.appendChild(createStudyCard(m, hits));
-        });
+        renderCardsChunked(grid, list, 'Syncing gn-math zones.json...');
       }
 
       function renderSeraphGrid() {
@@ -3797,17 +4074,7 @@ export function buildValBrowseBlobHtml(
           var matchQ = !q || m.name.toLowerCase().indexOf(q) !== -1 || String(m.category || '').toLowerCase().indexOf(q) !== -1;
           return matchGenre && matchQ;
         });
-        grid.innerHTML = '';
-        if (list.length === 0) {
-          var empty = document.createElement('div');
-          empty.className = 'sub';
-          empty.textContent = 'No Seraph games matched "' + q + '" in ' + activeSeraphGenre + '.';
-          grid.appendChild(empty);
-          return;
-        }
-        list.slice(0, 150).forEach(function (m) {
-          grid.appendChild(createStudyCard(m, 0));
-        });
+        renderCardsChunked(grid, list, 'No Seraph games matched "' + q + '" in ' + activeSeraphGenre + '.');
       }
 
       function renderGmshelfGrid() {
@@ -3820,17 +4087,23 @@ export function buildValBrowseBlobHtml(
           var matchQ = !q || m.name.toLowerCase().indexOf(q) !== -1 || String(m.category || '').toLowerCase().indexOf(q) !== -1;
           return matchGenre && matchQ;
         });
-        grid.innerHTML = '';
-        if (list.length === 0) {
-          var empty = document.createElement('div');
-          empty.className = 'sub';
-          empty.textContent = 'No GMShelf games matched "' + q + '" in ' + activeGmshelfGenre + '.';
-          grid.appendChild(empty);
-          return;
-        }
-        list.slice(0, 150).forEach(function (m) {
-          grid.appendChild(createStudyCard(m, 0));
+        renderCardsChunked(grid, list, 'No GMShelf games matched "' + q + '" in ' + activeGmshelfGenre + '.');
+      }
+
+      function renderCkvGrid() {
+        var grid = document.getElementById('ckv-grid');
+        if (!grid) return;
+        var searchEl = document.getElementById('ckv-search');
+        var q = (searchEl ? searchEl.value : '').trim().toLowerCase();
+        var list = ckvModules.filter(function (m) {
+          return !q || m.name.toLowerCase().indexOf(q) !== -1 || String(m.category || '').toLowerCase().indexOf(q) !== -1;
         });
+        list.sort(function (a, b) {
+          if (activeCkvSort === 'az') return a.name.localeCompare(b.name);
+          if (activeCkvSort === 'za') return b.name.localeCompare(a.name);
+          return Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name);
+        });
+        renderCardsChunked(grid, list, 'No CKV games matched "' + q + '".');
       }
 
       document.querySelectorAll('#seraph-genre-pills .pill-btn').forEach(function (btn) {
@@ -3853,6 +4126,16 @@ export function buildValBrowseBlobHtml(
         });
       });
 
+      document.querySelectorAll('#ckv-sort-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activeCkvSort = btn.getAttribute('data-ckvsort') || 'featured';
+          document.querySelectorAll('#ckv-sort-pills .pill-btn').forEach(function (b) {
+            b.classList.toggle('active', b === btn);
+          });
+          renderCkvGrid();
+        });
+      });
+
       var seraphSearchEl = document.getElementById('seraph-search');
       if (seraphSearchEl) seraphSearchEl.addEventListener('input', renderSeraphGrid);
       var seraphRefreshBtn = document.getElementById('btn-refresh-seraph');
@@ -3862,6 +4145,11 @@ export function buildValBrowseBlobHtml(
       if (gmshelfSearchEl) gmshelfSearchEl.addEventListener('input', renderGmshelfGrid);
       var gmshelfRefreshBtn = document.getElementById('btn-refresh-gmshelf');
       if (gmshelfRefreshBtn) gmshelfRefreshBtn.addEventListener('click', fetchGmshelfCatalog);
+
+      var ckvSearchEl = document.getElementById('ckv-search');
+      if (ckvSearchEl) ckvSearchEl.addEventListener('input', renderCkvGrid);
+      var ckvRefreshBtn = document.getElementById('btn-refresh-ckv');
+      if (ckvRefreshBtn) ckvRefreshBtn.addEventListener('click', fetchCkvCatalog);
 
       document.querySelectorAll('#modules-filter-pills .pill-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -3879,6 +4167,7 @@ export function buildValBrowseBlobHtml(
         fetchGnZones();
         fetchSeraphCatalog();
         fetchGmshelfCatalog();
+        fetchCkvCatalog();
       });
       document.getElementById('gn-search').addEventListener('input', renderGnGrid);
 
@@ -5549,20 +5838,36 @@ export function buildValBrowseBlobHtml(
       selectStation(0, false);
       renderAmbientMixer();
 
-      /* ---------------- VUX.AI (DUCK.AI VIA RENDER WISP) ---------------- */
+      /* ---------------- VUX.AI (CUSTOM-SKINNED DUCK.AI OVER SCRAMJET EMBED + WISP) ---------------- */
       var aiFrameEl = document.getElementById('ai-panel-frame');
       var aiLoadingEl = document.getElementById('ai-panel-loading');
       var aiLoadingMsgEl = document.getElementById('ai-panel-loading-msg');
       var aiStatusEl = document.getElementById('ai-panel-status');
+      var aiModelEl = document.getElementById('ai-model-indicator');
       var aiRequestSeq = 1;
       var pendingScramResolvers = Object.create(null);
 
       window.addEventListener('message', function (ev) {
-        if (!ev || !ev.data || ev.data.type !== 'valem-scram-url-ready') return;
-        var resolver = pendingScramResolvers[ev.data.requestId];
-        if (resolver) {
-          delete pendingScramResolvers[ev.data.requestId];
-          resolver(ev.data);
+        if (!ev || !ev.data) return;
+        if (ev.data.type === 'valem-scram-url-ready') {
+          var resolver = pendingScramResolvers[ev.data.requestId];
+          if (resolver) {
+            delete pendingScramResolvers[ev.data.requestId];
+            resolver(ev.data);
+          }
+          return;
+        }
+        if (ev.data.type === 'vux-ai-wisp-status' && ev.data.label && aiStatusEl) {
+          aiStatusEl.textContent = ev.data.label;
+          return;
+        }
+        if (ev.data.type === 'vux-ai-model-update' && ev.data.model && aiModelEl) {
+          aiModelEl.textContent = 'Model: ' + ev.data.model;
+          return;
+        }
+        if (ev.data.type === 'vux-ai-ready') {
+          if (aiLoadingEl) aiLoadingEl.classList.remove('open');
+          injectAiFrameSkin();
         }
       });
 
@@ -5573,7 +5878,7 @@ export function buildValBrowseBlobHtml(
           var timer = setTimeout(function () {
             delete pendingScramResolvers[reqId];
             resolve({ ok: false, encodedUrl: CFG.origin + '/scram/' + encodeURIComponent(targetUrl), targetUrl: targetUrl, wispUrl: optionalWispUrl || CFG.defaultWisp });
-          }, 8000);
+          }, 15000);
           pendingScramResolvers[reqId] = function (data) {
             clearTimeout(timer);
             resolve(data);
@@ -5599,52 +5904,78 @@ export function buildValBrowseBlobHtml(
         });
       }
 
-      function injectAiFrameThemeHarmony() {
+      function getCurrentVuxThemeTokens() {
+        var cs = getComputedStyle(document.documentElement);
+        return {
+          bg: cs.getPropertyValue('--bg').trim() || '#0b0608',
+          bgSec: cs.getPropertyValue('--surface-2').trim() || '#080406',
+          surface: cs.getPropertyValue('--surface').trim() || '#140b0e',
+          text: cs.getPropertyValue('--text').trim() || '#fdf2f4',
+          muted: cs.getPropertyValue('--muted').trim() || '#9f878f',
+          border: cs.getPropertyValue('--border').trim() || 'rgba(255,255,255,0.08)',
+          primary: cs.getPropertyValue('--accent').trim() || '#ff5c7c',
+          font: cs.getPropertyValue('--font-ui').trim() || "'Plus Jakarta Sans', system-ui, sans-serif",
+          light: document.documentElement.getAttribute('data-light') === '1' ? '1' : '0'
+        };
+      }
+
+      function injectAiFrameSkin() {
         try {
-          var doc = aiFrameEl && aiFrameEl.contentDocument;
-          if (!doc || !doc.head) return;
-          var st = doc.getElementById('vux-ai-harmony-css');
-          if (!st) {
-            st = doc.createElement('style');
-            st.id = 'vux-ai-harmony-css';
-            st.textContent = '::-webkit-scrollbar{width:7px;height:7px;}::-webkit-scrollbar-thumb{background:rgba(255,92,124,0.35);border-radius:99px;}body{color-scheme:dark;}';
-            doc.head.appendChild(st);
+          if (aiFrameEl && aiFrameEl.contentWindow) {
+            var tokens = getCurrentVuxThemeTokens();
+            aiFrameEl.contentWindow.postMessage(Object.assign({ type: 'vux-ai-skin' }, tokens), '*');
           }
         } catch (_e) {}
       }
 
-      async function loadVuxAi(forceReload) {
+      function loadVuxAi(forceReload) {
         var targetUrl = CFG.vuxAiTargetUrl || 'https://duck.ai';
         var renderWisp = CFG.renderWispUrl || 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
         if (aiLoadingEl) aiLoadingEl.classList.add('open');
         if (aiLoadingMsgEl) aiLoadingMsgEl.textContent = forceReload
-          ? 'Reloading Vux.ai (duck.ai) via Render Wisp...'
-          : 'Connecting Vux.ai (duck.ai) via Render Wisp...';
-        if (aiStatusEl) aiStatusEl.textContent = 'duck.ai · Connecting Render Wisp...';
+          ? 'Starting fresh Vux.ai session via Wisp...'
+          : 'Connecting Vux.ai via Scramjet v2 & Wisp...';
+        if (aiStatusEl) aiStatusEl.textContent = 'Connecting Render Wisp...';
 
-        try {
-          var wakeUrl = renderWisp.replace(/^ws:/i, 'http:').replace(/^wss:/i, 'https:');
-          fetch(new URL(wakeUrl).origin + '/', { mode: 'no-cors' }).catch(function () {});
-        } catch (_we) {}
+        var tokens = getCurrentVuxThemeTokens();
+        var q = [
+          'embed=ai',
+          'url=' + encodeURIComponent(targetUrl),
+          'wisp=' + encodeURIComponent(renderWisp),
+          'bg=' + encodeURIComponent(tokens.bg),
+          'bgSec=' + encodeURIComponent(tokens.bgSec),
+          'surface=' + encodeURIComponent(tokens.surface),
+          'text=' + encodeURIComponent(tokens.text),
+          'muted=' + encodeURIComponent(tokens.muted),
+          'border=' + encodeURIComponent(tokens.border),
+          'primary=' + encodeURIComponent(tokens.primary),
+          'font=' + encodeURIComponent(tokens.font),
+          'light=' + encodeURIComponent(tokens.light)
+        ];
+        if (forceReload) q.push('_vux=' + Date.now());
+        var embedUrl = CFG.origin + '/scramjet-browser.html?' + q.join('&');
 
-        var res = await resolveScramUrlViaBridge(targetUrl, renderWisp);
-        var nextSrc = (res && res.encodedUrl) || (CFG.origin + '/scram/' + encodeURIComponent(targetUrl));
-        if (forceReload) {
-          nextSrc += (nextSrc.indexOf('?') === -1 ? '?_vux=' : '&_vux=') + Date.now();
-        }
         if (aiFrameEl) {
           aiFrameEl.onload = function () {
-            if (aiLoadingEl) aiLoadingEl.classList.remove('open');
-            injectAiFrameThemeHarmony();
+            injectAiFrameSkin();
           };
-          aiFrameEl.src = nextSrc;
+          aiFrameEl.src = embedUrl;
           setTimeout(function () {
             if (aiLoadingEl) aiLoadingEl.classList.remove('open');
-          }, 3200);
+            injectAiFrameSkin();
+          }, 9000);
         }
-        if (aiStatusEl) {
-          aiStatusEl.textContent = 'duck.ai · ' + ((res && res.wispUrl) || renderWisp);
-        }
+      }
+
+      function startNewAiChat() {
+        try {
+          if (aiFrameEl && aiFrameEl.contentWindow && aiFrameEl.getAttribute('src')) {
+            aiFrameEl.contentWindow.postMessage({ type: 'vux-ai-newchat' }, '*');
+            showToast('Started new Vux.ai conversation.');
+            return;
+          }
+        } catch (_e) {}
+        loadVuxAi(true);
       }
 
       var aiDismissBtn = document.getElementById('ai-panel-dismiss-load');
@@ -5652,6 +5983,11 @@ export function buildValBrowseBlobHtml(
         aiDismissBtn.addEventListener('click', function () {
           aiLoadingEl.classList.remove('open');
         });
+      }
+
+      var aiNewChatBtn = document.getElementById('ai-panel-newchat');
+      if (aiNewChatBtn) {
+        aiNewChatBtn.addEventListener('click', startNewAiChat);
       }
 
       var aiReloadBtn = document.getElementById('ai-panel-reload');
@@ -5794,6 +6130,7 @@ export function buildValBrowseBlobHtml(
         }
 
         renderColorPresetsGrid();
+        if (typeof injectAiFrameSkin === 'function') injectAiFrameSkin();
       }
 
       function renderColorPresetsGrid() {
@@ -6526,6 +6863,7 @@ export function buildValBrowseBlobHtml(
             }, '*');
           } catch (_e) {}
         }
+        if (typeof injectAiFrameSkin === 'function') injectAiFrameSkin();
       }
 
       function activateSettingsTab(target) {
@@ -7285,10 +7623,11 @@ export function buildValBrowseBlobHtml(
 
         add('Vux Proxy Browser', 'View', function () { switchView('browser'); });
         add('Vux Community Chat (#general)', 'Chat', function () { activeChatChannel = 'general'; switchView('chat'); });
-        add('Vux.ai (duck.ai via Render Wisp)', 'AI Tool', function () { switchView('ai'); });
+        add('Vux.ai Assistant', 'AI Tool', function () { switchView('ai'); });
         add('All Games Hub', 'Arcade', function () { switchView('modules'); });
         add('Seraph Games Provider', 'Arcade', function () { switchView('seraph'); });
         add('GMShelf Games Provider', 'Arcade', function () { switchView('gmshelf'); });
+        add('CKV Games Provider', 'Arcade', function () { switchView('ckv'); });
         add('gn-math Script & Zones', 'Arcade', function () { switchView('gnmath'); });
         add('Movies & TV Theater', 'Cinema', function () { switchView('movies'); });
         add('StudyHub MP3 & Ambient Studio', 'Audio', function () { switchView('music'); });
@@ -7769,6 +8108,7 @@ export function buildValBrowseBlobHtml(
           if (dest === 'ai') switchView('ai');
           else if (dest === 'studio') openStudioModal('appearance');
           else if (dest === 'chat') switchView('chat');
+          else if (dest === 'ckv') switchView('ckv');
           else if (dest === 'gmshelf') switchView('gmshelf');
           else if (dest === 'seraph') switchView('seraph');
           else switchView('browser');
@@ -7792,6 +8132,7 @@ export function buildValBrowseBlobHtml(
       fetchGnZones();
       fetchSeraphCatalog();
       fetchGmshelfCatalog();
+      fetchCkvCatalog();
       runLoaderAnimation();
     })();
   </script>

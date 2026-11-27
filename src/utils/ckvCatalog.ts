@@ -12,6 +12,13 @@ export interface CkvStudyEntry {
 }
 
 export const CKV_CDN_BASE = 'https://cdn.jsdelivr.net/gh/WanoCapy/ChickenKingsVault@main';
+export const CKV_TREE_API_URL =
+  'https://api.github.com/repos/WanoCapy/ChickenKingsVault/git/trees/main?recursive=1';
+export const CKV_GMSHELF_MIRRORS = [
+  'https://cdn.jsdelivr.net/gh/gmshelf/ckv@main/ckv.json',
+  'https://fastly.jsdelivr.net/gh/gmshelf/ckv@main/ckv.json',
+  'https://gcore.jsdelivr.net/gh/gmshelf/ckv@main/ckv.json',
+];
 
 const CKV_POPULAR_STEMS = new Set([
   '2048',

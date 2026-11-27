@@ -42,14 +42,6 @@ export const GMSHELF_SOURCES: readonly GmshelfManifestSource[] = [
     ],
   },
   {
-    collection: 'ckv',
-    cdnBase: GMSHELF_CKV_CDN,
-    manifestUrls: [
-      `${GMSHELF_CKV_CDN}/ckv.json`,
-      'https://fastly.jsdelivr.net/gh/gmshelf/ckv@main/ckv.json',
-    ],
-  },
-  {
     collection: 'ugs',
     cdnBase: GMSHELF_UGS_CDN,
     manifestUrls: [

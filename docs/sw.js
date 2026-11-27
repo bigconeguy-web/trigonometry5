@@ -469,7 +469,27 @@ self.addEventListener("fetch", (event) => {
 
       try {
         if (scramjet.route(event)) {
-          return await scramjet.fetch(event);
+          const proxiedResp = await scramjet.fetch(event);
+          if (proxiedResp && proxiedResp.headers) {
+            const ctype = String(proxiedResp.headers.get("content-type") || "").toLowerCase();
+            if (
+              ctype.includes("text/html") &&
+              (proxiedResp.headers.has("content-security-policy") ||
+                proxiedResp.headers.has("content-security-policy-report-only") ||
+                proxiedResp.headers.has("x-frame-options"))
+            ) {
+              const cleanHeaders = new Headers(proxiedResp.headers);
+              cleanHeaders.delete("content-security-policy");
+              cleanHeaders.delete("content-security-policy-report-only");
+              cleanHeaders.delete("x-frame-options");
+              return new Response(proxiedResp.body, {
+                status: proxiedResp.status,
+                statusText: proxiedResp.statusText,
+                headers: cleanHeaders,
+              });
+            }
+          }
+          return proxiedResp;
         }
       } catch (err) {
         if (isIdbNotFoundError(err)) {
