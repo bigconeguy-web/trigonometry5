@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_WISP_URL,
+  RENDER_WISP_URL,
+  MERCURY_WISP_URL,
   PANIC_REDIRECT_URL,
   DEFAULT_BAREMUX_TRANSPORT,
   BAREMUX_TRANSPORT_PATHS,
@@ -24,8 +26,10 @@ import {
 } from './valbrowseConfig.js';
 import { EULER_STUDY_CATALOG } from '../data/studyCatalog.js';
 
-test('DEFAULT_WISP_URL uses wss://wisp.mercurywork.shop/', () => {
-  assert.equal(DEFAULT_WISP_URL, 'wss://wisp.mercurywork.shop/');
+test('DEFAULT_WISP_URL uses permanent Render Wisp with Mercury Wisp backup constant', () => {
+  assert.equal(DEFAULT_WISP_URL, RENDER_WISP_URL);
+  assert.equal(DEFAULT_WISP_URL, 'wss://my-wisp-server-ocnq.onrender.com/wisp/');
+  assert.equal(MERCURY_WISP_URL, 'wss://wisp.mercurywork.shop/');
   assert.ok(DEFAULT_WISP_URL.startsWith('wss://'));
   assert.ok(DEFAULT_WISP_URL.endsWith('/'));
 });
@@ -49,10 +53,11 @@ test('normalizeWispUrl normalizes empty, Mercury root, http/https, bare hosts, a
   );
 });
 
-test('resolveInitialWispUrl defaults to wss://wisp.mercurywork.shop/ and migrates legacy Render default', () => {
+test('resolveInitialWispUrl defaults to permanent Render Wisp and preserves Mercury or custom URLs', () => {
   assert.equal(resolveInitialWispUrl(null), DEFAULT_WISP_URL);
   assert.equal(resolveInitialWispUrl(''), DEFAULT_WISP_URL);
-  assert.equal(resolveInitialWispUrl('wss://my-wisp-server-ocnq.onrender.com/wisp/'), DEFAULT_WISP_URL);
+  assert.equal(resolveInitialWispUrl(RENDER_WISP_URL), RENDER_WISP_URL);
+  assert.equal(resolveInitialWispUrl(MERCURY_WISP_URL), MERCURY_WISP_URL);
   assert.equal(
     resolveInitialWispUrl('wss://user-custom.onrender.com/wisp/'),
     'wss://user-custom.onrender.com/wisp/'
@@ -195,13 +200,15 @@ test('triggerPanicRedirect hides document and calls location.replace(classroom.g
   assert.equal(replacedWith, PANIC_REDIRECT_URL);
 });
 
-test('BareMux transport uses Libcurl (/libcurl/index.mjs) instead of Epoxy', () => {
+test('BareMux transport defaults to Libcurl (/libcurl/index.mjs) and supports Epoxy fallback (/epoxy/index.mjs)', () => {
   assert.equal(DEFAULT_BAREMUX_TRANSPORT, 'libcurl');
   assert.equal(BAREMUX_TRANSPORT_PATHS.libcurl, '/libcurl/index.mjs');
+  assert.equal(BAREMUX_TRANSPORT_PATHS.epoxy, '/epoxy/index.mjs');
   assert.equal(normalizeTransportMode(undefined), 'libcurl');
   assert.equal(normalizeTransportMode(''), 'libcurl');
   assert.equal(normalizeTransportMode('libcurl'), 'libcurl');
-  assert.equal(normalizeTransportMode('EPOXY'), 'libcurl');
+  assert.equal(normalizeTransportMode('EPOXY'), 'epoxy');
+  assert.equal(normalizeTransportMode('unknown'), 'libcurl');
 });
 
 test('UI home layouts normalize cleanly across split, normal, side, and minimal arrangements', () => {

@@ -31,6 +31,63 @@ const HOP_BY_HOP_REQUEST_HEADERS = new Set([
 
 let bareClientInstance = null;
 let libcurlBridgeAdapter = null;
+let activeTransportMode = "libcurl";
+let adblockEnabled = true;
+let adblockBlockedCount = 0;
+
+const AD_TRACKER_HOSTS = [
+  "doubleclick.net",
+  "googlesyndication.com",
+  "googleadservices.com",
+  "googletagmanager.com",
+  "google-analytics.com",
+  "adservice.google.com",
+  "pagead2.googlesyndication.com",
+  "adnxs.com",
+  "adsrvr.org",
+  "amazon-adsystem.com",
+  "taboola.com",
+  "outbrain.com",
+  "criteo.com",
+  "pubmatic.com",
+  "rubiconproject.com",
+  "openx.net",
+  "casalemedia.com",
+  "scorecardresearch.com",
+  "quantserve.com",
+  "moatads.com",
+  "demdex.net",
+  "krxd.net",
+  "hotjar.com",
+  "mixpanel.com",
+  "segment.io",
+  "amplitude.com",
+  "sentry.io",
+  "popads.net",
+  "popcash.net",
+  "propellerads.com",
+  "adsterra.com",
+  "exoclick.com",
+  "trafficjunky.net",
+  "juicyads.com",
+  "yandex.ru",
+  "mc.yandex.ru",
+  "connect.facebook.net",
+  "analytics.tiktok.com",
+  "ads-twitter.com",
+];
+
+function isBlockedAdHost(hostname) {
+  const host = String(hostname || "").toLowerCase().replace(/\.$/, "");
+  if (!host) return false;
+  for (let i = 0; i < AD_TRACKER_HOSTS.length; i++) {
+    const blocked = AD_TRACKER_HOSTS[i];
+    if (host === blocked || host.endsWith("." + blocked)) {
+      return true;
+    }
+  }
+  return /(^|\.)(ads|adserver|adservice|telemetry|tracker|pixel|analytics)\./i.test(host);
+}
 
 function getBareClient() {
   if (bareClientInstance) return bareClientInstance;
@@ -164,6 +221,36 @@ function createLibcurlEpoxyAdapter() {
           : String(input);
       const method = String(init.method || "GET").toUpperCase();
       const headerEntries = sanitizeLibcurlHeaders(init.headers);
+
+      try {
+        const parsedHost = new URL(urlStr).hostname.toLowerCase();
+        if (
+          parsedHost === "tiktok.com" ||
+          parsedHost.endsWith(".tiktok.com") ||
+          parsedHost.endsWith(".tiktokv.com") ||
+          parsedHost.endsWith(".tiktokcdn.com")
+        ) {
+          const hasHeader = (name) => headerEntries.some((pair) => pair[0] === name);
+          if (!hasHeader("user-agent")) {
+            headerEntries.push([
+              "user-agent",
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+            ]);
+          }
+          if (!hasHeader("accept-language")) {
+            headerEntries.push(["accept-language", "en-US,en;q=0.9"]);
+          }
+          if (!hasHeader("sec-ch-ua")) {
+            headerEntries.push(["sec-ch-ua", '"Chromium";v="131", "Not_A Brand";v="24"']);
+          }
+          if (!hasHeader("sec-ch-ua-platform")) {
+            headerEntries.push(["sec-ch-ua-platform", '"Windows"']);
+          }
+          if (!hasHeader("sec-ch-ua-mobile")) {
+            headerEntries.push(["sec-ch-ua-mobile", parsedHost.startsWith("m.") ? "?1" : "?0"]);
+          }
+        }
+      } catch (_te) {}
 
       let preparedBody = undefined;
       if (init.body !== undefined && init.body !== null && method !== "GET" && method !== "HEAD") {
@@ -364,7 +451,28 @@ self.addEventListener("message", (event) => {
           ok: Boolean(scramjet),
           hasConfig: Boolean(scramjet && scramjet.config && scramjet.config.codec),
           wisp: scramjet && scramjet.config ? scramjet.config.wisp : null,
+          adblockEnabled,
+          adblockBlockedCount,
         });
+      } catch (_e) {}
+    }
+    return;
+  }
+
+  if (event.data.scramjet$type === "setAdblockEnabled") {
+    adblockEnabled = event.data.enabled !== false;
+    if (replyPort) {
+      try {
+        replyPort.postMessage({ ok: true, enabled: adblockEnabled, blockedCount: adblockBlockedCount });
+      } catch (_e) {}
+    }
+    return;
+  }
+
+  if (event.data.scramjet$type === "getAdblockStats") {
+    if (replyPort) {
+      try {
+        replyPort.postMessage({ ok: true, enabled: adblockEnabled, blockedCount: adblockBlockedCount });
       } catch (_e) {}
     }
     return;
@@ -393,7 +501,21 @@ self.addEventListener("message", (event) => {
     return;
   }
 
+  if (event.data.scramjet$type === "setTransportMode") {
+    activeTransportMode = event.data.transport === "epoxy" ? "epoxy" : "libcurl";
+    bindLibcurlBridge();
+    if (replyPort) {
+      try {
+        replyPort.postMessage({ ok: true, transport: activeTransportMode });
+      } catch (_e) {}
+    }
+    return;
+  }
+
   if (event.data.scramjet$type === "reloadConfigFromIDB") {
+    if (event.data.transport === "epoxy" || event.data.transport === "libcurl") {
+      activeTransportMode = event.data.transport;
+    }
     scramjet.config = undefined;
     event.waitUntil(
       (async () => {
@@ -405,7 +527,7 @@ self.addEventListener("message", (event) => {
               ok: Boolean(loaded && scramjet.config && scramjet.config.codec && libcurlOk),
               hasCodec: Boolean(scramjet.config && scramjet.config.codec),
               libcurlOk,
-              transport: "libcurl",
+              transport: activeTransportMode,
               wisp: scramjet.config ? scramjet.config.wisp : null,
             });
           } catch (_e) {}
@@ -421,12 +543,12 @@ function buildSwErrorResponse(status, title, detail) {
   const html =
     "<!DOCTYPE html><html><head><meta charset='utf-8'><title>" +
     safeTitle +
-    "</title></head><body style='margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#090d16;color:#f8fafc;font-family:system-ui,-apple-system,sans-serif;padding:24px;'>" +
-    "<div style='max-width:460px;background:#111827;border:1px solid #1f2937;border-radius:12px;padding:20px;'>" +
-    "<h2 style='margin:0 0 8px;font-size:16px;color:#fb7185;'>" +
+    "</title></head><body style='margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000000;color:#ffffff;font-family:system-ui,-apple-system,sans-serif;padding:24px;'>" +
+    "<div style='max-width:460px;background:#0a0a0a;border:1px solid #1f1f1f;border-radius:12px;padding:20px;'>" +
+    "<h2 style='margin:0 0 8px;font-size:16px;color:#ffffff;'>" +
     safeTitle +
     "</h2>" +
-    "<p style='margin:0;font-size:13px;line-height:1.5;color:#94a3b8;'>" +
+    "<p style='margin:0;font-size:13px;line-height:1.5;color:#9ca3af;'>" +
     safeDetail +
     "</p></div></body></html>";
   return new Response(html, {
@@ -465,23 +587,61 @@ self.addEventListener("fetch", (event) => {
         );
       }
 
+      if (adblockEnabled && event.request.destination !== "document") {
+        try {
+          let decodedTarget = "";
+          if (typeof scramjet.decodeUrl === "function") {
+            decodedTarget = scramjet.decodeUrl(event.request.url);
+          }
+          if (decodedTarget && /^https?:\/\//i.test(decodedTarget)) {
+            const targetHost = new URL(decodedTarget).hostname;
+            if (isBlockedAdHost(targetHost)) {
+              adblockBlockedCount += 1;
+              const dest = event.request.destination;
+              if (dest === "script") {
+                return new Response("/* blocked by Vux Adblocker */", {
+                  status: 200,
+                  headers: { "Content-Type": "application/javascript; charset=utf-8" },
+                });
+              }
+              if (dest === "style") {
+                return new Response("/* blocked by Vux Adblocker */", {
+                  status: 200,
+                  headers: { "Content-Type": "text/css; charset=utf-8" },
+                });
+              }
+              return new Response(null, { status: 204 });
+            }
+          }
+        } catch (_adErr) {}
+      }
+
       bindLibcurlBridge();
 
       try {
         if (scramjet.route(event)) {
           const proxiedResp = await scramjet.fetch(event);
           if (proxiedResp && proxiedResp.headers) {
-            const ctype = String(proxiedResp.headers.get("content-type") || "").toLowerCase();
-            if (
-              ctype.includes("text/html") &&
-              (proxiedResp.headers.has("content-security-policy") ||
-                proxiedResp.headers.has("content-security-policy-report-only") ||
-                proxiedResp.headers.has("x-frame-options"))
-            ) {
+            const headersToStrip = [
+              "content-security-policy",
+              "content-security-policy-report-only",
+              "x-frame-options",
+              "cross-origin-opener-policy",
+              "cross-origin-embedder-policy",
+              "cross-origin-resource-policy",
+            ];
+            let needsStrip = false;
+            for (let i = 0; i < headersToStrip.length; i++) {
+              if (proxiedResp.headers.has(headersToStrip[i])) {
+                needsStrip = true;
+                break;
+              }
+            }
+            if (needsStrip) {
               const cleanHeaders = new Headers(proxiedResp.headers);
-              cleanHeaders.delete("content-security-policy");
-              cleanHeaders.delete("content-security-policy-report-only");
-              cleanHeaders.delete("x-frame-options");
+              for (let i = 0; i < headersToStrip.length; i++) {
+                cleanHeaders.delete(headersToStrip[i]);
+              }
               return new Response(proxiedResp.body, {
                 status: proxiedResp.status,
                 statusText: proxiedResp.statusText,

@@ -9,18 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --primary: #ff5c7c;
-      --primary-hover: #ff456b;
-      --primary-soft: rgba(255, 92, 124, 0.14);
-      --primary-glow: rgba(255, 92, 124, 0.28);
-      --bg: #0b0608;
-      --bg-secondary: #080406;
-      --surface: #140b0e;
-      --surface-hover: #1d1015;
-      --text: #fdf2f4;
-      --text-muted: #9f878f;
-      --border: rgba(255, 255, 255, 0.075);
-      --border-strong: rgba(255, 255, 255, 0.14);
+      --primary: #ffffff;
+      --primary-hover: #e5e7eb;
+      --primary-ink: #09090b;
+      --primary-soft: rgba(255, 255, 255, 0.12);
+      --primary-glow: rgba(255, 255, 255, 0.22);
+      --bg: #000000;
+      --bg-secondary: #050505;
+      --surface: #0a0a0a;
+      --surface-hover: #141414;
+      --text: #ffffff;
+      --text-muted: #9ca3af;
+      --border: #1f1f1f;
+      --border-strong: rgba(255, 255, 255, 0.16);
       --radius: 12px;
       --ui-radius: 12px;
       --glow-strength: 1;
@@ -192,8 +193,8 @@
     }
 
     .sj-tab.active .sj-tab-dot {
-      background: rgba(0, 0, 0, 0.25);
-      color: #ffffff;
+      background: color-mix(in srgb, var(--primary-ink, #09090b) 16%, transparent);
+      color: var(--primary-ink, #09090b);
     }
 
     .sj-tab.loading .sj-tab-dot {
@@ -702,9 +703,9 @@
       gap: 0.75rem;
       flex-wrap: wrap;
       padding: 0.55rem 0.85rem;
-      background: rgba(255, 92, 124, 0.12);
-      border-bottom: 1px solid rgba(255, 92, 124, 0.35);
-      color: #ffb4c3;
+      background: rgba(244, 63, 94, 0.12);
+      border-bottom: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fecdd3;
       font-size: 0.81rem;
       line-height: 1.4;
     }
@@ -721,6 +722,51 @@
       gap: 0.4rem;
       align-items: center;
       flex-wrap: wrap;
+    }
+
+    .tiktok-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 0.85rem;
+      background: color-mix(in srgb, var(--surface) 92%, #000000);
+      border-bottom: 1px solid var(--border-strong);
+      color: var(--text);
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .tiktok-banner.open { display: flex; }
+
+    .tiktok-viewer-card {
+      width: 100%;
+      max-width: 720px;
+      height: min(84vh, 660px);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: calc(var(--ui-radius) + 4px);
+      padding: 1rem;
+      box-shadow: 0 24px 56px rgba(0, 0, 0, 0.72);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .tiktok-viewer-stage {
+      flex: 1;
+      min-height: 0;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #000000;
+      overflow: hidden;
+      position: relative;
+    }
+    .tiktok-viewer-stage iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #000000;
     }
 
     /* Original VALem Canvas Backgrounds (Customizable via Settings) */
@@ -1439,7 +1485,7 @@
       width: 100%;
       height: 100%;
       border: none;
-      background: #fff;
+      background: var(--bg);
       display: none;
     }
 
@@ -1454,7 +1500,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.85rem;
-      background: rgba(11, 6, 8, 0.92);
+      background: rgba(0, 0, 0, 0.92);
       backdrop-filter: blur(8px);
       color: var(--text);
       padding: 1.5rem;
@@ -1584,6 +1630,10 @@
       <button type="button" class="mini-player-btn" id="mini-next" aria-label="Next Track" title="Next Station">&#9197;</button>
     </div>
 
+    <button type="button" class="ctl-btn solid" id="toolbar-transport-chip" title="Click to toggle BareMux transport (Libcurl / Epoxy)">Libcurl</button>
+    <button type="button" class="ctl-btn solid" id="toolbar-wisp-chip" title="Click to toggle Wisp server (Render / Mercury)">Render</button>
+    <button type="button" class="ctl-btn solid" id="toolbar-adblock-chip" title="Toggle Scramjet Ad &amp; Tracker Blocker">Shield: On</button>
+    <button type="button" class="ctl-btn solid" id="btn-eruda-inspect" title="Toggle Eruda Inspect Console (&lt;/&gt;)">&lt;/&gt;</button>
     <button type="button" class="ctl-btn solid" id="btn-pop-pip" title="Pop current tab into floating Picture-in-Picture widget">PiP</button>
     <button type="button" class="ctl-btn solid" id="btn-wisp-toggle" aria-expanded="false" aria-controls="wisp-popover" title="Wisp &amp; Browser Settings">Wisp</button>
     <button type="button" class="ctl-btn solid" id="btn-fullscreen" title="Toggle Fullscreen (Alt+F)">Fullscreen</button>
@@ -1593,7 +1643,7 @@
       <div class="popover-head">
         <div>
           <div class="popover-title">Transport, Layout &amp; Search</div>
-          <div class="popover-sub">Libcurl Wisp transport, UI layout &amp; Brave Search</div>
+          <div class="popover-sub">Switch Libcurl / Epoxy or Render / Mercury Wisp</div>
         </div>
         <button type="button" class="ctl-btn solid" id="btn-wisp-close" aria-label="Close Settings" style="height:26px;min-width:26px;padding:0 0.45rem;font-size:0.75rem;">&#10005;</button>
       </div>
@@ -1601,7 +1651,8 @@
       <div class="popover-field">
         <label for="transport-select">BareMux Proxy Transport</label>
         <select id="transport-select" class="popover-select">
-          <option value="libcurl" selected>Libcurl (Active — avoids TLS &amp; HTTP/2 resets)</option>
+          <option value="libcurl" selected>Libcurl (Default — avoids HTTP/2 resets)</option>
+          <option value="epoxy">Epoxy (HTTP/2 TLS fallback — avoids SSL error 35)</option>
         </select>
       </div>
 
@@ -1618,12 +1669,12 @@
       <div class="popover-field">
         <label for="wisp-input">Wisp Server URL (wss://)</label>
         <div class="popover-row">
-          <input type="text" class="wisp-input" id="wisp-input" placeholder="wss://wisp.mercurywork.shop/" />
+          <input type="text" class="wisp-input" id="wisp-input" placeholder="wss://my-wisp-server-ocnq.onrender.com/wisp/" />
           <button type="button" class="ctl-btn primary" style="height:33px;padding:0 0.85rem;" id="btn-wisp-save">Save</button>
         </div>
         <div class="popover-quick-actions">
-          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-default">Mercury Default</button>
-          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-render">Render Wisp</button>
+          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-render">Render Default</button>
+          <button type="button" class="ctl-btn solid" style="height:27px;font-size:0.74rem;" id="btn-wisp-mercury">Mercury Backup</button>
         </div>
         <span class="popover-status" id="wisp-status" aria-live="polite"></span>
       </div>
@@ -1638,11 +1689,20 @@
         </select>
       </div>
 
+      <div class="popover-field">
+        <label>Built-In Proxy Ad &amp; Tracker Blocker</label>
+        <div class="popover-quick-actions" style="align-items:center;justify-content:space-between;">
+          <button type="button" class="ctl-btn primary" style="height:29px;font-size:0.75rem;" id="btn-adblock-toggle">Adblocker: On</button>
+          <span class="popover-status" id="adblock-popover-status" style="margin:0;">0 blocked</span>
+        </div>
+      </div>
+
       <div class="popover-shortcuts">
         <span><code>/</code> Search</span>
         <span><code>Alt+T</code> New Tab</span>
         <span><code>Alt+W</code> Close Tab</span>
         <span><code>Alt+F</code> Fullscreen</span>
+        <span><code>Shift×2</code> Boss Doc</span>
         <span><code>Esc</code> Panic</span>
       </div>
     </div>
@@ -1651,9 +1711,20 @@
   <div class="error-banner" id="sj-error-banner" role="alert">
     <span id="sj-error-text"></span>
     <div class="error-actions">
+      <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-switch-epoxy">Switch to Epoxy</button>
+      <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-switch-mercury">Switch to Mercury Wisp</button>
       <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-reset-idb">Reset Storage &amp; Retry</button>
       <a class="ctl-btn solid" style="height:26px;font-size:0.78rem;display:none;" id="link-open-standalone" target="_blank" rel="noopener noreferrer">Open in New Tab</a>
       <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.78rem;" id="btn-retry-init">Retry</button>
+    </div>
+  </div>
+
+  <div class="tiktok-banner" id="tiktok-fallback-banner" role="region" aria-label="TikTok Smart Loader">
+    <span id="tiktok-banner-msg">TikTok Smart Loader active — desktop headers applied. Need a lighter route?</span>
+    <div class="error-actions">
+      <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.76rem;" id="btn-tiktok-mobile">TikTok Mobile (m.tiktok.com)</button>
+      <button type="button" class="ctl-btn primary" style="height:26px;font-size:0.76rem;" id="btn-tiktok-viewer">TikTok Viewer Mode</button>
+      <button type="button" class="ctl-btn solid" style="height:26px;font-size:0.76rem;" id="btn-tiktok-dismiss">&#10005;</button>
     </div>
   </div>
 
@@ -1769,6 +1840,26 @@
       </form>
     </div>
 
+    <div class="shortcut-modal-backdrop" id="tiktok-viewer-modal" role="dialog" aria-modal="true" aria-labelledby="tiktok-viewer-title">
+      <div class="tiktok-viewer-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+          <div>
+            <h3 id="tiktok-viewer-title" style="font-family:var(--font-display);font-size:1rem;font-weight:700;">TikTok Lightweight Video &amp; Profile Viewer</h3>
+            <div class="popover-sub" id="tiktok-viewer-meta">Paste any TikTok video link or @username to watch without datacenter blocks</div>
+          </div>
+          <button type="button" class="ctl-btn solid" id="btn-tiktok-viewer-close" style="height:28px;padding:0 0.65rem;font-size:0.75rem;">Close</button>
+        </div>
+        <form class="popover-row" id="tiktok-viewer-form">
+          <input type="text" class="wisp-input" id="tiktok-viewer-input" placeholder="https://www.tiktok.com/@user/video/... or @username" />
+          <button type="submit" class="ctl-btn primary" style="height:33px;padding:0 0.85rem;">Load Viewer</button>
+          <button type="button" class="ctl-btn solid" id="btn-tiktok-viewer-mobile" style="height:33px;padding:0 0.75rem;">Open m.tiktok</button>
+        </form>
+        <div class="tiktok-viewer-stage">
+          <iframe id="tiktok-viewer-frame" title="TikTok Viewer Frame" allow="autoplay; fullscreen; encrypted-media; picture-in-picture"></iframe>
+        </div>
+      </div>
+    </div>
+
     <div class="frames-host" id="frames-host"></div>
   </div>
 
@@ -1777,7 +1868,9 @@
   <script src="/scram/scramjet.all.js"></script>
   <script>
     (function () {
-      var DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
+      var RENDER_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
+      var MERCURY_WISP_URL = 'wss://wisp.mercurywork.shop/';
+      var DEFAULT_WISP_URL = RENDER_WISP_URL;
       var DEFAULT_SEARCH_ENGINE = 'https://search.brave.com/search?q=';
       var PANIC_URL = 'https://classroom.google.com';
       try {
@@ -1919,19 +2012,142 @@
       var wispPopover = document.getElementById('wisp-popover');
       var wispCloseBtn = document.getElementById('btn-wisp-close');
       var wispInput = document.getElementById('wisp-input');
-      var wispDefaultBtn = document.getElementById('btn-wisp-default');
       var wispStatusEl = document.getElementById('wisp-status');
       var engineSelect = document.getElementById('engine-select');
       var heroEngineCycleBtn = document.getElementById('hero-engine-cycle');
       var transportSelect = document.getElementById('transport-select');
       var layoutSelect = document.getElementById('layout-select');
+      var toolbarTransportChip = document.getElementById('toolbar-transport-chip');
+      var toolbarWispChip = document.getElementById('toolbar-wisp-chip');
+      var toolbarAdblockChip = document.getElementById('toolbar-adblock-chip');
+      var adblockToggleBtn = document.getElementById('btn-adblock-toggle');
+      var adblockPopoverStatusEl = document.getElementById('adblock-popover-status');
+      var switchEpoxyBannerBtn = document.getElementById('btn-switch-epoxy');
+      var switchMercuryBannerBtn = document.getElementById('btn-switch-mercury');
+
+      var adblockEnabled = true;
+      try {
+        adblockEnabled = localStorage.getItem('vux_adblock_enabled') !== '0';
+      } catch (_e) {}
+
+      function loadUserscriptsFromStorage() {
+        try {
+          var rawUs = localStorage.getItem('vux_userscripts_v1');
+          var parsedUs = rawUs ? JSON.parse(rawUs) : [];
+          return Array.isArray(parsedUs) ? parsedUs : [];
+        } catch (_e) {
+          return [];
+        }
+      }
+
+      var userscriptsList = loadUserscriptsFromStorage();
+
+      function syncAdblockUi(blockedCount) {
+        if (toolbarAdblockChip) {
+          toolbarAdblockChip.textContent = adblockEnabled ? 'Shield: On' : 'Shield: Off';
+          toolbarAdblockChip.classList.toggle('primary', adblockEnabled);
+        }
+        if (adblockToggleBtn) {
+          adblockToggleBtn.textContent = adblockEnabled ? 'Adblocker: On' : 'Adblocker: Off';
+          adblockToggleBtn.classList.toggle('primary', adblockEnabled);
+        }
+        if (adblockPopoverStatusEl && typeof blockedCount === 'number') {
+          adblockPopoverStatusEl.textContent = blockedCount + ' blocked';
+        }
+      }
+      syncAdblockUi(0);
+
+      async function syncAdblockToSw(workerOpt) {
+        try {
+          var sw = workerOpt || (typeof getScramServiceWorker === 'function' ? await getScramServiceWorker() : null);
+          if (!sw || typeof sendSwMessage !== 'function') return;
+          var res = await sendSwMessage(sw, { scramjet$type: 'setAdblockEnabled', enabled: adblockEnabled }, 1500);
+          if (res && typeof res.blockedCount === 'number') {
+            syncAdblockUi(res.blockedCount);
+          }
+        } catch (_e) {}
+      }
+
+      function matchesUserscriptPattern(pattern, targetUrl) {
+        var pat = String(pattern || '*').trim() || '*';
+        var url = String(targetUrl || '');
+        if (!url || pat === '*' || pat === '*://*/*') return true;
+        try {
+          var escaped = pat.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+          return new RegExp('^' + escaped + '$', 'i').test(url);
+        } catch (_e) {
+          return url.toLowerCase().indexOf(pat.toLowerCase()) !== -1;
+        }
+      }
+
+      function injectUserscriptsIntoTab(tab) {
+        if (!tab || tab.isHome || !tab.frameEl) return;
+        userscriptsList = loadUserscriptsFromStorage();
+        if (!userscriptsList.length) return;
+        try {
+          var doc = tab.frameEl.contentDocument;
+          var cw = tab.frameEl.contentWindow;
+          if (!doc || !cw || !doc.documentElement) return;
+          var targetUrl = tab.url || '';
+          if (!targetUrl && cw.location && cw.location.href && scramjet && typeof scramjet.decodeUrl === 'function') {
+            var dec = scramjet.decodeUrl(cw.location.href);
+            if (/^https?:\/\//i.test(dec)) targetUrl = dec;
+          }
+          var navMark = String(tab.navToken || 0) + ':' + targetUrl;
+          userscriptsList.forEach(function (us) {
+            if (!us || us.enabled === false || !us.code) return;
+            if (!matchesUserscriptPattern(us.match, targetUrl)) return;
+            var markerId = 'vux-us-' + String(us.id || 'item').replace(/[^a-zA-Z0-9_-]/g, '');
+            var existing = doc.getElementById(markerId);
+            if (existing && existing.getAttribute('data-nav-mark') === navMark) return;
+            if (existing) existing.remove();
+            var sc = doc.createElement('script');
+            sc.id = markerId;
+            sc.setAttribute('data-nav-mark', navMark);
+            sc.textContent = 'try{\n' + String(us.code) + '\n}catch(_vuxUsErr){console.warn("Vux userscript error:", _vuxUsErr);}';
+            (doc.head || doc.documentElement || doc.body).appendChild(sc);
+          });
+        } catch (_e) {}
+      }
+
+      function normalizeTransportMode(raw) {
+        return String(raw || '').trim().toLowerCase() === 'epoxy' ? 'epoxy' : 'libcurl';
+      }
+
+      function getTransportPath(mode) {
+        return mode === 'epoxy' ? '/epoxy/index.mjs' : '/libcurl/index.mjs';
+      }
 
       var activeTransport = 'libcurl';
       try {
-        localStorage.setItem('valem_baremux_transport', 'libcurl');
+        activeTransport = normalizeTransportMode(localStorage.getItem('valem_baremux_transport'));
+        localStorage.setItem('valem_baremux_transport', activeTransport);
       } catch (_e) {}
       if (transportSelect) {
-        transportSelect.value = 'libcurl';
+        transportSelect.value = activeTransport;
+      }
+
+      function syncToolbarTransportChips(wispUrl, transportMode) {
+        if (toolbarTransportChip) {
+          toolbarTransportChip.textContent = transportMode === 'epoxy' ? 'Epoxy' : 'Libcurl';
+        }
+        if (toolbarWispChip) {
+          var w = String(wispUrl || savedWisp || DEFAULT_WISP_URL).toLowerCase();
+          if (w.indexOf('mercurywork.shop') !== -1) {
+            toolbarWispChip.textContent = 'Mercury';
+          } else if (w.indexOf('onrender.com') !== -1) {
+            toolbarWispChip.textContent = 'Render';
+          } else {
+            try {
+              toolbarWispChip.textContent = new URL(w).hostname.split('.')[0] || 'Wisp';
+            } catch (_e) {
+              toolbarWispChip.textContent = 'Wisp';
+            }
+          }
+        }
+        if (switchEpoxyBannerBtn) {
+          switchEpoxyBannerBtn.textContent = transportMode === 'epoxy' ? 'Switch to Libcurl' : 'Switch to Epoxy';
+        }
       }
 
       function normalizeHomeLayout(raw) {
@@ -2088,13 +2304,18 @@
 
       var savedWisp = DEFAULT_WISP_URL;
       try {
-        localStorage.setItem('valbrowse_wisp_url', DEFAULT_WISP_URL);
-        localStorage.setItem('gn_scramjet_wisp', DEFAULT_WISP_URL);
+        var rawSavedWisp = String(localStorage.getItem('valbrowse_wisp_url') || '').trim();
+        if (rawSavedWisp && rawSavedWisp !== 'wss://my-wisp-server-ocnq.onrender.com/') {
+          savedWisp = normalizeWispUrl(rawSavedWisp);
+        }
+        localStorage.setItem('valbrowse_wisp_url', savedWisp);
+        localStorage.setItem('gn_scramjet_wisp', savedWisp);
       } catch (e) {}
 
       wispInput.value = savedWisp;
+      syncToolbarTransportChips(savedWisp, activeTransport);
       if (wispStatusEl) {
-        wispStatusEl.textContent = 'Active endpoint: ' + savedWisp;
+        wispStatusEl.textContent = 'Active (' + (activeTransport === 'epoxy' ? 'Epoxy' : 'Libcurl') + '): ' + savedWisp;
       }
 
       var scramjet = null;
@@ -2164,10 +2385,36 @@
             var cw = tab.frameEl.contentWindow;
             if (cw && !cw.__valbrowsePanicAttached) {
               cw.__valbrowsePanicAttached = true;
+              var innerCleanShift = false;
+              var innerLastShiftAt = 0;
               cw.addEventListener('keydown', function (ev) {
                 if (ev && ev.key === 'Escape') {
                   ev.preventDefault();
                   triggerLocalPanic();
+                } else if (ev && ev.key === 'Shift') {
+                  if (!ev.repeat && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
+                    innerCleanShift = true;
+                  } else {
+                    innerCleanShift = false;
+                  }
+                } else {
+                  innerCleanShift = false;
+                }
+              }, true);
+              cw.addEventListener('keyup', function (ev) {
+                if (ev && ev.key === 'Shift' && innerCleanShift) {
+                  innerCleanShift = false;
+                  var nowShift = Date.now();
+                  if (nowShift - innerLastShiftAt <= 420) {
+                    innerLastShiftAt = 0;
+                    try {
+                      if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'vux-boss-toggle' }, '*');
+                      }
+                    } catch (_be) {}
+                  } else {
+                    innerLastShiftAt = nowShift;
+                  }
                 }
               }, true);
             }
@@ -2201,10 +2448,29 @@
                 }
               }
             }
+            if (doc && doc.body) {
+              var bodyText = String(doc.body.innerText || '');
+              if (/error code 35|ssl connect error|http2 error|unable to reach target page/i.test(bodyText)) {
+                if (typeof isTikTokUrl === 'function' && isTikTokUrl(tab.url)) {
+                  showTikTokBanner(
+                    'www.tiktok.com hit SSL/IP block (' + (bodyText.match(/(error code 35[^\n]*|ssl connect error[^\n]*|http2 error[^\n]*)/i)?.[0] || 'connection reset') + '). Switch to m.tiktok.com or TikTok Viewer Mode.',
+                    tab.url
+                  );
+                } else {
+                  showError(
+                    'Site connection failed (' + (bodyText.match(/(error code 35[^\n]*|ssl connect error[^\n]*|http2 error[^\n]*)/i)?.[0] || 'TLS / HTTP2 reset') + '). Try switching Transport (Libcurl/Epoxy) or Wisp server.',
+                    {}
+                  );
+                }
+              }
+            }
           } catch (e) {}
+          injectUserscriptsIntoTab(tab);
+          syncAdblockToSw();
           if (tab.id === activeTabId) {
             setLoading(false);
             if (typeof syncBookmarkStarState === 'function') syncBookmarkStarState();
+            if (typeof syncTikTokBannerForTab === 'function') syncTikTokBannerForTab(tab);
           }
           if (embedMode === 'ai') {
             applyEmbeddedAiSkinToTab(tab);
@@ -2491,6 +2757,7 @@
           tabs[i].frameEl.classList.toggle('active', Boolean(isCur));
         }
         if (typeof syncBookmarkStarState === 'function') syncBookmarkStarState();
+        if (typeof syncTikTokBannerForTab === 'function') syncTikTokBannerForTab(active);
         if (!active || active.isHome) {
           framesHostEl.classList.remove('has-frame');
           homeScreen.style.display = 'flex';
@@ -2899,6 +3166,14 @@
             wasm: '/scram/scramjet.wasm.wasm',
             all: '/scram/scramjet.all.js',
             sync: '/scram/scramjet.sync.js'
+          },
+          flags: {
+            serviceworkers: true,
+            syncxhr: true,
+            strictRewrites: true,
+            captureErrors: true,
+            sourcemaps: true,
+            allowInvalidJs: true
           }
         });
         await scramjet.init();
@@ -2921,6 +3196,7 @@
       async function initScramjetStack(wispInputUrl, allowIdbRetry) {
         var activeWisp = normalizeWispUrl(wispInputUrl);
         wispInput.value = activeWisp;
+        syncToolbarTransportChips(activeWisp, activeTransport);
 
         if (!window.isSecureContext || window.location.origin === 'null' || !('serviceWorker' in navigator)) {
           showError(
@@ -2937,7 +3213,7 @@
           var wispProbe = await testWispConnection(activeWisp);
           if (!wispProbe.ok) {
             setLoading(false);
-            showError('Mercury Wisp server unreachable: ' + wispProbe.reason + '. Check Wisp Settings or click Retry.');
+            showError('Wisp server unreachable (' + activeWisp + '): ' + wispProbe.reason + '. Try switching to Mercury Wisp or Render Default.');
             return false;
           }
 
@@ -2945,9 +3221,9 @@
             throw new Error('BareMux script (/baremux/index.js) did not finish loading.');
           }
 
-          setLoading(true, 'Connecting Libcurl transport via Mercury Wisp...');
-          var transportPath = '/libcurl/index.mjs';
-          var transportName = 'Libcurl';
+          var transportPath = getTransportPath(activeTransport);
+          var transportName = activeTransport === 'epoxy' ? 'Epoxy' : 'Libcurl';
+          setLoading(true, 'Connecting ' + transportName + ' transport via Wisp...');
           connection = new BareMux.BareMuxConnection('/baremux/worker.js');
           await connection.setTransport(transportPath, [{ wisp: activeWisp }]);
 
@@ -3020,11 +3296,13 @@
             throw new Error('Scramjet Service Worker failed to activate for /scram/.');
           }
 
-          var swSync = await sendSwMessage(activeWorker, { scramjet$type: 'reloadConfigFromIDB' }, 3000);
+          var swSync = await sendSwMessage(activeWorker, { scramjet$type: 'reloadConfigFromIDB', transport: activeTransport }, 3000);
           if (swSync && swSync.hasCodec === false) {
             throw new Error('Scramjet Service Worker could not load config codec from IndexedDB.');
           }
+          await syncAdblockToSw(activeWorker);
 
+          syncToolbarTransportChips(activeWisp, activeTransport);
           if (wispStatusEl) {
             wispStatusEl.textContent = 'Connected (' + transportName + '): ' + activeWisp;
           }
@@ -3107,6 +3385,11 @@
           homeInputEl.value = trimmed;
           if (wikiPanel) wikiPanel.classList.remove('open');
           setLoading(true, tab.loadingMessage);
+          if (typeof isTikTokUrl === 'function' && isTikTokUrl(targetUrl)) {
+            showTikTokBanner('Loading TikTok with Chrome headers — switch to Mobile or Viewer Mode anytime if blocked.', targetUrl);
+          } else if (typeof hideTikTokBanner === 'function') {
+            hideTikTokBanner();
+          }
         }
         renderTabsStrip();
 
@@ -3293,6 +3576,18 @@
         } else if (ev.data.type === 'valem-custom-settings' && ev.data.settings) {
           applyCustomSettingsToBrowser(ev.data.settings);
           if (embedMode === 'ai') applyEmbeddedAiSkinToTab(getActiveTab());
+        } else if (ev.data.type === 'vux-proxy-extensions') {
+          if (typeof ev.data.adblockEnabled === 'boolean') {
+            adblockEnabled = ev.data.adblockEnabled;
+            try { localStorage.setItem('vux_adblock_enabled', adblockEnabled ? '1' : '0'); } catch (_e) {}
+            syncAdblockUi();
+            syncAdblockToSw();
+          }
+          if (Array.isArray(ev.data.userscripts)) {
+            userscriptsList = ev.data.userscripts;
+            try { localStorage.setItem('vux_userscripts_v1', JSON.stringify(userscriptsList)); } catch (_e) {}
+            injectUserscriptsIntoTab(getActiveTab());
+          }
         } else if (ev.data.type === 'omni-navigate' && typeof ev.data.query === 'string') {
           if (ev.data.newTab) {
             createTab({ initialQuery: ev.data.query });
@@ -3314,14 +3609,14 @@
                   connection = new BareMux.BareMuxConnection('/baremux/worker.js');
                 }
                 if (connection) {
-                  await connection.setTransport('/libcurl/index.mjs', [{ wisp: customWisp }]);
+                  await connection.setTransport(getTransportPath(activeTransport), [{ wisp: customWisp }]);
                 }
                 if (scramjet && typeof scramjet.modifyConfig === 'function') {
                   await scramjet.modifyConfig({ prefix: SCRAM_PREFIX, wisp: customWisp });
                 }
                 var swTarget = await getScramServiceWorker();
                 if (swTarget) {
-                  await sendSwMessage(swTarget, { scramjet$type: 'reloadConfigFromIDB' }, 1500);
+                  await sendSwMessage(swTarget, { scramjet$type: 'reloadConfigFromIDB', transport: activeTransport }, 1500);
                 }
               } catch (_te) {}
             }
@@ -3374,10 +3669,18 @@
         proxyReadyPromise = initScramjetStack(wispInput.value, false);
       });
 
+      function reloadActiveProxiedTab() {
+        var active = getActiveTab();
+        if (active && !active.isHome && active.url) {
+          navigateTab(active, active.url);
+        }
+      }
+
       async function switchToEndpoint(endpointUrl, label) {
         var next = normalizeWispUrl(endpointUrl);
         wispInput.value = next;
         savedWisp = next;
+        syncToolbarTransportChips(next, activeTransport);
         try {
           localStorage.setItem('valbrowse_wisp_url', next);
           localStorage.setItem('gn_scramjet_wisp', next);
@@ -3389,9 +3692,25 @@
         if (!ok) {
           proxyReadyPromise = null;
           if (wispStatusEl) wispStatusEl.textContent = 'Saved ' + next + ' (reconnect failed)';
-          return;
+          return false;
         }
-        if (wispStatusEl) wispStatusEl.textContent = 'Connected to ' + next;
+        if (wispStatusEl) wispStatusEl.textContent = 'Connected (' + (activeTransport === 'epoxy' ? 'Epoxy' : 'Libcurl') + '): ' + next;
+        reloadActiveProxiedTab();
+        return true;
+      }
+
+      async function switchTransportMode(nextMode) {
+        var normalized = normalizeTransportMode(nextMode);
+        activeTransport = normalized;
+        if (transportSelect) transportSelect.value = normalized;
+        syncToolbarTransportChips(wispInput.value || savedWisp, normalized);
+        try {
+          localStorage.setItem('valem_baremux_transport', normalized);
+        } catch (_e) {}
+        if (wispStatusEl) {
+          wispStatusEl.textContent = 'Switching to ' + (normalized === 'epoxy' ? 'Epoxy' : 'Libcurl') + ' transport...';
+        }
+        await switchToEndpoint(wispInput.value || savedWisp, normalized === 'epoxy' ? 'Epoxy' : 'Libcurl');
       }
 
       if ('serviceWorker' in navigator && typeof navigator.serviceWorker.addEventListener === 'function') {
@@ -3402,34 +3721,76 @@
                 connection = new BareMux.BareMuxConnection('/baremux/worker.js');
               }
               if (connection) {
-                connection.setTransport('/libcurl/index.mjs', [{ wisp: savedWisp || DEFAULT_WISP_URL }]).catch(function () {});
+                connection.setTransport(getTransportPath(activeTransport), [{ wisp: savedWisp || DEFAULT_WISP_URL }]).catch(function () {});
               }
             } catch (_e) {}
           }
         });
       }
 
-      if (wispDefaultBtn) {
-        wispDefaultBtn.addEventListener('click', function () {
-          switchToEndpoint(DEFAULT_WISP_URL, 'Mercury default');
+      var wispMercuryBtn = document.getElementById('btn-wisp-mercury');
+      if (wispMercuryBtn) {
+        wispMercuryBtn.addEventListener('click', function () {
+          switchToEndpoint(MERCURY_WISP_URL, 'Mercury Wisp backup');
         });
       }
 
       var wispRenderBtn = document.getElementById('btn-wisp-render');
       if (wispRenderBtn) {
         wispRenderBtn.addEventListener('click', function () {
-          switchToEndpoint('wss://my-wisp-server-ocnq.onrender.com/wisp/', 'Render Wisp');
+          switchToEndpoint(RENDER_WISP_URL, 'Render Wisp');
+        });
+      }
+
+      if (toolbarTransportChip) {
+        toolbarTransportChip.addEventListener('click', function () {
+          switchTransportMode(activeTransport === 'epoxy' ? 'libcurl' : 'epoxy');
+        });
+      }
+
+      if (toolbarWispChip) {
+        toolbarWispChip.addEventListener('click', function () {
+          var isMercury = String(savedWisp || '').toLowerCase().indexOf('mercurywork.shop') !== -1;
+          switchToEndpoint(isMercury ? RENDER_WISP_URL : MERCURY_WISP_URL, isMercury ? 'Render Wisp' : 'Mercury Wisp backup');
+        });
+      }
+
+      async function toggleAdblockerState() {
+        adblockEnabled = !adblockEnabled;
+        try {
+          localStorage.setItem('vux_adblock_enabled', adblockEnabled ? '1' : '0');
+        } catch (_e) {}
+        syncAdblockUi();
+        await syncAdblockToSw();
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'vux-adblock-sync', enabled: adblockEnabled }, '*');
+          }
+        } catch (_e) {}
+      }
+
+      if (toolbarAdblockChip) {
+        toolbarAdblockChip.addEventListener('click', toggleAdblockerState);
+      }
+      if (adblockToggleBtn) {
+        adblockToggleBtn.addEventListener('click', toggleAdblockerState);
+      }
+
+      if (switchEpoxyBannerBtn) {
+        switchEpoxyBannerBtn.addEventListener('click', function () {
+          switchTransportMode(activeTransport === 'epoxy' ? 'libcurl' : 'epoxy');
+        });
+      }
+
+      if (switchMercuryBannerBtn) {
+        switchMercuryBannerBtn.addEventListener('click', function () {
+          switchToEndpoint(MERCURY_WISP_URL, 'Mercury Wisp backup');
         });
       }
 
       if (transportSelect) {
-        transportSelect.addEventListener('change', async function () {
-          activeTransport = 'libcurl';
-          try {
-            localStorage.setItem('valem_baremux_transport', 'libcurl');
-          } catch (_e) {}
-          if (wispStatusEl) wispStatusEl.textContent = 'Connecting Libcurl transport...';
-          await switchToEndpoint(wispInput.value || savedWisp, 'Libcurl');
+        transportSelect.addEventListener('change', function () {
+          switchTransportMode(transportSelect.value);
         });
       }
 
@@ -4277,11 +4638,246 @@
         }
       });
 
+      var scramCleanShift = false;
+      var scramLastShiftAt = 0;
+      document.addEventListener('keydown', function (e) {
+        if (e && e.key === 'Shift') {
+          if (!e.repeat && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            scramCleanShift = true;
+          } else {
+            scramCleanShift = false;
+          }
+        } else {
+          scramCleanShift = false;
+        }
+      }, true);
+      document.addEventListener('keyup', function (e) {
+        if (e && e.key === 'Shift' && scramCleanShift) {
+          scramCleanShift = false;
+          var nowShift = Date.now();
+          if (nowShift - scramLastShiftAt <= 420) {
+            scramLastShiftAt = 0;
+            try {
+              if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'vux-boss-toggle' }, '*');
+              }
+            } catch (_be) {}
+          } else {
+            scramLastShiftAt = nowShift;
+          }
+        }
+      }, true);
+
+      /* ---------------- ERUDA DEVTOOLS & SMART TIKTOK FALLBACK ---------------- */
+      var erudaInspectBtn = document.getElementById('btn-eruda-inspect');
+      var tiktokBannerEl = document.getElementById('tiktok-fallback-banner');
+      var tiktokBannerMsgEl = document.getElementById('tiktok-banner-msg');
+      var tiktokMobileBtn = document.getElementById('btn-tiktok-mobile');
+      var tiktokViewerBtn = document.getElementById('btn-tiktok-viewer');
+      var tiktokDismissBtn = document.getElementById('btn-tiktok-dismiss');
+      var tiktokViewerModal = document.getElementById('tiktok-viewer-modal');
+      var tiktokViewerForm = document.getElementById('tiktok-viewer-form');
+      var tiktokViewerInput = document.getElementById('tiktok-viewer-input');
+      var tiktokViewerFrame = document.getElementById('tiktok-viewer-frame');
+      var tiktokViewerMeta = document.getElementById('tiktok-viewer-meta');
+      var tiktokViewerClose = document.getElementById('btn-tiktok-viewer-close');
+      var tiktokViewerMobileBtn = document.getElementById('btn-tiktok-viewer-mobile');
+      var lastTikTokUrl = 'https://www.tiktok.com';
+      var tiktokBannerDismissed = false;
+
+      function isTikTokUrl(url) {
+        return /(^|\.)tiktok\.com\b/i.test(String(url || ''));
+      }
+
+      function showTikTokBanner(msg, url) {
+        if (url) lastTikTokUrl = url;
+        tiktokBannerDismissed = false;
+        if (tiktokBannerMsgEl && msg) tiktokBannerMsgEl.textContent = msg;
+        if (tiktokBannerEl) tiktokBannerEl.classList.add('open');
+      }
+
+      function hideTikTokBanner() {
+        if (tiktokBannerEl) tiktokBannerEl.classList.remove('open');
+      }
+
+      function syncTikTokBannerForTab(tab) {
+        if (!tab || tab.isHome || !isTikTokUrl(tab.url)) {
+          hideTikTokBanner();
+          return;
+        }
+        lastTikTokUrl = tab.url;
+        if (!tiktokBannerDismissed && tiktokBannerEl) {
+          tiktokBannerEl.classList.add('open');
+        }
+      }
+
+      function toTikTokMobileUrl(url) {
+        try {
+          var parsed = new URL(url || 'https://www.tiktok.com');
+          parsed.hostname = 'm.tiktok.com';
+          return parsed.toString();
+        } catch (_e) {
+          return 'https://m.tiktok.com';
+        }
+      }
+
+      function buildTikTokViewerEmbedUrl(rawInput) {
+        var s = String(rawInput || '').trim();
+        if (!s) return 'https://www.tiktok.com/embed/@tiktok';
+        var videoMatch = s.match(/\/video\/(\d+)/i) || s.match(/^(\d{12,24})$/);
+        if (videoMatch && videoMatch[1]) {
+          return 'https://www.tiktok.com/embed/v2/' + videoMatch[1];
+        }
+        var handleMatch = s.match(/@([A-Za-z0-9_.]{2,32})/);
+        if (handleMatch && handleMatch[1]) {
+          return 'https://www.tiktok.com/embed/@' + handleMatch[1];
+        }
+        if (/^[A-Za-z0-9_.]{2,32}$/.test(s)) {
+          return 'https://www.tiktok.com/embed/@' + s;
+        }
+        return 'https://www.tiktok.com/embed/@tiktok';
+      }
+
+      async function loadTikTokViewerTarget(rawInput) {
+        if (!tiktokViewerFrame) return;
+        var clean = String(rawInput || '').trim() || lastTikTokUrl || 'https://www.tiktok.com/@tiktok';
+        if (tiktokViewerInput) tiktokViewerInput.value = clean;
+        var embedTarget = buildTikTokViewerEmbedUrl(clean);
+        if (tiktokViewerMeta) {
+          tiktokViewerMeta.textContent = 'Loading embedded TikTok view: ' + embedTarget;
+        }
+        try {
+          if (/tiktok\.com\/@[^/]+\/video\/\d+/i.test(clean)) {
+            fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(clean))
+              .then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (info) {
+                if (info && info.title && tiktokViewerMeta) {
+                  tiktokViewerMeta.textContent = (info.author_name ? '@' + info.author_name + ' · ' : '') + info.title.slice(0, 90);
+                }
+              })
+              .catch(function () {});
+          }
+        } catch (_e) {}
+        tiktokViewerFrame.src = embedTarget;
+      }
+
+      function openTikTokViewerModal(initialTarget) {
+        if (!tiktokViewerModal) return;
+        tiktokViewerModal.classList.add('open');
+        loadTikTokViewerTarget(initialTarget || lastTikTokUrl);
+      }
+
+      if (tiktokDismissBtn) {
+        tiktokDismissBtn.addEventListener('click', function () {
+          tiktokBannerDismissed = true;
+          hideTikTokBanner();
+        });
+      }
+      if (tiktokMobileBtn) {
+        tiktokMobileBtn.addEventListener('click', function () {
+          var mobileUrl = toTikTokMobileUrl(lastTikTokUrl);
+          navigateProxy(mobileUrl);
+        });
+      }
+      if (tiktokViewerBtn) {
+        tiktokViewerBtn.addEventListener('click', function () {
+          openTikTokViewerModal(lastTikTokUrl);
+        });
+      }
+      if (tiktokViewerClose && tiktokViewerModal) {
+        tiktokViewerClose.addEventListener('click', function () {
+          tiktokViewerModal.classList.remove('open');
+          if (tiktokViewerFrame) tiktokViewerFrame.src = 'about:blank';
+        });
+      }
+      if (tiktokViewerModal) {
+        tiktokViewerModal.addEventListener('click', function (ev) {
+          if (ev.target === tiktokViewerModal) {
+            tiktokViewerModal.classList.remove('open');
+            if (tiktokViewerFrame) tiktokViewerFrame.src = 'about:blank';
+          }
+        });
+      }
+      if (tiktokViewerForm) {
+        tiktokViewerForm.addEventListener('submit', function (ev) {
+          ev.preventDefault();
+          loadTikTokViewerTarget(tiktokViewerInput ? tiktokViewerInput.value : '');
+        });
+      }
+      if (tiktokViewerMobileBtn) {
+        tiktokViewerMobileBtn.addEventListener('click', function () {
+          if (tiktokViewerModal) tiktokViewerModal.classList.remove('open');
+          navigateProxy(toTikTokMobileUrl(tiktokViewerInput ? tiktokViewerInput.value : lastTikTokUrl));
+        });
+      }
+
+      function toggleErudaDevTools() {
+        var active = getActiveTab();
+        var targetWin = window;
+        var targetDoc = document;
+        if (active && !active.isHome && active.frameEl) {
+          try {
+            if (active.frameEl.contentWindow && active.frameEl.contentDocument) {
+              targetWin = active.frameEl.contentWindow;
+              targetDoc = active.frameEl.contentDocument;
+            }
+          } catch (_e) {}
+        }
+        try {
+          if (targetWin.eruda) {
+            if (targetWin.eruda._isInit) {
+              var container = targetDoc.getElementById('eruda');
+              var shadowVisible = container && container.style && container.style.display !== 'none';
+              if (shadowVisible && erudaInspectBtn && erudaInspectBtn.classList.contains('is-open')) {
+                targetWin.eruda.hide();
+                erudaInspectBtn.classList.remove('is-open');
+              } else {
+                targetWin.eruda.show();
+                if (erudaInspectBtn) erudaInspectBtn.classList.add('is-open');
+              }
+              return;
+            }
+          }
+          var existing = targetDoc.getElementById('vux-eruda-script');
+          if (existing) {
+            if (targetWin.eruda) {
+              targetWin.eruda.init();
+              targetWin.eruda.show();
+              if (erudaInspectBtn) erudaInspectBtn.classList.add('is-open');
+            }
+            return;
+          }
+          var sc = targetDoc.createElement('script');
+          sc.id = 'vux-eruda-script';
+          sc.src = 'https://cdn.jsdelivr.net/npm/eruda';
+          sc.onload = function () {
+            try {
+              if (targetWin.eruda) {
+                targetWin.eruda.init();
+                targetWin.eruda.show();
+                if (erudaInspectBtn) erudaInspectBtn.classList.add('is-open');
+              }
+            } catch (_ie) {}
+          };
+          sc.onerror = function () {
+            showError('Could not load Eruda DevTools into this page (blocked by target CSP). Try Inspect on another tab.');
+          };
+          (targetDoc.head || targetDoc.documentElement || targetDoc.body).appendChild(sc);
+        } catch (_err) {
+          showError('Eruda DevTools could not attach to this iframe.');
+        }
+      }
+
+      if (erudaInspectBtn) {
+        erudaInspectBtn.addEventListener('click', toggleErudaDevTools);
+      }
+
       async function startEmbeddedAiSession() {
         var targetAiUrl = params.get('url') || 'https://duck.ai';
-        var preferredWisp = normalizeWispUrl(params.get('wisp') || 'wss://my-wisp-server-ocnq.onrender.com/wisp/');
+        var preferredWisp = normalizeWispUrl(params.get('wisp') || RENDER_WISP_URL);
         savedWisp = preferredWisp;
         wispInput.value = preferredWisp;
+        syncToolbarTransportChips(preferredWisp, activeTransport);
         try {
           window.parent.postMessage({ type: 'vux-ai-wisp-status', label: 'Connecting Render Wisp...' }, '*');
         } catch (_e) {}
@@ -4291,7 +4887,7 @@
         // Fast reachability check specifically for duck.ai over Render Wisp; fail over to Mercury Wisp if Render hangs
         var selectedWisp = preferredWisp;
         var wispBadge = 'Render Wisp · Connected';
-        if (ok && typeof BareMux !== 'undefined' && BareMux.BareClient && preferredWisp !== DEFAULT_WISP_URL) {
+        if (ok && typeof BareMux !== 'undefined' && BareMux.BareClient && preferredWisp !== MERCURY_WISP_URL) {
           var reachOk = false;
           try {
             var testClient = new BareMux.BareClient('/baremux/worker.js');
@@ -4310,29 +4906,29 @@
             reachOk = false;
           }
           if (!reachOk) {
-            selectedWisp = DEFAULT_WISP_URL;
-            savedWisp = DEFAULT_WISP_URL;
-            wispInput.value = DEFAULT_WISP_URL;
+            selectedWisp = MERCURY_WISP_URL;
+            savedWisp = MERCURY_WISP_URL;
+            wispInput.value = MERCURY_WISP_URL;
             wispBadge = 'Mercury Wisp · Connected';
             try {
               if (connection) {
-                await connection.setTransport('/libcurl/index.mjs', [{ wisp: DEFAULT_WISP_URL }]);
+                await connection.setTransport(getTransportPath(activeTransport), [{ wisp: MERCURY_WISP_URL }]);
               }
               if (scramjet && typeof scramjet.modifyConfig === 'function') {
-                await scramjet.modifyConfig({ prefix: SCRAM_PREFIX, wisp: DEFAULT_WISP_URL });
+                await scramjet.modifyConfig({ prefix: SCRAM_PREFIX, wisp: MERCURY_WISP_URL });
               }
               var swNode = await getScramServiceWorker();
               if (swNode) {
-                await sendSwMessage(swNode, { scramjet$type: 'reloadConfigFromIDB' }, 1500);
+                await sendSwMessage(swNode, { scramjet$type: 'reloadConfigFromIDB', transport: activeTransport }, 1500);
               }
             } catch (_fbErr) {}
           }
-        } else if (!ok && preferredWisp !== DEFAULT_WISP_URL) {
-          selectedWisp = DEFAULT_WISP_URL;
-          savedWisp = DEFAULT_WISP_URL;
+        } else if (!ok && preferredWisp !== MERCURY_WISP_URL) {
+          selectedWisp = MERCURY_WISP_URL;
+          savedWisp = MERCURY_WISP_URL;
           wispBadge = 'Mercury Wisp · Connected';
           proxyReadyPromise = null;
-          await initScramjetStack(DEFAULT_WISP_URL, true).catch(function () { return false; });
+          await initScramjetStack(MERCURY_WISP_URL, true).catch(function () { return false; });
         }
 
         try {

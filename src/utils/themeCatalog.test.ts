@@ -28,7 +28,10 @@ test('THEMES_CATALOG includes 200 unique themes across all 7 Studio categories',
     assert.ok(count >= 10, `Expected >= 10 themes in Studio category ${sCat}, got ${count}`);
   }
 
+  assert.equal(THEMES_CATALOG[0].id, 'amoled-black');
+
   const requiredNames = [
+    'All-Black AMOLED',
     'Midnight OLED',
     'Cyber Neon Green',
     'Dracula Purple',
@@ -104,7 +107,7 @@ test('resolveThemeById migrates legacy theme IDs and falls back cleanly', () => 
   assert.equal(resolveThemeById('ocean').id, 'deep-ocean');
   assert.equal(resolveThemeById('light').id, 'pure-paper-light');
   assert.equal(resolveThemeById('dracula-purple').id, 'dracula-purple');
-  assert.equal(resolveThemeById('nonexistent').id, 'midnight-oled');
+  assert.equal(resolveThemeById('nonexistent').id, 'amoled-black');
 });
 
 test('buildThemeCssVariables emits all 7 CSS properties with optional custom accent override', () => {

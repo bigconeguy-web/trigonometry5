@@ -148,23 +148,24 @@ export function buildValBrowseBlobHtml(
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vux — Isolated Workspace</title>
+  <link id="vux-favicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2036%2036'%3E%3Crect%20width%3D'36'%20height%3D'36'%20rx%3D'9'%20fill%3D'%23000000'%2F%3E%3Cpath%20d%3D'M9.8%2011.8L18%2027L26.2%2011.8H22L18%2019.6L14%2011.8H9.8Z'%20fill%3D'%23ffffff'%2F%3E%3C%2Fsvg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #0b0608;
-      --rail: #080406;
-      --surface: #140b0e;
-      --surface-2: #1b0f13;
-      --text: #fdf2f4;
-      --muted: #9f878f;
-      --accent: #ff5c7c;
-      --accent-hover: #ff456b;
-      --accent-text: #19070d;
-      --accent-soft: rgba(255, 92, 124, 0.14);
-      --border: rgba(255, 255, 255, 0.08);
-      --border-strong: rgba(255, 255, 255, 0.16);
+      --bg: #000000;
+      --rail: #050505;
+      --surface: #0a0a0a;
+      --surface-2: #121212;
+      --text: #ffffff;
+      --muted: #9ca3af;
+      --accent: #ffffff;
+      --accent-hover: #e5e5e5;
+      --accent-text: #09090b;
+      --accent-soft: rgba(255, 255, 255, 0.12);
+      --border: #1f1f1f;
+      --border-strong: rgba(255, 255, 255, 0.24);
       --ui-radius: 12px;
       --glow-strength: 1;
       --glass-blur: 14px;
@@ -225,8 +226,11 @@ export function buildValBrowseBlobHtml(
       flex-shrink: 0;
       z-index: 40;
       transition: width 0.24s var(--ease), margin-left 0.24s var(--ease), padding 0.24s var(--ease), opacity 0.2s var(--ease);
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
     }
+    .rail::-webkit-scrollbar { display: none; }
 
     .rail.compact {
       width: 58px;
@@ -800,7 +804,7 @@ export function buildValBrowseBlobHtml(
       gap: 12px;
       padding: 24px;
       text-align: center;
-      background: radial-gradient(circle at center, rgba(255, 92, 124, 0.08), rgba(8, 4, 6, 0.96));
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.96));
       z-index: 4;
     }
 
@@ -1013,7 +1017,7 @@ export function buildValBrowseBlobHtml(
       position: fixed;
       inset: 0;
       z-index: 90;
-      background: #070405;
+      background: #000000;
       display: none;
       flex-direction: column;
     }
@@ -1054,7 +1058,7 @@ export function buildValBrowseBlobHtml(
     .overlay-status {
       position: absolute;
       inset: 0;
-      background: rgba(11, 6, 8, 0.94);
+      background: rgba(0, 0, 0, 0.94);
       display: none;
       flex-direction: column;
       align-items: center;
@@ -1266,7 +1270,7 @@ export function buildValBrowseBlobHtml(
       height: 98px;
       border-radius: 8px;
       object-fit: cover;
-      background: #080406;
+      background: #050505;
       flex-shrink: 0;
     }
 
@@ -1289,6 +1293,25 @@ export function buildValBrowseBlobHtml(
     }
 
     /* ---------------- ANIMATED CANVAS & DYNAMIC COLOR BACKGROUND LAYERS ---------------- */
+    .vb-live-wallpaper {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      overflow: hidden;
+      transition: opacity 0.45s ease;
+    }
+    body[data-wallpaper-on="1"] .vb-live-wallpaper {
+      opacity: var(--wallpaper-opacity, 0.55);
+    }
+    .vb-live-wallpaper video,
+    .vb-live-wallpaper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
     .vb-dynamic-bg {
       position: fixed;
       inset: 0;
@@ -1327,8 +1350,9 @@ export function buildValBrowseBlobHtml(
     }
 
     body[data-anim-bg-on="1"] .view-scroll,
-    body[data-dyn-bg-on="1"] .view-scroll {
-      background-color: color-mix(in srgb, var(--bg) 52%, transparent);
+    body[data-dyn-bg-on="1"] .view-scroll,
+    body[data-wallpaper-on="1"] .view-scroll {
+      background-color: color-mix(in srgb, var(--bg) 42%, transparent);
       background-image: none;
     }
 
@@ -1530,7 +1554,7 @@ export function buildValBrowseBlobHtml(
       position: relative;
       border-radius: calc(var(--ui-radius) + 4px);
       border: 1px solid var(--border-strong);
-      background: color-mix(in srgb, var(--surface) 78%, #070408 22%);
+      background: color-mix(in srgb, var(--surface) 78%, #000000 22%);
       backdrop-filter: blur(var(--glass-blur));
       overflow: hidden;
       box-shadow: 0 18px 46px rgba(0, 0, 0, 0.42);
@@ -1540,7 +1564,7 @@ export function buildValBrowseBlobHtml(
       height: 100%;
       border: 0;
       display: block;
-      background: #0d090f;
+      background: #000000;
     }
 
     /* ---------------- ANIMATED LOADING SCREEN & WELCOME OVERLAY ---------------- */
@@ -1716,11 +1740,11 @@ export function buildValBrowseBlobHtml(
       to { opacity: 1; transform: scale(1) translateY(0); }
     }
     body[data-has-fx="1"] .rail {
-      background: color-mix(in srgb, var(--rail) 78%, transparent);
+      background: color-mix(in srgb, var(--rail) 74%, transparent);
     }
     body[data-has-fx="1"] .panel-box,
     body[data-has-fx="1"] .card {
-      background: color-mix(in srgb, var(--surface) 74%, transparent);
+      background: color-mix(in srgb, var(--surface) 68%, transparent);
       backdrop-filter: blur(var(--glass-blur));
     }
 
@@ -1979,6 +2003,58 @@ export function buildValBrowseBlobHtml(
       background: var(--surface-2);
       border: 1px solid var(--border);
     }
+    .music-track-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .music-track-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 11px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      transition: border-color 0.16s ease, background 0.16s ease, transform 0.15s ease;
+    }
+    .music-track-row:hover {
+      border-color: var(--border-strong);
+      background: color-mix(in srgb, var(--surface-2) 85%, var(--accent) 15%);
+    }
+    .music-track-row.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .music-cover-box {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.2), #121212);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .music-cover-box img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
 
     /* ---------------- COMMAND PALETTE, PIP, NOTES, BADGES, CURSOR ---------------- */
     .vux-cursor-canvas {
@@ -2052,6 +2128,191 @@ export function buildValBrowseBlobHtml(
     }
     .vux-notes-drawer.open { transform: translateX(0); pointer-events: auto; }
 
+    .vux-tools-drawer {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      bottom: 14px;
+      width: min(392px, 94vw);
+      z-index: 86;
+      background: color-mix(in srgb, var(--surface) 96%, transparent);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border-strong);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.74);
+      display: flex;
+      flex-direction: column;
+      padding: 14px;
+      gap: 10px;
+      transform: translateX(118%);
+      transition: transform 0.28s var(--ease);
+      pointer-events: none;
+    }
+    .vux-tools-drawer.open { transform: translateX(0); pointer-events: auto; }
+    .vux-tools-pane { display: none; flex-direction: column; gap: 10px; flex: 1; min-height: 0; overflow-y: auto; }
+    .vux-tools-pane.active { display: flex; }
+    .vux-calc-screen {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      text-align: right;
+      font-family: var(--font-mono);
+    }
+    .vux-calc-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .vux-calc-btn {
+      height: 36px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.14s ease, border-color 0.14s ease, transform 0.1s ease;
+    }
+    .vux-calc-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+    .vux-calc-btn:active { transform: scale(0.96); }
+    .vux-calc-btn.op { color: var(--accent); }
+    .vux-calc-btn.eq { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+    .vux-wb-canvas {
+      width: 100%;
+      height: 280px;
+      border-radius: 12px;
+      background: #09090b;
+      border: 1px solid var(--border-strong);
+      cursor: crosshair;
+      touch-action: none;
+      display: block;
+    }
+    .vux-wb-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+    }
+    .vux-wb-swatch.active { border-color: #ffffff; transform: scale(1.12); }
+    .vux-pomo-card {
+      padding: 16px;
+      border-radius: 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .vux-pomo-clock {
+      font-family: var(--font-mono);
+      font-size: 44px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .chat-peer-activity {
+      font-size: 10px;
+      color: #93c5fd;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+    .chat-activity-card {
+      margin-top: 4px;
+      padding: 9px 11px;
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--surface-2) 92%, var(--accent) 8%);
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ---------------- BOSS SCREEN (FAKE GOOGLE DOC OVERLAY) ---------------- */
+    .vux-boss-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: none;
+      flex-direction: column;
+      background: #f9fbfd;
+      color: #202124;
+      font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    }
+    .vux-boss-screen.open { display: flex; }
+    .vux-boss-topbar {
+      background: #f9fbfd;
+      padding: 8px 16px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #e0e3e7;
+    }
+    .vux-boss-toolbar {
+      margin: 6px 16px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: #edf2fa;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: #444746;
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+    .vux-boss-workspace {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      padding: 14px 20px 40px;
+      gap: 18px;
+      background: #f0f4f9;
+    }
+    @media (max-width: 820px) {
+      .vux-boss-workspace { grid-template-columns: 1fr; }
+      .vux-boss-outline { display: none; }
+    }
+    .vux-boss-outline {
+      font-size: 12px;
+      color: #444746;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 8px;
+    }
+    .vux-boss-page {
+      width: min(816px, 100%);
+      min-height: 920px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #dadce0;
+      box-shadow: 0 1px 4px rgba(60, 64, 67, 0.14);
+      padding: 58px 68px;
+      color: #202124;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      outline: none;
+    }
+
     .vux-pip-widget {
       position: fixed;
       right: 20px;
@@ -2089,10 +2350,369 @@ export function buildValBrowseBlobHtml(
     }
     .vux-pip-body { flex: 1; min-height: 0; background: #000; position: relative; }
     .vux-pip-body iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+
+    /* ---------------- SPLIT-SCREEN WORKSPACE ---------------- */
+    .vux-workspace-bar {
+      height: 36px;
+      padding: 0 12px;
+      background: color-mix(in srgb, var(--rail) 90%, transparent);
+      backdrop-filter: blur(var(--glass-blur));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 15;
+    }
+    .vux-ws-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .vux-ws-status {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vux-ws-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .vux-split-controls {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+    .vux-split-controls.open { display: flex; }
+    .vux-split-controls .select {
+      height: 26px;
+      font-size: 11px;
+      padding: 0 8px;
+      border-radius: 7px;
+      max-width: 145px;
+    }
+    .stage-panes {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: row;
+      position: relative;
+      overflow: hidden;
+      --split-left-pct: 50%;
+    }
+    .stage-panes.is-resizing-split iframe {
+      pointer-events: none !important;
+    }
+    .vux-split-divider {
+      display: none;
+      width: 6px;
+      background: var(--border);
+      cursor: col-resize;
+      flex-shrink: 0;
+      order: 2;
+      position: relative;
+      z-index: 6;
+      transition: background 0.14s ease;
+    }
+    .vux-split-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 28px;
+      border-radius: 2px;
+      background: var(--muted);
+      opacity: 0.6;
+    }
+    .vux-split-divider:hover,
+    .vux-split-divider.dragging {
+      background: var(--accent);
+    }
+    .stage-panes.is-split .vux-split-divider { display: block; }
+    .stage-panes.is-split .view-panel { display: none; min-width: 220px; }
+    .stage-panes.is-split .view-panel.split-left {
+      display: flex;
+      flex-direction: column;
+      order: 1;
+      flex: 0 0 var(--split-left-pct, 50%);
+    }
+    .stage-panes.is-split .view-panel.split-right {
+      display: flex;
+      flex-direction: column;
+      order: 3;
+      flex: 1 1 0%;
+    }
+    .stage-panes.is-split .view-panel.split-focused {
+      box-shadow: inset 0 2px 0 var(--accent);
+    }
+    @media (max-width: 760px) {
+      .vux-workspace-bar { padding: 0 8px; }
+      .vux-split-controls .select { max-width: 105px; }
+      .stage-panes.is-split { flex-direction: column; }
+      .stage-panes.is-split .view-panel.split-left {
+        flex: 0 0 var(--split-left-pct, 50%);
+        min-height: 180px;
+        min-width: 0;
+      }
+      .stage-panes.is-split .view-panel.split-right {
+        min-height: 180px;
+        min-width: 0;
+      }
+      .stage-panes.is-split .vux-split-divider {
+        width: 100%;
+        height: 6px;
+        cursor: row-resize;
+      }
+      .stage-panes.is-split .vux-split-divider::after {
+        width: 28px;
+        height: 2px;
+      }
+    }
+
+    /* ---------------- RETRO CONSOLES (EMULATORJS) ---------------- */
+    .retro-dropzone {
+      border: 1px dashed var(--border-strong);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      transition: border-color 0.16s ease, background 0.16s ease;
+    }
+    .retro-dropzone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .retro-stage {
+      width: 100%;
+      min-height: 460px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #040404;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .retro-empty-state {
+      padding: 36px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      max-width: 540px;
+    }
+
+    /* ---------------- CHAT ONLINE USERS, CONTEXT MENU & WEBRTC VOICE CALLING ---------------- */
+    .chat-online-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .chat-peer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 5px 7px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.14s ease, border-color 0.14s ease;
+    }
+    .chat-peer-row:hover,
+    .chat-peer-row.active {
+      background: var(--surface-2);
+      border-color: var(--border);
+    }
+    .chat-peer-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      flex-shrink: 0;
+    }
+    .chat-peer-more-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .chat-peer-more-btn:hover {
+      background: var(--accent-soft);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .vux-ctx-menu {
+      position: fixed;
+      z-index: 230;
+      min-width: 196px;
+      padding: 6px;
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--surface) 95%, #000 5%);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--border-strong);
+      box-shadow: 0 20px 52px rgba(0, 0, 0, 0.78);
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .vux-ctx-menu.open {
+      display: flex;
+      animation: vuxModalPop 0.16s var(--ease-spring);
+    }
+    .vux-ctx-head {
+      padding: 5px 9px 6px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vux-ctx-item {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+    .vux-ctx-item:hover:not(:disabled) {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .vux-ctx-item:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .vux-incoming-call {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      z-index: 220;
+      width: min(330px, calc(100vw - 24px));
+      padding: 16px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface) 96%, #000 4%);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(34, 197, 94, 0.55);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .vux-incoming-call.open {
+      display: flex;
+      animation: vuxModalPop 0.24s var(--ease-spring);
+    }
+    .vux-inc-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 18px;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.65);
+      animation: vuxCallRingPulse 1.4s ease-out infinite;
+    }
+    @keyframes vuxCallRingPulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 14px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+    .vux-call-dock {
+      display: none;
+      flex-direction: column;
+      gap: 7px;
+      padding: 9px;
+      border-radius: 11px;
+      background: color-mix(in srgb, #10b981 12%, var(--surface));
+      border: 1px solid rgba(34, 197, 94, 0.45);
+      margin-bottom: 4px;
+    }
+    .vux-call-dock.active { display: flex; }
+    .rail.compact .vux-call-dock-meta,
+    body[data-nav-pos="top"] .vux-call-dock,
+    body[data-nav-pos="dock"] .vux-call-dock {
+      display: none !important;
+    }
+    .vux-call-rings {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .vux-call-avatar-ring {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 800;
+      border: 2px solid transparent;
+      transition: box-shadow 0.12s ease, border-color 0.12s ease;
+      flex-shrink: 0;
+    }
+    .vux-call-avatar-ring.speaking {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35), 0 0 12px rgba(34, 197, 94, 0.7);
+    }
   </style>
   <style id="vux-user-custom-css"></style>
 </head>
 <body>
+  <div class="vb-live-wallpaper" id="vb-live-wallpaper" aria-hidden="true">
+    <video id="vb-wallpaper-video" autoplay loop muted playsinline></video>
+    <img id="vb-wallpaper-img" alt="" />
+  </div>
   <div class="vb-dynamic-bg" id="vb-dynamic-bg" aria-hidden="true"></div>
   <canvas class="vb-bg-canvas" id="vb-bg-canvas" aria-hidden="true"></canvas>
   <canvas class="vux-cursor-canvas" id="vux-cursor-canvas" aria-hidden="true"></canvas>
@@ -2182,6 +2802,12 @@ export function buildValBrowseBlobHtml(
           <span class="rail-badge" id="badge-gn">0</span>
         </button>
 
+        <button type="button" class="rail-btn" data-view="retro" aria-label="Retro Consoles Emulator" title="Retro Consoles (GBA, NDS, N64, SNES, NES, PS1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4"/><path d="M8 10v4"/><circle cx="15.5" cy="11" r="1"/><circle cx="17.5" cy="13" r="1"/></svg>
+          <span class="rail-label">Retro Consoles</span>
+          <span class="rail-badge">ROM</span>
+        </button>
+
         <button type="button" class="rail-btn" data-view="movies" aria-label="Movies and TV" title="Movies & TV">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
           <span class="rail-label">Movies &amp; TV</span>
@@ -2200,6 +2826,24 @@ export function buildValBrowseBlobHtml(
 
       <div class="rail-bottom">
         <div class="rail-divider"></div>
+        <audio id="vux-rtc-remote-audio" autoplay playsinline style="display:none;"></audio>
+        <div class="vux-call-dock" id="vux-call-dock" aria-live="polite">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+            <div class="vux-call-rings">
+              <span class="vux-call-avatar-ring" id="vux-call-local-ring" title="You">Y</span>
+              <span class="vux-call-avatar-ring" id="vux-call-remote-ring" title="Peer">P</span>
+            </div>
+            <div class="vux-call-dock-meta" style="flex:1;min-width:0;">
+              <div id="vux-call-peer-name" style="font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Voice Call</div>
+              <div id="vux-call-timer" style="font-family:var(--font-mono);font-size:10px;font-variant-numeric:tabular-nums;color:#4ade80;">00:00</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <button type="button" class="btn" id="vux-call-mute" style="flex:1;height:24px;padding:0 6px;font-size:10px;">Mute</button>
+            <button type="button" class="btn" id="vux-call-deafen" style="flex:1;height:24px;padding:0 6px;font-size:10px;">Deafen</button>
+            <button type="button" class="btn" id="vux-call-hangup" style="height:24px;padding:0 8px;font-size:10px;border-color:rgba(244,63,94,0.5);color:#fda4af;">End</button>
+          </div>
+        </div>
         <div class="vux-perf-pill" id="vux-perf-pill">
           <span id="vux-fps-text">60 FPS</span>
           <span id="vux-ping-text">Wisp: --</span>
@@ -2209,6 +2853,11 @@ export function buildValBrowseBlobHtml(
         <button type="button" class="rail-btn" id="btn-rail-notes" aria-label="Open Scratchpad Notes" title="Scratchpad Notes">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           <span class="rail-label">Scratchpad</span>
+        </button>
+
+        <button type="button" class="rail-btn" id="btn-rail-tools" aria-label="Open Utility Tools Drawer (Calculator, Whiteboard, Timer)" title="Utility Tools (Calculator, Whiteboard, Timer)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/><line x1="8" y1="16" x2="10" y2="16"/><line x1="14" y1="16" x2="16" y2="16"/></svg>
+          <span class="rail-label">Tools Drawer</span>
         </button>
 
         <button type="button" class="rail-btn" id="btn-rail-badges" aria-label="Daily Streak and Badges" title="Streak &amp; Badges">
@@ -2248,6 +2897,26 @@ export function buildValBrowseBlobHtml(
         <button type="button" class="btn" id="btn-mobile-panic" style="border-color:rgba(244,63,94,0.4);color:#fda4af;">Panic (Esc)</button>
       </div>
 
+      <div class="vux-workspace-bar" id="vux-workspace-bar">
+        <div class="vux-ws-left">
+          <span class="eyebrow" style="font-size:10px;">Vux Workspace</span>
+          <span class="vux-ws-status" id="vux-ws-status">Single View · Vux Browser</span>
+        </div>
+        <div class="vux-ws-controls">
+          <div class="vux-split-controls" id="split-view-controls">
+            <select class="select" id="split-left-select" aria-label="Left Split Pane View"></select>
+            <button type="button" class="btn" id="btn-split-swap" style="height:26px;padding:0 8px;font-size:11px;" title="Swap Split Panes">Swap</button>
+            <select class="select" id="split-right-select" aria-label="Right Split Pane View"></select>
+          </div>
+          <button type="button" class="pill-btn" id="btn-ws-tools" style="height:26px;padding:0 10px;font-size:11px;">Tools</button>
+          <button type="button" class="pill-btn" id="btn-ws-boss" style="height:26px;padding:0 10px;font-size:11px;" title="Double-tap Shift anywhere to toggle Boss Screen">Boss Doc (Shift×2)</button>
+          <button type="button" class="pill-btn" id="btn-split-view-toggle" style="height:26px;padding:0 10px;font-size:11px;">Split View: Off</button>
+        </div>
+      </div>
+
+      <div class="stage-panes" id="stage-panes">
+        <div class="vux-split-divider" id="vux-split-divider" role="separator" aria-orientation="vertical" title="Drag to resize split panes"></div>
+
       <!-- 1. Vux Scramjet v2 Frontpage -->
       <section class="view-panel active" id="view-browser" aria-label="Vux Proxy Browser">
         <iframe
@@ -2265,12 +2934,22 @@ export function buildValBrowseBlobHtml(
       <section class="view-panel" id="view-chat" aria-label="Vux Community Chat Room">
         <div class="vux-chat-shell">
           <div class="chat-sidebar">
-            <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px;">
-                <span class="eyebrow">Vux Chat Channels</span>
-                <span class="sub" id="chat-sync-status">Live Sync</span>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px;">
+                  <span class="eyebrow">Vux Chat Channels</span>
+                  <span class="sub" id="chat-sync-status">Live Sync</span>
+                </div>
+                <div id="chat-channel-list" style="display:flex;flex-direction:column;gap:4px;"></div>
               </div>
-              <div id="chat-channel-list" style="display:flex;flex-direction:column;gap:4px;"></div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                <span class="eyebrow" id="chat-online-heading" style="padding:0 4px;">Online Users (1)</span>
+                <div class="chat-online-list" id="chat-online-users"></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;" id="chat-dm-section">
+                <span class="eyebrow" style="padding:0 4px;">Direct Messages</span>
+                <div class="chat-online-list" id="chat-dm-list"></div>
+              </div>
             </div>
             <div class="panel-box" style="padding:10px;gap:8px;">
               <span class="eyebrow">Chat Identity</span>
@@ -2286,9 +2965,10 @@ export function buildValBrowseBlobHtml(
             <div class="chat-topbar">
               <div>
                 <div style="font-family:var(--font-display);font-size:16px;font-weight:800;" id="chat-active-channel-title">#general</div>
-                <div class="sub" id="chat-active-channel-topic">Hang out, share links, and chat across tabs</div>
+                <div class="sub" id="chat-active-channel-topic">Hang out, share links, right-click usernames to call or DM</div>
               </div>
               <div class="pill-row">
+                <button type="button" class="btn" id="chat-call-dm-peer-btn" style="display:none;height:28px;font-size:11px;">Call User</button>
                 <button type="button" class="btn" id="chat-clear-channel-btn" style="height:28px;font-size:11px;">Reset Room</button>
               </div>
             </div>
@@ -2302,6 +2982,7 @@ export function buildValBrowseBlobHtml(
               </div>
               <div class="pill-row" style="width:100%;">
                 <input type="text" class="input" id="chat-message-input" placeholder="Message #general..." maxlength="420" style="flex:1;height:36px;" autocomplete="off" />
+                <button type="button" class="btn" id="chat-share-activity-btn" style="height:36px;padding:0 11px;white-space:nowrap;" title="Share your active game, movie, or MP3 track to chat">Share Activity</button>
                 <button type="submit" class="btn btn-primary" style="height:36px;padding:0 16px;">Send</button>
               </div>
             </form>
@@ -2528,6 +3209,66 @@ export function buildValBrowseBlobHtml(
         </div>
       </section>
 
+      <!-- 3B. Retro Consoles Emulator (EmulatorJS) -->
+      <section class="view-panel" id="view-retro" aria-label="Retro Consoles Emulator">
+        <div class="view-scroll">
+          <div class="container">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">EmulatorJS · Client-Side ROM Runner · Local IndexedDB Saves</div>
+                <h1 class="h1">Retro Consoles</h1>
+              </div>
+              <div class="pill-row">
+                <span class="sub" id="retro-status">Ready — drop or upload any ROM file</span>
+                <button type="button" class="btn" id="btn-retro-fullscreen">Fullscreen</button>
+                <button type="button" class="btn" id="btn-retro-eject">Eject ROM</button>
+              </div>
+            </div>
+
+            <div class="toolbar">
+              <div class="pill-row" id="retro-system-pills">
+                <button type="button" class="pill-btn active" data-rcore="auto">Auto-Detect</button>
+                <button type="button" class="pill-btn" data-rcore="gba">GBA</button>
+                <button type="button" class="pill-btn" data-rcore="nds">NDS</button>
+                <button type="button" class="pill-btn" data-rcore="n64">N64</button>
+                <button type="button" class="pill-btn" data-rcore="snes">SNES</button>
+                <button type="button" class="pill-btn" data-rcore="nes">NES</button>
+                <button type="button" class="pill-btn" data-rcore="psx">PS1</button>
+              </div>
+              <span class="sub" id="retro-rom-meta">Supports .gba, .nds, .n64, .z64, .smc, .sfc, .nes, .gb, .gbc, .bin, .iso, .zip</span>
+            </div>
+
+            <div class="retro-dropzone" id="retro-rom-dropzone">
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <strong style="font-size:14px;">Load Your ROM File Locally</strong>
+                <span class="sub">Runs 100% in your browser via EmulatorJS with gamepad support and browser-saved states.</span>
+              </div>
+              <div class="pill-row">
+                <input type="file" id="retro-rom-input" accept=".gba,.gbc,.gb,.nds,.n64,.z64,.v64,.smc,.sfc,.nes,.bin,.iso,.chd,.cue,.zip,.7z" style="display:none;" />
+                <button type="button" class="btn btn-primary" id="btn-retro-pick-rom">Choose ROM File</button>
+              </div>
+            </div>
+
+            <div class="retro-stage" id="retro-stage">
+              <div class="retro-empty-state" id="retro-empty-state">
+                <span class="eyebrow">GBA · NDS · N64 · SNES · NES · PS1</span>
+                <strong style="font-size:17px;">Drop a ROM here or click Choose ROM File</strong>
+                <p class="sub" style="line-height:1.5;">
+                  Arrow keys / WASD, Z / X / Enter / Shift or any USB/Bluetooth controller work automatically inside the EmulatorJS canvas.
+                </p>
+              </div>
+              <iframe
+                id="retro-player-frame"
+                title="Retro Console Emulator"
+                sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms"
+                allow="autoplay; gamepad; fullscreen"
+                style="display:none;width:100%;height:70vh;min-height:460px;border:0;background:#000;"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- 4. Movies & TV Catalog (TVMaze + Internet Archive + Optional TMDB) -->
       <section class="view-panel" id="view-movies" aria-label="Movies and TV">
         <div class="view-scroll">
@@ -2539,6 +3280,7 @@ export function buildValBrowseBlobHtml(
               </div>
               <div class="pill-row">
                 <span class="sub" id="movies-status">Loading live TVMaze &amp; Archive.org catalog...</span>
+                <button type="button" class="btn btn-primary" id="btn-launch-cineruv" style="height:28px;font-size:11px;">Launch Cineruv</button>
                 <button type="button" class="btn" id="btn-movies-tmdb-shortcut" style="height:28px;font-size:11px;">TMDB Key</button>
               </div>
             </div>
@@ -2552,6 +3294,7 @@ export function buildValBrowseBlobHtml(
                 <button type="button" class="pill-btn" data-genre="comedy">Comedy</button>
                 <button type="button" class="pill-btn" data-genre="anime">Anime</button>
                 <button type="button" class="pill-btn" data-genre="public-domain">Full Public-Domain Movies</button>
+                <button type="button" class="pill-btn" data-genre="cineruv">Cineruv</button>
               </div>
 
               <form id="movies-search-form" class="pill-row">
@@ -2603,15 +3346,56 @@ export function buildValBrowseBlobHtml(
           <div class="container">
             <div class="section-head">
               <div>
-                <div class="eyebrow">Persistent Audio Engine · Stations · Visualizer · Ambient Mixer</div>
-                <h1 class="h1">Vux MP3 &amp; Ambient Studio</h1>
+                <div class="eyebrow">Searchable Audius, Piped &amp; Archive Music Library · StudyHub Stations · Ambient Mixer</div>
+                <h1 class="h1">Vux Music &amp; MP3 Studio</h1>
               </div>
               <div class="pill-row">
                 <span class="sub" id="vux-audio-mode-badge">Ready</span>
               </div>
             </div>
 
-            <audio id="vux-global-audio" crossorigin="anonymous" preload="metadata" style="display:none;"></audio>
+            <audio id="vux-global-audio" preload="metadata" style="display:none;"></audio>
+
+            <div class="panel-box" id="vux-music-library-panel" style="margin-bottom:16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <div>
+                  <span class="eyebrow">Real Searchable Music Library</span>
+                  <div class="sub" id="music-library-status">Browse trending tracks or search any song, artist, or genre</div>
+                </div>
+                <form id="music-library-search-form" class="pill-row">
+                  <select id="music-source-select" class="select" aria-label="Music Source" style="height:34px;font-size:12px;">
+                    <option value="all" selected>All Sources (Audius + Piped + Archive)</option>
+                    <option value="audius">Audius</option>
+                    <option value="piped">Piped Music</option>
+                    <option value="archive">Internet Archive</option>
+                  </select>
+                  <input type="text" class="input" id="music-library-search-input" placeholder="Search tracks, artists, phonic..." style="width:220px;" />
+                  <button type="submit" class="btn btn-primary">Search Music</button>
+                </form>
+              </div>
+
+              <div class="pill-row" id="music-genre-pills">
+                <button type="button" class="pill-btn active" data-mgenre="Trending">Trending</button>
+                <button type="button" class="pill-btn" data-mgenre="Hip-Hop/Rap">Hip-Hop</button>
+                <button type="button" class="pill-btn" data-mgenre="Pop">Pop</button>
+                <button type="button" class="pill-btn" data-mgenre="Electronic">Electronic</button>
+                <button type="button" class="pill-btn" data-mgenre="Lo-Fi">Lofi</button>
+                <button type="button" class="pill-btn" data-mgenre="Rock">Rock</button>
+                <button type="button" class="pill-btn" data-mgenre="Phonk">Phonk</button>
+                <button type="button" class="pill-btn" data-mgenre="Ambient">Chill</button>
+                <button type="button" class="pill-btn" data-mgenre="__liked__">Liked Songs</button>
+              </div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 10px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);">
+                <div class="pill-row" id="music-playlists-bar"></div>
+                <form id="music-new-playlist-form" class="pill-row">
+                  <input type="text" class="input" id="music-new-playlist-name" placeholder="New playlist name..." maxlength="32" style="height:28px;width:155px;font-size:11px;" />
+                  <button type="submit" class="btn" style="height:28px;font-size:11px;">+ Create Playlist</button>
+                </form>
+              </div>
+
+              <div class="music-track-list" id="music-library-results"></div>
+            </div>
 
             <div class="music-grid">
               <div class="panel-box" style="grid-column:span 1;">
@@ -2674,6 +3458,7 @@ export function buildValBrowseBlobHtml(
           </div>
         </div>
       </section>
+      </div>
     </div>
   </div>
 
@@ -2740,7 +3525,6 @@ export function buildValBrowseBlobHtml(
             id="cinema-player-frame"
             title="Vux Embedded Theater Player"
             allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-            allowfullscreen
             referrerpolicy="no-referrer"
           ></iframe>
           <div class="theater-fallback" id="cinema-player-fallback">
@@ -2834,6 +3618,118 @@ export function buildValBrowseBlobHtml(
     <div class="sub" id="vux-notes-stats" style="font-family:var(--font-mono);">0 words · 0 chars</div>
   </aside>
 
+  <!-- Built-In Utility Tools Drawer (Scientific Calculator, Whiteboard, Pomodoro Timer) -->
+  <aside class="vux-tools-drawer" id="vux-tools-drawer" aria-label="Vux Utility Tools Drawer">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <div>
+        <span class="eyebrow">Built-In Utilities</span>
+        <div style="font-family:var(--font-display);font-size:15px;font-weight:800;">Vux Tools Drawer</div>
+      </div>
+      <button type="button" class="btn btn-primary" id="vux-tools-close" style="height:28px;">Close</button>
+    </div>
+
+    <div class="pill-row" id="vux-tools-tabs">
+      <button type="button" class="pill-btn active" data-tooltab="calc">Calculator</button>
+      <button type="button" class="pill-btn" data-tooltab="whiteboard">Whiteboard</button>
+      <button type="button" class="pill-btn" data-tooltab="timer">Study Timer</button>
+    </div>
+
+    <!-- Tool 1: Scientific Calculator -->
+    <div class="vux-tools-pane active" id="toolpane-calc">
+      <div class="vux-calc-screen">
+        <div id="vux-calc-expr" style="font-size:12px;color:var(--muted);min-height:18px;word-break:break-all;">0</div>
+        <div id="vux-calc-result" style="font-size:24px;font-weight:800;color:var(--text);">0</div>
+      </div>
+      <div class="vux-calc-grid" id="vux-calc-grid">
+        <button type="button" class="vux-calc-btn op" data-calc="sin(">sin</button>
+        <button type="button" class="vux-calc-btn op" data-calc="cos(">cos</button>
+        <button type="button" class="vux-calc-btn op" data-calc="tan(">tan</button>
+        <button type="button" class="vux-calc-btn op" data-calc="log(">log</button>
+        <button type="button" class="vux-calc-btn op" data-calc="ln(">ln</button>
+
+        <button type="button" class="vux-calc-btn op" data-calc="sqrt(">sqrt</button>
+        <button type="button" class="vux-calc-btn op" data-calc="^">x^y</button>
+        <button type="button" class="vux-calc-btn op" data-calc="(">(</button>
+        <button type="button" class="vux-calc-btn op" data-calc=")">)</button>
+        <button type="button" class="vux-calc-btn op" data-calc="C">AC</button>
+
+        <button type="button" class="vux-calc-btn" data-calc="7">7</button>
+        <button type="button" class="vux-calc-btn" data-calc="8">8</button>
+        <button type="button" class="vux-calc-btn" data-calc="9">9</button>
+        <button type="button" class="vux-calc-btn op" data-calc="/">÷</button>
+        <button type="button" class="vux-calc-btn op" data-calc="DEL">DEL</button>
+
+        <button type="button" class="vux-calc-btn" data-calc="4">4</button>
+        <button type="button" class="vux-calc-btn" data-calc="5">5</button>
+        <button type="button" class="vux-calc-btn" data-calc="6">6</button>
+        <button type="button" class="vux-calc-btn op" data-calc="*">×</button>
+        <button type="button" class="vux-calc-btn op" data-calc="pi">π</button>
+
+        <button type="button" class="vux-calc-btn" data-calc="1">1</button>
+        <button type="button" class="vux-calc-btn" data-calc="2">2</button>
+        <button type="button" class="vux-calc-btn" data-calc="3">3</button>
+        <button type="button" class="vux-calc-btn op" data-calc="-">−</button>
+        <button type="button" class="vux-calc-btn op" data-calc="e">e</button>
+
+        <button type="button" class="vux-calc-btn" data-calc="0">0</button>
+        <button type="button" class="vux-calc-btn" data-calc=".">.</button>
+        <button type="button" class="vux-calc-btn op" data-calc="ANS">ANS</button>
+        <button type="button" class="vux-calc-btn op" data-calc="+">+</button>
+        <button type="button" class="vux-calc-btn eq" data-calc="=">=</button>
+      </div>
+      <div class="sub">Click keys above or use <code style="color:var(--text);">AC</code>, <code style="color:var(--text);">ANS</code>, and scientific functions.</div>
+    </div>
+
+    <!-- Tool 2: Freehand Drawing Whiteboard -->
+    <div class="vux-tools-pane" id="toolpane-whiteboard">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+        <div class="pill-row" id="vux-wb-colors">
+          <button type="button" class="vux-wb-swatch active" data-wbcolor="#ffffff" style="background:#ffffff;" title="White"></button>
+          <button type="button" class="vux-wb-swatch" data-wbcolor="#38bdf8" style="background:#38bdf8;" title="Cyan"></button>
+          <button type="button" class="vux-wb-swatch" data-wbcolor="#34d399" style="background:#34d399;" title="Emerald"></button>
+          <button type="button" class="vux-wb-swatch" data-wbcolor="#f43f5e" style="background:#f43f5e;" title="Coral"></button>
+          <button type="button" class="vux-wb-swatch" data-wbcolor="#f59e0b" style="background:#f59e0b;" title="Amber"></button>
+          <button type="button" class="vux-wb-swatch" data-wbcolor="#a855f7" style="background:#a855f7;" title="Violet"></button>
+        </div>
+        <div class="pill-row">
+          <label class="sub">Size <span id="vux-wb-size-val">4px</span></label>
+          <input type="range" id="vux-wb-size" min="1" max="24" value="4" style="width:72px;accent-color:var(--accent);" />
+        </div>
+      </div>
+      <canvas class="vux-wb-canvas" id="vux-wb-canvas" width="360" height="290"></canvas>
+      <div class="pill-row" style="justify-content:space-between;">
+        <div class="pill-row">
+          <button type="button" class="pill-btn" id="vux-wb-eraser" style="height:28px;font-size:11px;">Eraser: Off</button>
+          <button type="button" class="btn" id="vux-wb-undo" style="height:28px;font-size:11px;">Undo</button>
+          <button type="button" class="btn" id="vux-wb-clear" style="height:28px;font-size:11px;">Clear</button>
+        </div>
+        <button type="button" class="btn btn-primary" id="vux-wb-save" style="height:28px;font-size:11px;">Save PNG</button>
+      </div>
+    </div>
+
+    <!-- Tool 3: Pomodoro Study Timer -->
+    <div class="vux-tools-pane" id="toolpane-timer">
+      <div class="pill-row" id="vux-pomo-presets">
+        <button type="button" class="pill-btn active" data-pomomins="25" data-pomolabel="Focus Session">Focus (25m)</button>
+        <button type="button" class="pill-btn" data-pomomins="5" data-pomolabel="Short Break">Short (5m)</button>
+        <button type="button" class="pill-btn" data-pomomins="15" data-pomolabel="Long Break">Long (15m)</button>
+      </div>
+      <div class="vux-pomo-card">
+        <span class="eyebrow" id="vux-pomo-mode-label">Focus Session</span>
+        <div class="vux-pomo-clock" id="vux-pomo-display">25:00</div>
+        <div class="pill-row" style="justify-content:center;">
+          <button type="button" class="btn btn-primary" id="btn-pomo-start" style="min-width:94px;">Start</button>
+          <button type="button" class="btn" id="btn-pomo-reset">Reset</button>
+        </div>
+        <div class="sub" id="vux-pomo-sessions">0 focus sessions completed</div>
+      </div>
+      <div class="pill-row">
+        <input type="number" class="input" id="vux-pomo-custom-mins" min="1" max="180" value="25" style="width:90px;height:32px;" aria-label="Custom timer minutes" />
+        <button type="button" class="btn" id="btn-pomo-set-custom" style="height:32px;">Set Minutes</button>
+      </div>
+    </div>
+  </aside>
+
   <!-- Floating Picture-in-Picture Draggable Mini Browser Widget -->
   <div class="vux-pip-widget" id="vux-pip-widget" role="dialog" aria-label="Vux Floating Mini Window">
     <div class="vux-pip-head" id="vux-pip-drag-handle">
@@ -2894,6 +3790,7 @@ export function buildValBrowseBlobHtml(
         <button type="button" class="pill-btn" data-stab="dynbg">${DYNAMIC_COLOR_BG_PRESETS.length} Color Shifts</button>
         <button type="button" class="pill-btn" data-stab="fonts">${FONT_LIBRARY_CATALOG.length}+ Fonts</button>
         <button type="button" class="pill-btn" data-stab="layout">${LAYOUT_PRESETS.length}+ Layouts</button>
+        <button type="button" class="pill-btn" data-stab="scripts">Adblock &amp; Scripts</button>
         <button type="button" class="pill-btn" data-stab="cloak">Cloak &amp; Share</button>
       </div>
 
@@ -2905,7 +3802,7 @@ export function buildValBrowseBlobHtml(
             <div class="pill-row">
               <input type="text" class="input" id="preset-search" placeholder="Search ${THEMES_CATALOG.length} themes..." aria-label="Search color presets" style="height:28px;width:165px;font-size:11px;padding:0 9px;" />
               <button type="button" class="btn" id="btn-preset-random" style="height:28px;font-size:11px;padding:0 10px;">Random Theme</button>
-              <button type="button" class="btn" id="btn-preset-reset-coral" style="height:28px;font-size:11px;padding:0 10px;">Default Coral</button>
+              <button type="button" class="btn" id="btn-preset-reset-coral" style="height:28px;font-size:11px;padding:0 10px;">Default AMOLED</button>
             </div>
           </div>
           <div class="pill-row" id="preset-cat-pills">
@@ -2983,6 +3880,20 @@ export function buildValBrowseBlobHtml(
             <input type="range" id="animbg-speed-range" min="20" max="250" value="100" style="accent-color:var(--accent);width:95px;" />
             <label class="sub">Opacity <span id="animbg-opacity-val">72%</span></label>
             <input type="range" id="animbg-opacity-range" min="15" max="100" value="72" style="accent-color:var(--accent);width:95px;" />
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Custom Live Wallpaper (.mp4 / .webm / .gif)</span>
+            <span class="setting-row-desc" id="vux-wallpaper-status">Persists in IndexedDB across reloads behind Vux's translucent glass UI</span>
+          </div>
+          <div class="pill-row">
+            <input type="file" id="vux-wallpaper-input" accept=".mp4,.webm,.gif,video/mp4,video/webm,image/gif" style="display:none;" />
+            <button type="button" class="btn btn-primary" id="btn-wallpaper-upload" style="height:28px;font-size:11px;">Upload Video/GIF</button>
+            <button type="button" class="btn" id="btn-wallpaper-clear" style="height:28px;font-size:11px;">Remove</button>
+            <label class="sub">Opacity <span id="wallpaper-opacity-val">55%</span></label>
+            <input type="range" id="wallpaper-opacity-range" min="15" max="100" value="55" style="accent-color:var(--accent);width:95px;" />
           </div>
         </div>
       </div>
@@ -3072,6 +3983,38 @@ export function buildValBrowseBlobHtml(
         </div>
       </div>
 
+      <!-- Pane 5B: Built-In Adblocker & Custom Userscript Manager -->
+      <div class="settings-pane" id="spane-scripts">
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Scramjet Proxy Ad &amp; Tracker Blocker</span>
+            <span class="setting-row-desc" id="vux-adblock-desc">Blocks common ad networks, telemetry &amp; trackers across proxied tabs</span>
+          </div>
+          <div class="pill-row">
+            <button type="button" class="pill-btn active" id="btn-toggle-adblock">Adblocker: On</button>
+            <button type="button" class="btn" id="btn-refresh-adblock-stats" style="height:28px;font-size:11px;">Refresh Stats</button>
+          </div>
+        </div>
+
+        <div class="panel-box" style="padding:12px;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span class="eyebrow">Custom Userscript Manager (Proxied Pages)</span>
+            <span class="sub">Injected automatically when matching proxied tabs finish loading</span>
+          </div>
+          <div class="pill-row">
+            <input type="text" class="input" id="vux-us-name" placeholder="Script name (e.g. Dark Tweaks)" style="flex:1;min-width:150px;" />
+            <input type="text" class="input" id="vux-us-match" placeholder="URL match (e.g. * or *youtube.com*)" value="*" style="flex:1;min-width:160px;font-family:var(--font-mono);font-size:11px;" />
+          </div>
+          <textarea id="vux-us-code" class="input" placeholder="// JavaScript run on matching proxied pages&#10;console.log('Vux userscript loaded on', location.href);" style="height:86px;padding:8px 10px;font-family:var(--font-mono);font-size:11px;resize:vertical;"></textarea>
+          <div class="pill-row" style="justify-content:flex-end;">
+            <button type="button" class="btn" id="btn-vux-us-reset" style="height:28px;font-size:11px;">New / Clear</button>
+            <button type="button" class="btn btn-primary" id="btn-vux-us-save" style="height:28px;font-size:11px;">Save Userscript</button>
+          </div>
+        </div>
+
+        <div id="vux-us-list" style="display:flex;flex-direction:column;gap:7px;max-height:210px;overflow-y:auto;"></div>
+      </div>
+
       <!-- Pane 6: Cloak, Panic & VUX1 Theme Share / Custom CSS -->
       <div class="settings-pane" id="spane-cloak">
         <div style="display:flex;flex-direction:column;gap:8px;">
@@ -3085,6 +4028,22 @@ export function buildValBrowseBlobHtml(
             <button type="button" class="btn" data-cloak="Dashboard | Canvas">Canvas LMS</button>
             <button type="button" class="btn" data-cloak="Study Notes - Google Docs">Google Docs</button>
             <button type="button" class="btn" data-cloak="Khan Academy | Free Online Courses">Khan Academy</button>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-row-meta">
+            <span class="setting-row-title">Auto-Cloak When Switching Tabs</span>
+            <span class="setting-row-desc">Automatically swaps tab title &amp; favicon to a study site whenever you switch away</span>
+          </div>
+          <div class="pill-row">
+            <button type="button" class="pill-btn" id="btn-toggle-auto-cloak">Auto-Cloak: Off</button>
+            <select id="auto-cloak-preset" class="select" aria-label="Auto-Cloak Disguise Preset" style="height:32px;font-size:12px;">
+              <option value="classroom">Google Classroom</option>
+              <option value="docs">Google Docs</option>
+              <option value="canvas">Canvas LMS</option>
+              <option value="khan">Khan Academy</option>
+            </select>
           </div>
         </div>
 
@@ -3217,6 +4176,30 @@ export function buildValBrowseBlobHtml(
     </div>
   </div>
 
+  <!-- Right-Click / Three-Dot User Context Menu (Vux Chat) -->
+  <div class="vux-ctx-menu" id="vux-user-ctx-menu" role="menu" aria-label="User Actions">
+    <div class="vux-ctx-head" id="vux-ctx-target-label">User Actions</div>
+    <button type="button" class="vux-ctx-item" id="ctx-call-user">📞 Call User</button>
+    <button type="button" class="vux-ctx-item" id="ctx-dm-user">💬 Direct Message</button>
+    <button type="button" class="vux-ctx-item" id="ctx-copy-user">📋 Copy Username</button>
+  </div>
+
+  <!-- Incoming 1-on-1 Voice Call Modal -->
+  <div class="vux-incoming-call" id="vux-incoming-call-modal" role="dialog" aria-label="Incoming Voice Call">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="vux-inc-avatar" id="vux-inc-avatar" style="background:#38bdf8;color:#09090b;">V</div>
+      <div style="min-width:0;flex:1;">
+        <div class="eyebrow" style="color:#4ade80;">Incoming 1-on-1 Voice Call</div>
+        <div id="vux-inc-name" style="font-family:var(--font-display);font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Vux User</div>
+        <div class="sub">Peer-to-peer WebRTC audio</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button type="button" class="btn" id="vux-inc-decline" style="flex:1;border-color:rgba(244,63,94,0.45);color:#fda4af;">Decline</button>
+      <button type="button" class="btn btn-primary" id="vux-inc-accept" style="flex:1;background:#22c55e;color:#052e16;">Accept</button>
+    </div>
+  </div>
+
   <!-- Floating Popup-Blocked Toast -->
   <div class="vb-toast" id="vb-toast" role="status" aria-live="polite">
     <span id="vb-toast-msg">Popup blocked — allow popups for this site in Chrome&apos;s address bar, then click Open Standalone :blob again.</span>
@@ -3254,10 +4237,10 @@ export function buildValBrowseBlobHtml(
           '<meta name="viewport" content="width=device-width,initial-scale=1.0" />' +
           '<title>Home - Classroom</title>' +
           '<link rel="icon" type="image/png" href="' + CFG.classroomFavicon + '" />' +
-          '<style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#0b0608;}' +
+          '<style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000000;}' +
           'iframe{width:100vw;height:100vh;border:none;display:block;}</style></head>' +
           '<body><iframe name="VALemStandaloneFrame" src="' + frameUrl.replace(/"/g, '&quot;') + '" title="Home - Classroom" ' +
-          'allow="autoplay; gamepad; fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>' +
+          'allow="autoplay; gamepad; fullscreen; clipboard-read; clipboard-write"></iframe>' +
           '<script>(function(){var p=' + JSON.stringify(CFG.panicUrl) + ';' +
           'function go(){try{if(document.documentElement)document.documentElement.style.display="none";}catch(_e){}' +
           'try{if(window.top&&window.top.opener&&typeof window.top.close==="function")window.top.close();}catch(_e){}' +
@@ -3346,27 +4329,73 @@ export function buildValBrowseBlobHtml(
         });
       }
 
-      function switchView(viewId) {
-        currentView = viewId;
-        document.querySelectorAll('.view-panel').forEach(function (panel) {
-          panel.classList.toggle('active', panel.id === 'view-' + viewId);
+      var SPLIT_VIEW_OPTIONS = [
+        { id: 'browser', label: 'Vux Browser' },
+        { id: 'chat', label: 'Vux Chat' },
+        { id: 'ai', label: 'Vux.ai' },
+        { id: 'modules', label: 'All Games' },
+        { id: 'seraph', label: 'Seraph Games' },
+        { id: 'gmshelf', label: 'GMShelf' },
+        { id: 'ckv', label: 'CKV Games' },
+        { id: 'gnmath', label: 'gn-math Script' },
+        { id: 'retro', label: 'Retro Consoles' },
+        { id: 'movies', label: 'Movies & TV' },
+        { id: 'books', label: 'Books & Manga' },
+        { id: 'music', label: 'MP3 & Ambient' }
+      ];
+      var splitMode = false;
+      var splitLeftView = 'browser';
+      var splitRightView = 'chat';
+      var activeSplitPane = 'left';
+      var splitLeftPct = Number(safeLSGet('vux_split_pct')) || 50;
+      if (splitLeftPct < 25 || splitLeftPct > 75) splitLeftPct = 50;
+
+      var stagePanesEl = document.getElementById('stage-panes');
+      var splitDividerEl = document.getElementById('vux-split-divider');
+      var splitToggleBtn = document.getElementById('btn-split-view-toggle');
+      var splitControlsEl = document.getElementById('split-view-controls');
+      var splitLeftSel = document.getElementById('split-left-select');
+      var splitRightSel = document.getElementById('split-right-select');
+      var splitSwapBtn = document.getElementById('btn-split-swap');
+      var wsStatusEl = document.getElementById('vux-ws-status');
+
+      function populateSplitSelect(selEl) {
+        if (!selEl) return;
+        selEl.innerHTML = '';
+        SPLIT_VIEW_OPTIONS.forEach(function (opt) {
+          var o = document.createElement('option');
+          o.value = opt.id;
+          o.textContent = opt.label;
+          selEl.appendChild(o);
         });
-        document.querySelectorAll('.rail-btn[data-view]').forEach(function (btn) {
-          btn.classList.toggle('active', btn.getAttribute('data-view') === viewId);
-        });
-        railEl.classList.remove('mobile-open');
+      }
+      populateSplitSelect(splitLeftSel);
+      populateSplitSelect(splitRightSel);
+
+      function getViewDisplayName(viewId) {
+        for (var i = 0; i < SPLIT_VIEW_OPTIONS.length; i++) {
+          if (SPLIT_VIEW_OPTIONS[i].id === viewId) return SPLIT_VIEW_OPTIONS[i].label;
+        }
+        return viewId;
+      }
+
+      function isViewVisible(viewId) {
+        return splitMode ? (splitLeftView === viewId || splitRightView === viewId) : (currentView === viewId);
+      }
+
+      function ensureViewLoaded(viewId) {
         if (viewId === 'ai' && typeof loadVuxAi === 'function') {
           var aiF = document.getElementById('ai-panel-frame');
           if (!aiF || !aiF.getAttribute('src')) loadVuxAi(false);
           else if (typeof injectAiFrameSkin === 'function') injectAiFrameSkin();
         }
-        if (viewId === 'modules' && dirtyViews.modules) {
-          dirtyViews.modules = false;
-          renderModulesGrid();
+        if (viewId === 'modules') {
+          if (dirtyViews.modules) { dirtyViews.modules = false; renderModulesGrid(); }
+          if (!gnZonesLoadedOnce) fetchGnZones();
         }
-        if (viewId === 'gnmath' && dirtyViews.gnmath) {
-          dirtyViews.gnmath = false;
-          renderGnGrid();
+        if (viewId === 'gnmath') {
+          if (dirtyViews.gnmath) { dirtyViews.gnmath = false; renderGnGrid(); }
+          if (!gnZonesLoadedOnce) fetchGnZones();
         }
         if (viewId === 'seraph') {
           if (dirtyViews.seraph) { dirtyViews.seraph = false; renderSeraphGrid(); }
@@ -3380,6 +4409,9 @@ export function buildValBrowseBlobHtml(
           if (dirtyViews.ckv) { dirtyViews.ckv = false; renderCkvGrid(); }
           if (!ckvFetchedOnce) fetchCkvCatalog();
         }
+        if (viewId === 'movies' && !cinemaLiveFetched && typeof loadCinemaLiveCatalog === 'function') {
+          loadCinemaLiveCatalog();
+        }
         if (viewId === 'books' && !booksLoadedOnce) {
           booksLoadedOnce = true;
           searchBooks('classic');
@@ -3387,9 +4419,155 @@ export function buildValBrowseBlobHtml(
         if (viewId === 'chat' && typeof renderChatView === 'function') {
           renderChatView();
         }
-        if (viewId === 'music' && typeof drawAudioViz === 'function') {
-          syncAudioVizLoop();
+        if (viewId === 'music') {
+          if (typeof loadMusicTrendingIfNeeded === 'function') loadMusicTrendingIfNeeded();
+          if (typeof drawAudioViz === 'function') syncAudioVizLoop();
         }
+      }
+
+      function syncWorkspaceStageLayout() {
+        if (stagePanesEl) {
+          stagePanesEl.classList.toggle('is-split', splitMode);
+          stagePanesEl.style.setProperty('--split-left-pct', splitLeftPct + '%');
+        }
+        if (splitToggleBtn) {
+          splitToggleBtn.classList.toggle('active', splitMode);
+          splitToggleBtn.textContent = 'Split View: ' + (splitMode ? 'On' : 'Off');
+        }
+        if (splitControlsEl) {
+          splitControlsEl.classList.toggle('open', splitMode);
+        }
+        if (splitLeftSel) splitLeftSel.value = splitLeftView;
+        if (splitRightSel) splitRightSel.value = splitRightView;
+
+        document.querySelectorAll('.view-panel').forEach(function (panel) {
+          var pid = panel.id.replace(/^view-/, '');
+          panel.classList.toggle('active', !splitMode && pid === currentView);
+          panel.classList.toggle('split-left', splitMode && pid === splitLeftView);
+          panel.classList.toggle('split-right', splitMode && pid === splitRightView);
+          panel.classList.toggle(
+            'split-focused',
+            splitMode && ((activeSplitPane === 'left' && pid === splitLeftView) || (activeSplitPane === 'right' && pid === splitRightView))
+          );
+        });
+
+        document.querySelectorAll('.rail-btn[data-view]').forEach(function (btn) {
+          var v = btn.getAttribute('data-view');
+          btn.classList.toggle('active', isViewVisible(v));
+        });
+
+        if (wsStatusEl) {
+          wsStatusEl.textContent = splitMode
+            ? ('Split · ' + getViewDisplayName(splitLeftView) + ' | ' + getViewDisplayName(splitRightView))
+            : ('Single View · ' + getViewDisplayName(currentView));
+        }
+
+        if (splitMode) {
+          ensureViewLoaded(splitLeftView);
+          ensureViewLoaded(splitRightView);
+        } else {
+          ensureViewLoaded(currentView);
+        }
+      }
+
+      function switchView(viewId) {
+        if (splitMode) {
+          if (activeSplitPane === 'right') {
+            if (viewId === splitLeftView) activeSplitPane = 'left';
+            else splitRightView = viewId;
+          } else {
+            if (viewId === splitRightView) activeSplitPane = 'right';
+            else splitLeftView = viewId;
+          }
+          currentView = viewId;
+        } else {
+          currentView = viewId;
+        }
+        railEl.classList.remove('mobile-open');
+        syncWorkspaceStageLayout();
+      }
+
+      document.querySelectorAll('.view-panel').forEach(function (panel) {
+        panel.addEventListener('pointerdown', function () {
+          if (!splitMode) return;
+          if (panel.classList.contains('split-left')) {
+            activeSplitPane = 'left';
+            syncWorkspaceStageLayout();
+          } else if (panel.classList.contains('split-right')) {
+            activeSplitPane = 'right';
+            syncWorkspaceStageLayout();
+          }
+        });
+      });
+
+      if (splitToggleBtn) {
+        splitToggleBtn.addEventListener('click', function () {
+          splitMode = !splitMode;
+          if (splitMode) {
+            splitLeftView = currentView;
+            if (splitRightView === splitLeftView) {
+              splitRightView = splitLeftView === 'chat' ? 'browser' : 'chat';
+            }
+            activeSplitPane = 'left';
+          }
+          syncWorkspaceStageLayout();
+        });
+      }
+      if (splitLeftSel) {
+        splitLeftSel.addEventListener('change', function () {
+          var next = splitLeftSel.value;
+          if (next === splitRightView) {
+            splitRightView = splitLeftView;
+          }
+          splitLeftView = next;
+          activeSplitPane = 'left';
+          syncWorkspaceStageLayout();
+        });
+      }
+      if (splitRightSel) {
+        splitRightSel.addEventListener('change', function () {
+          var next = splitRightSel.value;
+          if (next === splitLeftView) {
+            splitLeftView = splitRightView;
+          }
+          splitRightView = next;
+          activeSplitPane = 'right';
+          syncWorkspaceStageLayout();
+        });
+      }
+      if (splitSwapBtn) {
+        splitSwapBtn.addEventListener('click', function () {
+          var tmp = splitLeftView;
+          splitLeftView = splitRightView;
+          splitRightView = tmp;
+          syncWorkspaceStageLayout();
+        });
+      }
+      if (splitDividerEl && stagePanesEl) {
+        var draggingSplit = false;
+        splitDividerEl.addEventListener('pointerdown', function (ev) {
+          if (!splitMode) return;
+          ev.preventDefault();
+          draggingSplit = true;
+          splitDividerEl.classList.add('dragging');
+          stagePanesEl.classList.add('is-resizing-split');
+        });
+        window.addEventListener('pointermove', function (ev) {
+          if (!draggingSplit || !splitMode) return;
+          var rect = stagePanesEl.getBoundingClientRect();
+          var pct = window.innerWidth <= 760
+            ? ((ev.clientY - rect.top) / Math.max(1, rect.height)) * 100
+            : ((ev.clientX - rect.left) / Math.max(1, rect.width)) * 100;
+          splitLeftPct = Math.max(25, Math.min(75, Math.round(pct * 10) / 10));
+          stagePanesEl.style.setProperty('--split-left-pct', splitLeftPct + '%');
+        });
+        window.addEventListener('pointerup', function () {
+          if (!draggingSplit) return;
+          draggingSplit = false;
+          splitDividerEl.classList.remove('dragging');
+          stagePanesEl.classList.remove('is-resizing-split');
+          safeLSSet('vux_split_pct', String(splitLeftPct));
+        });
       }
 
       document.querySelectorAll('.rail-btn[data-view]').forEach(function (btn) {
@@ -3439,7 +4617,7 @@ export function buildValBrowseBlobHtml(
           }
         } else if (ev.data.type === 'gn-switch-tab' && typeof ev.data.tab === 'string') {
           var targetTab = ev.data.tab === 'games' ? 'modules' : ev.data.tab;
-          var allowed = { browser: 1, chat: 1, ai: 1, modules: 1, seraph: 1, gmshelf: 1, ckv: 1, gnmath: 1, movies: 1, books: 1, music: 1 };
+          var allowed = { browser: 1, chat: 1, ai: 1, modules: 1, seraph: 1, gmshelf: 1, ckv: 1, gnmath: 1, retro: 1, movies: 1, books: 1, music: 1 };
           if (allowed[targetTab]) {
             switchView(targetTab);
           }
@@ -3454,6 +4632,14 @@ export function buildValBrowseBlobHtml(
         } else if (ev.data.type === 'vux-tab-opened') {
           if (typeof recordVuxStat === 'function') {
             recordVuxStat('tabsOpened', 1);
+          }
+        } else if (ev.data.type === 'vux-boss-toggle') {
+          if (typeof toggleBossScreen === 'function') {
+            toggleBossScreen();
+          }
+        } else if (ev.data.type === 'vux-adblock-sync' && typeof ev.data.enabled === 'boolean') {
+          if (typeof syncAdblockStateFromBrowser === 'function') {
+            syncAdblockStateFromBrowser(ev.data.enabled);
           }
         }
       });
@@ -3484,11 +4670,11 @@ export function buildValBrowseBlobHtml(
       };
 
       function flushVisibleCatalogView() {
-        if (currentView === 'modules' && dirtyViews.modules) { dirtyViews.modules = false; renderModulesGrid(); }
-        else if (currentView === 'gnmath' && dirtyViews.gnmath) { dirtyViews.gnmath = false; renderGnGrid(); }
-        else if (currentView === 'seraph' && dirtyViews.seraph) { dirtyViews.seraph = false; renderSeraphGrid(); }
-        else if (currentView === 'gmshelf' && dirtyViews.gmshelf) { dirtyViews.gmshelf = false; renderGmshelfGrid(); }
-        else if (currentView === 'ckv' && dirtyViews.ckv) { dirtyViews.ckv = false; renderCkvGrid(); }
+        if (isViewVisible('modules') && dirtyViews.modules) { dirtyViews.modules = false; renderModulesGrid(); }
+        if (isViewVisible('gnmath') && dirtyViews.gnmath) { dirtyViews.gnmath = false; renderGnGrid(); }
+        if (isViewVisible('seraph') && dirtyViews.seraph) { dirtyViews.seraph = false; renderSeraphGrid(); }
+        if (isViewVisible('gmshelf') && dirtyViews.gmshelf) { dirtyViews.gmshelf = false; renderGmshelfGrid(); }
+        if (isViewVisible('ckv') && dirtyViews.ckv) { dirtyViews.ckv = false; renderCkvGrid(); }
       }
 
       function toggleFavorite(moduleId) {
@@ -3520,6 +4706,33 @@ export function buildValBrowseBlobHtml(
       var seraphFetchedOnce = false;
       var gmshelfFetchedOnce = false;
       var ckvFetchedOnce = false;
+
+      function hydrateCachedCatalogsFromStorage() {
+        function readArr(key) {
+          try {
+            var raw = safeLSGet(key);
+            if (!raw) return null;
+            var arr = JSON.parse(raw);
+            return Array.isArray(arr) && arr.length > 0 ? arr : null;
+          } catch (_e) { return null; }
+        }
+        var cGn = readArr('vux_gn_cache_v1');
+        if (cGn) { gnZones = cGn; gnZonesLoadedOnce = true; }
+        var cSeraph = readArr('vux_seraph_cache_v1');
+        if (cSeraph) { seraphModules = cSeraph; seraphFetchedOnce = true; }
+        var cGm = readArr('vux_gmshelf_cache_v1');
+        if (cGm) { gmshelfModules = cGm; gmshelfFetchedOnce = true; }
+        var cCkv = readArr('vux_ckv_cache_v1');
+        if (cCkv) { ckvModules = cCkv; ckvFetchedOnce = true; }
+      }
+
+      function saveCatalogCacheSafe(key, arr) {
+        try {
+          if (!Array.isArray(arr) || !arr.length) return;
+          var json = JSON.stringify(arr);
+          if (json.length <= 420000) safeLSSet(key, json);
+        } catch (_e) {}
+      }
 
       function normalizeKey(s) {
         return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -3672,6 +4885,7 @@ export function buildValBrowseBlobHtml(
         }
         if (combined.length > 0) {
           gmshelfModules = combined;
+          saveCatalogCacheSafe('vux_gmshelf_cache_v1', combined);
           rebuildMergedModules();
           if (stEl) stEl.textContent = 'Synced 100% — ' + combined.length + ' GMShelf games';
           return;
@@ -3777,6 +4991,7 @@ export function buildValBrowseBlobHtml(
                 var fullList = parseCkvTreeClient(treeJson.tree, CFG.ckvCdnBase);
                 if (fullList.length > 0) {
                   ckvModules = fullList;
+                  saveCatalogCacheSafe('vux_ckv_cache_v1', fullList);
                   rebuildMergedModules();
                   if (stEl) stEl.textContent = 'Synced 100% — ' + fullList.length + ' CKV games';
                   return;
@@ -3794,6 +5009,7 @@ export function buildValBrowseBlobHtml(
             var altList = parseCkvJsonFallbackClient(mj);
             if (altList.length > 0) {
               ckvModules = altList;
+              saveCatalogCacheSafe('vux_ckv_cache_v1', altList);
               rebuildMergedModules();
               if (stEl) stEl.textContent = 'Synced 100% — ' + altList.length + ' CKV games';
               return;
@@ -3862,6 +5078,7 @@ export function buildValBrowseBlobHtml(
             var parsed = parseSeraphHtmlClient(html, CFG.seraphCdnBase);
             if (parsed.length > 0) {
               seraphModules = parsed;
+              saveCatalogCacheSafe('vux_seraph_cache_v1', parsed);
               rebuildMergedModules();
               if (stEl) stEl.textContent = 'Synced ' + parsed.length + ' Seraph games';
               return;
@@ -3898,6 +5115,7 @@ export function buildValBrowseBlobHtml(
                 featured: Boolean(z.featured) || idx < 12
               };
             });
+            saveCatalogCacheSafe('vux_gn_cache_v1', gnZones);
             rebuildMergedModules();
             return;
           } catch (_e) {}
@@ -4184,7 +5402,7 @@ export function buildValBrowseBlobHtml(
       /* ---------------- STUDY MODULE OVERLAY PLAYER (AD-BLOCKED + ESC PANIC) ---------------- */
       var SRC_RES = CFG.srcBlocklist.map(function (p) { return new RegExp(p.source, p.flags); });
       var INLINE_RES = CFG.inlineBlocklist.map(function (p) { return new RegExp(p.source, p.flags); });
-      var ESCAPE_INJECT = '<script data-vb-panic="1">(function(){if(window.__vbEsc)return;window.__vbEsc=true;window.addEventListener("keydown",function(e){if(e&&e.key==="Escape"){try{window.parent.postMessage({type:"valbrowse-panic"},"*");}catch(_e){}try{if(window.top)window.top.location.replace(' + JSON.stringify(CFG.panicUrl) + ');}catch(_e){}}},true);})();<\\/script>';
+      var ESCAPE_INJECT = '<script data-vb-panic="1">(function(){if(window.__vbEsc)return;window.__vbEsc=true;var sDown=false,sLast=0;window.addEventListener("keydown",function(e){if(e&&e.key==="Escape"){try{window.parent.postMessage({type:"valbrowse-panic"},"*");}catch(_e){}try{if(window.top)window.top.location.replace(' + JSON.stringify(CFG.panicUrl) + ');}catch(_e){}}else if(e&&e.key==="Shift"&&!e.repeat&&!e.ctrlKey&&!e.altKey&&!e.metaKey){sDown=true;}else{sDown=false;}},true);window.addEventListener("keyup",function(e){if(e&&e.key==="Shift"&&sDown){sDown=false;var n=Date.now();if(n-sLast<=420){sLast=0;try{window.parent.postMessage({type:"vux-boss-toggle"},"*");}catch(_e){}}else{sLast=n;}}},true);})();<\\/script>';
 
       var activeModuleObj = null;
       var moduleOverlay = document.getElementById('module-overlay');
@@ -4234,6 +5452,15 @@ export function buildValBrowseBlobHtml(
       async function launchStudyModule(moduleItem) {
         activeModuleObj = moduleItem;
         if (typeof recordVuxStat === 'function') recordVuxStat('gamesLaunched', 1);
+        if (typeof setCurrentUserActivity === 'function') {
+          setCurrentUserActivity('game', 'Playing ' + moduleItem.name, String(moduleItem.provider || 'arcade').toUpperCase(), {
+            id: moduleItem.id,
+            name: moduleItem.name,
+            provider: moduleItem.provider,
+            url: moduleItem.url,
+            baseUrl: moduleItem.baseUrl || ''
+          });
+        }
         moduleOverlay.classList.add('open');
         document.getElementById('module-ov-provider').textContent = String(moduleItem.provider || 'module').toUpperCase();
         document.getElementById('module-ov-title').textContent = moduleItem.name;
@@ -4276,6 +5503,7 @@ export function buildValBrowseBlobHtml(
         moduleFrame.removeAttribute('srcdoc');
         moduleFrame.removeAttribute('src');
         moduleOverlay.classList.remove('open');
+        if (typeof refreshFallbackActivity === 'function') refreshFallbackActivity();
       });
       var modPipBtn = document.getElementById('module-ov-pip');
       if (modPipBtn) {
@@ -4495,6 +5723,29 @@ export function buildValBrowseBlobHtml(
         var grid = document.getElementById('movies-grid');
         if (!grid) return;
         var q = (document.getElementById('movies-query').value || '').trim().toLowerCase();
+
+        if (movieGenre === 'cineruv') {
+          grid.innerHTML = '';
+          var cCard = document.createElement('div');
+          cCard.className = 'panel-box';
+          cCard.style.cssText = 'grid-column:1 / -1;gap:12px;';
+          cCard.innerHTML =
+            '<div><span class="eyebrow">Cineruv Theater Stream</span><h2 style="font-family:var(--font-display);font-size:20px;font-weight:800;margin-top:4px;">Stream Movies &amp; Shows on Cineruv</h2>' +
+            '<p class="sub" style="margin-top:4px;line-height:1.5;">Routes https://cineruv.website inside the Vux Embedded Theater via Scramjet v2 + Wisp so you stay inside your workspace.</p></div>' +
+            '<div class="pill-row">' +
+            '<button type="button" class="btn btn-primary" id="btn-cineruv-card-launch">Launch Cineruv Theater</button>' +
+            '<button type="button" class="btn" id="btn-cineruv-card-browser">Open in Vux Browser</button>' +
+            '</div>';
+          grid.appendChild(cCard);
+          var launchBtn = document.getElementById('btn-cineruv-card-launch');
+          var browserBtn = document.getElementById('btn-cineruv-card-browser');
+          if (launchBtn) launchBtn.onclick = function () { launchCineruvTheater(); };
+          if (browserBtn) browserBtn.onclick = function () { openInValBrowse('https://cineruv.website'); };
+          var cSt = document.getElementById('movies-status');
+          if (cSt) cSt.textContent = 'Cineruv ready via Scramjet proxy';
+          return;
+        }
+
         var pool = getActiveCinemaPool();
         var list = pool.filter(function (m) {
           if (movieGenre !== 'all' && (!m.categoryTags || m.categoryTags.indexOf(movieGenre) === -1)) return false;
@@ -4733,7 +5984,6 @@ export function buildValBrowseBlobHtml(
         }
         fb.classList.remove('open');
         ifr.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture');
-        ifr.setAttribute('allowfullscreen', '');
         ifr.setAttribute('referrerpolicy', 'no-referrer');
         ifr.removeAttribute('sandbox');
         ifr.onerror = function () {
@@ -4742,6 +5992,63 @@ export function buildValBrowseBlobHtml(
           fb.classList.add('open');
         };
         ifr.src = cleanUrl;
+      }
+
+      async function launchCineruvTheater() {
+        activeMovieObj = {
+          id: 'cineruv:home',
+          externalId: 'cineruv',
+          source: 'cineruv',
+          title: 'Cineruv',
+          year: '',
+          rating: null,
+          genres: ['Movies', 'TV Shows', 'Streaming'],
+          summary: 'Streaming https://cineruv.website inside the Vux Theater frame via Scramjet v2 + Wisp.',
+          networkOrStudio: 'cineruv.website',
+          cast: [],
+          watchPageUrl: 'https://cineruv.website'
+        };
+        activeMovieEpisodes = [];
+        activeSelectedEpisode = null;
+        activePlayerSources = { trailer: '', archive: '', custom: 'https://cineruv.website' };
+        syncSourceSwitcherUi('custom');
+        if (typeof setCurrentUserActivity === 'function') {
+          setCurrentUserActivity('movie', 'Watching Cineruv Theater', 'cineruv.website', {
+            id: 'cineruv:home',
+            source: 'cineruv',
+            title: 'Cineruv',
+            watchPageUrl: 'https://cineruv.website'
+          });
+        }
+
+        document.getElementById('movie-ov-title').textContent = 'Cineruv — Free Streaming Theater';
+        document.getElementById('movie-ov-source').textContent = 'CINERUV PROXY STREAM';
+        document.getElementById('cinema-ov-network').textContent = 'cineruv.website';
+        document.getElementById('cinema-ov-rating').textContent = 'HD Streams via Scramjet';
+        document.getElementById('cinema-ov-genres').textContent = 'Movies · TV Series · Anime';
+        document.getElementById('cinema-ov-synopsis').textContent = 'Loading Cineruv through Scramjet v2 + Wisp. If a server refuses framing, click Open Player in New Tab or Open in Vux.';
+        document.getElementById('cinema-ov-cast').textContent = '';
+        document.getElementById('cinema-episodes-panel').style.display = 'none';
+        var embedIn = document.getElementById('cinema-embed-input');
+        if (embedIn) embedIn.value = 'https://cineruv.website';
+        syncNewTabPlayerLinks('https://cineruv.website');
+
+        var ifr = document.getElementById('cinema-player-frame');
+        var fb = document.getElementById('cinema-player-fallback');
+        fb.classList.remove('open');
+        ifr.removeAttribute('sandbox');
+        document.getElementById('movie-overlay').classList.add('open');
+
+        try {
+          var res = await resolveScramUrlViaBridge('https://cineruv.website');
+          if (activeMovieObj && activeMovieObj.id === 'cineruv:home') {
+            ifr.src = (res && res.encodedUrl) || (CFG.origin + '/scram/' + encodeURIComponent('https://cineruv.website'));
+          }
+        } catch (_e) {
+          if (activeMovieObj && activeMovieObj.id === 'cineruv:home') {
+            ifr.src = CFG.origin + '/scram/' + encodeURIComponent('https://cineruv.website');
+          }
+        }
       }
 
       async function selectPlayerSource(mode) {
@@ -4944,6 +6251,16 @@ export function buildValBrowseBlobHtml(
         activeMovieObj = m;
         activeMovieEpisodes = [];
         activeSelectedEpisode = null;
+        if (typeof setCurrentUserActivity === 'function' && m) {
+          setCurrentUserActivity('movie', 'Watching ' + m.title, m.networkOrStudio || m.source || 'Cinema', {
+            id: m.id,
+            externalId: m.externalId,
+            source: m.source,
+            title: m.title,
+            year: m.year || '',
+            watchPageUrl: m.watchPageUrl || ''
+          });
+        }
 
         var tmpl = (safeLSGet('valem_embed_template') || '').trim();
         var templateUrl = tmpl
@@ -5113,6 +6430,7 @@ export function buildValBrowseBlobHtml(
         document.getElementById('movie-overlay').classList.remove('open');
         document.getElementById('movie-overlay').classList.remove('theater-wide');
         document.getElementById('movie-ov-theater').textContent = 'Theater Mode';
+        if (typeof refreshFallbackActivity === 'function') refreshFallbackActivity();
       });
 
       var movPipBtn = document.getElementById('movie-ov-pip');
@@ -5208,8 +6526,14 @@ export function buildValBrowseBlobHtml(
         }
       });
 
+      var cineruvBtn = document.getElementById('btn-launch-cineruv');
+      if (cineruvBtn) {
+        cineruvBtn.addEventListener('click', function () {
+          launchCineruvTheater();
+        });
+      }
+
       renderMoviesFiltered();
-      loadCinemaLiveCatalog();
 
       /* ---------------- BOOKS & MANGA (GUTENDEX) ---------------- */
       var booksLoadedOnce = false;
@@ -5346,7 +6670,7 @@ export function buildValBrowseBlobHtml(
       var audioCatEl = document.getElementById('vux-audio-station-cat');
       var audioBadgeEl = document.getElementById('vux-audio-mode-badge');
 
-      var audioMode = 'station'; // 'station' | 'url' | 'file'
+      var audioMode = 'station'; // 'station' | 'library' | 'url' | 'file'
       var activeStationIdx = 0;
       var audioPlaying = false;
       var audioShuffle = false;
@@ -5369,6 +6693,516 @@ export function buildValBrowseBlobHtml(
         var rawAmb = safeLSGet('vux_ambient_vols');
         if (rawAmb) ambientVols = JSON.parse(rawAmb) || Object.create(null);
       } catch (_e) {}
+
+      /* ---------------- SEARCHABLE MUSIC LIBRARY (AUDIUS + PIPED + INTERNET ARCHIVE + PLAYLISTS) ---------------- */
+      var AUDIUS_APP_NAME = 'Vux';
+      var AUDIUS_DISCOVERY = 'https://discoveryprovider.audius.co/v1';
+      var PIPED_INSTANCES = ['https://pipedapi.kavin.rocks', 'https://pipedapi.adminforge.de', 'https://api.piped.private.coffee'];
+      var musicTrendingLoaded = false;
+      var activeMusicGenre = 'Trending';
+      var activeMusicSource = 'all';
+      var musicLibraryTracks = [];
+      var activeLibraryList = [];
+      var activeLibraryIdx = -1;
+      var musicPlaylistsState = { liked: [], custom: { Favorites: [] }, activePlaylist: 'Favorites' };
+      try {
+        var rawPl = safeLSGet('vux_music_playlists_v1');
+        if (rawPl) {
+          var parsedPl = JSON.parse(rawPl);
+          if (parsedPl && typeof parsedPl === 'object') {
+            musicPlaylistsState.liked = Array.isArray(parsedPl.liked) ? parsedPl.liked : [];
+            musicPlaylistsState.custom = parsedPl.custom && typeof parsedPl.custom === 'object' ? parsedPl.custom : { Favorites: [] };
+            musicPlaylistsState.activePlaylist = parsedPl.activePlaylist || Object.keys(musicPlaylistsState.custom)[0] || 'Favorites';
+          }
+        }
+      } catch (_e) {}
+
+      function saveMusicPlaylists() {
+        safeLSSet('vux_music_playlists_v1', JSON.stringify(musicPlaylistsState));
+      }
+
+      function isTrackLiked(trackId) {
+        return musicPlaylistsState.liked.some(function (t) { return t && t.id === trackId; });
+      }
+
+      function toggleTrackLiked(track) {
+        if (!track || !track.id) return;
+        var idx = musicPlaylistsState.liked.findIndex(function (t) { return t && t.id === track.id; });
+        if (idx === -1) {
+          musicPlaylistsState.liked.unshift(track);
+          showToast('Saved "' + track.title + '" to Liked Songs');
+        } else {
+          musicPlaylistsState.liked.splice(idx, 1);
+          showToast('Removed "' + track.title + '" from Liked Songs');
+        }
+        saveMusicPlaylists();
+        if (activeMusicGenre === '__liked__') {
+          musicLibraryTracks = musicPlaylistsState.liked.slice();
+        }
+        renderMusicPlaylistsBar();
+        renderMusicLibraryTracks();
+      }
+
+      function addTrackToActivePlaylist(track) {
+        if (!track || !track.id) return;
+        var name = musicPlaylistsState.activePlaylist || 'Favorites';
+        if (!Array.isArray(musicPlaylistsState.custom[name])) musicPlaylistsState.custom[name] = [];
+        var list = musicPlaylistsState.custom[name];
+        if (!list.some(function (t) { return t && t.id === track.id; })) {
+          list.unshift(track);
+          saveMusicPlaylists();
+          renderMusicPlaylistsBar();
+          showToast('Added "' + track.title + '" to playlist "' + name + '"');
+        } else {
+          showToast('Already in "' + name + '"');
+        }
+      }
+
+      function normalizeAudiusTrack(tr) {
+        if (!tr || !tr.id || !tr.title) return null;
+        var art = tr.artwork && (tr.artwork['150x150'] || tr.artwork['480x480'] || tr.artwork['1000x1000']) || '';
+        return {
+          id: 'audius:' + String(tr.id),
+          source: 'audius',
+          title: String(tr.title).trim(),
+          artist: (tr.user && (tr.user.name || tr.user.handle)) ? String(tr.user.name || tr.user.handle).trim() : 'Audius Artist',
+          genre: String(tr.genre || 'Music').trim(),
+          duration: Number(tr.duration || 0),
+          cover: art,
+          streamUrl: AUDIUS_DISCOVERY + '/tracks/' + encodeURIComponent(String(tr.id)) + '/stream?app_name=' + AUDIUS_APP_NAME
+        };
+      }
+
+      function renderMusicPlaylistsBar() {
+        var bar = document.getElementById('music-playlists-bar');
+        if (!bar) return;
+        bar.innerHTML = '';
+
+        var likedBtn = document.createElement('button');
+        likedBtn.type = 'button';
+        likedBtn.className = 'pill-btn' + (activeMusicGenre === '__liked__' ? ' active' : '');
+        likedBtn.style.height = '28px';
+        likedBtn.textContent = 'Liked (' + musicPlaylistsState.liked.length + ')';
+        likedBtn.onclick = function () {
+          activeMusicGenre = '__liked__';
+          document.querySelectorAll('#music-genre-pills .pill-btn').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-mgenre') === '__liked__');
+          });
+          musicLibraryTracks = musicPlaylistsState.liked.slice();
+          var st = document.getElementById('music-library-status');
+          if (st) st.textContent = 'Liked Songs (' + musicLibraryTracks.length + ' saved)';
+          renderMusicPlaylistsBar();
+          renderMusicLibraryTracks();
+        };
+        bar.appendChild(likedBtn);
+
+        Object.keys(musicPlaylistsState.custom).forEach(function (pName) {
+          var arr = Array.isArray(musicPlaylistsState.custom[pName]) ? musicPlaylistsState.custom[pName] : [];
+          var pb = document.createElement('button');
+          pb.type = 'button';
+          pb.className = 'pill-btn' + (activeMusicGenre === '__pl__:' + pName ? ' active' : '');
+          pb.style.height = '28px';
+          pb.textContent = pName + ' (' + arr.length + ')';
+          pb.onclick = function () {
+            musicPlaylistsState.activePlaylist = pName;
+            activeMusicGenre = '__pl__:' + pName;
+            saveMusicPlaylists();
+            document.querySelectorAll('#music-genre-pills .pill-btn').forEach(function (b) { b.classList.remove('active'); });
+            musicLibraryTracks = arr.slice();
+            var st = document.getElementById('music-library-status');
+            if (st) st.textContent = 'Playlist: ' + pName + ' (' + arr.length + ' tracks)';
+            renderMusicPlaylistsBar();
+            renderMusicLibraryTracks();
+          };
+          bar.appendChild(pb);
+        });
+      }
+
+      function renderMusicLibraryTracks() {
+        var wrap = document.getElementById('music-library-results');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        if (!musicLibraryTracks.length) {
+          var emp = document.createElement('div');
+          emp.className = 'sub';
+          emp.style.padding = '12px 4px';
+          emp.textContent = activeMusicGenre === '__liked__'
+            ? 'No liked tracks yet — tap the heart button on any song to save it.'
+            : 'No tracks loaded yet. Search a song or select a genre above.';
+          wrap.appendChild(emp);
+          return;
+        }
+        var currentPlayingTrack = (audioMode === 'library' && activeLibraryList[activeLibraryIdx]) ? activeLibraryList[activeLibraryIdx].id : '';
+        musicLibraryTracks.forEach(function (tr, idx) {
+          var row = document.createElement('div');
+          row.className = 'music-track-row' + (currentPlayingTrack === tr.id ? ' active' : '');
+
+          var left = document.createElement('div');
+          left.style.cssText = 'display:flex;align-items:center;gap:11px;min-width:0;flex:1;';
+
+          var coverBox = document.createElement('div');
+          coverBox.className = 'music-cover-box';
+          coverBox.textContent = String(tr.title || 'M').charAt(0).toUpperCase();
+          if (tr.cover) {
+            var cImg = document.createElement('img');
+            cImg.src = tr.cover;
+            cImg.alt = tr.title;
+            cImg.loading = 'lazy';
+            cImg.referrerPolicy = 'no-referrer';
+            cImg.onerror = function () { cImg.style.display = 'none'; };
+            coverBox.appendChild(cImg);
+          }
+
+          var info = document.createElement('div');
+          info.style.cssText = 'min-width:0;flex:1;';
+          var ttl = document.createElement('div');
+          ttl.style.cssText = 'font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+          ttl.textContent = tr.title;
+          var meta = document.createElement('div');
+          meta.className = 'sub';
+          meta.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;';
+          meta.textContent = tr.artist + ' · ' + (tr.genre || 'Music') + (tr.duration ? (' · ' + formatTrackTime(tr.duration)) : '');
+          info.appendChild(ttl);
+          info.appendChild(meta);
+
+          left.appendChild(coverBox);
+          left.appendChild(info);
+
+          var right = document.createElement('div');
+          right.className = 'pill-row';
+          right.style.flexShrink = '0';
+
+          var likeBtn = document.createElement('button');
+          likeBtn.type = 'button';
+          likeBtn.className = 'btn';
+          likeBtn.style.cssText = 'height:28px;padding:0 9px;font-size:12px;';
+          likeBtn.textContent = isTrackLiked(tr.id) ? '♥' : '♡';
+          likeBtn.title = 'Like / Save Song';
+          likeBtn.onclick = function () { toggleTrackLiked(tr); };
+
+          var addPlBtn = document.createElement('button');
+          addPlBtn.type = 'button';
+          addPlBtn.className = 'btn';
+          addPlBtn.style.cssText = 'height:28px;padding:0 9px;font-size:11px;';
+          addPlBtn.textContent = '+ Playlist';
+          addPlBtn.title = 'Add to active playlist (' + (musicPlaylistsState.activePlaylist || 'Favorites') + ')';
+          addPlBtn.onclick = function () { addTrackToActivePlaylist(tr); };
+
+          var playBtn = document.createElement('button');
+          playBtn.type = 'button';
+          playBtn.className = 'btn btn-primary';
+          playBtn.style.cssText = 'height:28px;padding:0 11px;font-size:11px;';
+          playBtn.textContent = (currentPlayingTrack === tr.id && audioPlaying) ? 'Playing' : 'Play';
+          playBtn.onclick = function () { playLibraryTrack(idx); };
+
+          right.appendChild(likeBtn);
+          right.appendChild(addPlBtn);
+          right.appendChild(playBtn);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          wrap.appendChild(row);
+        });
+      }
+
+      async function resolvePipedAudioStream(videoId, preferredBase) {
+        var bases = preferredBase ? [preferredBase].concat(PIPED_INSTANCES.filter(function (b) { return b !== preferredBase; })) : PIPED_INSTANCES.slice();
+        for (var i = 0; i < bases.length; i++) {
+          try {
+            var res = await fetch(bases[i] + '/streams/' + encodeURIComponent(videoId));
+            if (!res.ok) continue;
+            var json = await res.json();
+            var streams = Array.isArray(json && json.audioStreams) ? json.audioStreams : [];
+            var playable = streams.filter(function (s) { return s && s.url && !s.videoOnly; });
+            playable.sort(function (a, b) {
+              var aM4a = /mp4|m4a/i.test(String(a.mimeType || '')) ? 1 : 0;
+              var bM4a = /mp4|m4a/i.test(String(b.mimeType || '')) ? 1 : 0;
+              if (aM4a !== bM4a) return bM4a - aM4a;
+              return Number(b.bitrate || 0) - Number(a.bitrate || 0);
+            });
+            if (playable.length > 0) return playable[0].url;
+          } catch (_e) {}
+        }
+        return '';
+      }
+
+      async function fetchPipedAudioSearch(queryText) {
+        var q = String(queryText || 'lofi beats').trim();
+        for (var i = 0; i < PIPED_INSTANCES.length; i++) {
+          var base = PIPED_INSTANCES[i];
+          try {
+            var res = await fetch(base + '/search?q=' + encodeURIComponent(q) + '&filter=music_songs');
+            if (!res.ok) continue;
+            var json = await res.json();
+            var items = Array.isArray(json && json.items) ? json.items : [];
+            var out = [];
+            items.slice(0, 14).forEach(function (it) {
+              if (!it || !it.url || !it.title) return;
+              var m = String(it.url).match(/[?&]v=([A-Za-z0-9_-]{6,})/) || String(it.url).match(/\\/watch\\?v=([A-Za-z0-9_-]{6,})/);
+              var vid = m ? m[1] : String(it.url).replace(/^.*\\//, '');
+              if (!vid) return;
+              out.push({
+                id: 'piped:' + vid,
+                source: 'piped',
+                pipedVideoId: vid,
+                pipedBase: base,
+                title: String(it.title).trim(),
+                artist: String(it.uploaderName || 'Piped Music').trim(),
+                genre: 'Piped Audio',
+                duration: Number(it.duration || 0),
+                cover: String(it.thumbnail || ''),
+                streamUrl: ''
+              });
+            });
+            if (out.length > 0) return out;
+          } catch (_e) {}
+        }
+        return [];
+      }
+
+      async function playLibraryTrack(idx) {
+        if (!musicLibraryTracks.length || !globalAudioEl) return;
+        activeLibraryList = musicLibraryTracks.slice();
+        activeLibraryIdx = ((idx % activeLibraryList.length) + activeLibraryList.length) % activeLibraryList.length;
+        var tr = activeLibraryList[activeLibraryIdx];
+        if (!tr) return;
+        if (!tr.streamUrl && tr.source === 'piped' && tr.pipedVideoId) {
+          if (audioCatEl) audioCatEl.textContent = 'PIPED AUDIO';
+          if (audioTitleEl) audioTitleEl.textContent = tr.title;
+          if (audioDescEl) audioDescEl.textContent = 'Resolving Piped audio stream...';
+          tr.streamUrl = await resolvePipedAudioStream(tr.pipedVideoId, tr.pipedBase);
+          if (!tr.streamUrl) {
+            if (audioDescEl) audioDescEl.textContent = 'Piped stream unavailable — try next track';
+            showToast('Piped stream unavailable for "' + tr.title + '"');
+            return;
+          }
+        }
+        if (!tr.streamUrl) return;
+        audioMode = 'library';
+        stopStationTimers();
+        globalAudioEl.src = tr.streamUrl;
+        if (audioCatEl) audioCatEl.textContent = String(tr.genre || 'MUSIC LIBRARY').toUpperCase();
+        if (audioTitleEl) audioTitleEl.textContent = tr.title;
+        if (audioDescEl) audioDescEl.textContent = tr.artist + (tr.duration ? (' · ' + formatTrackTime(tr.duration)) : '');
+        renderAudioStations();
+        renderMusicLibraryTracks();
+        startAudioPlayback();
+        if (typeof setCurrentUserActivity === 'function') {
+          setCurrentUserActivity('music', 'Listening to ' + tr.title, tr.artist || 'Music Library', {
+            mode: 'library',
+            id: tr.id,
+            title: tr.title,
+            artist: tr.artist || 'Artist',
+            source: tr.source || '',
+            streamUrl: tr.streamUrl || '',
+            pipedVideoId: tr.pipedVideoId || '',
+            pipedBase: tr.pipedBase || '',
+            genre: tr.genre || 'Music'
+          });
+        }
+      }
+
+      async function fetchArchiveAudioFallback(queryText) {
+        try {
+          var q = (queryText || 'chill instrumental') + ' AND mediatype:(audio)';
+          var res = await fetch('https://archive.org/advancedsearch.php?q=' + encodeURIComponent(q) + '&fl[]=identifier,title,creator&rows=12&output=json');
+          if (!res.ok) return [];
+          var json = await res.json();
+          var docs = (json && json.response && Array.isArray(json.response.docs)) ? json.response.docs : [];
+          var out = [];
+          for (var i = 0; i < Math.min(docs.length, 8); i++) {
+            var d = docs[i];
+            if (!d || !d.identifier) continue;
+            var id = String(d.identifier).trim();
+            var mRes = await fetch('https://archive.org/metadata/' + encodeURIComponent(id) + '/files');
+            if (!mRes.ok) continue;
+            var mJson = await mRes.json();
+            var files = Array.isArray(mJson && mJson.result) ? mJson.result : [];
+            var mp3 = files.find(function (f) { return f && f.name && /\\.(?:mp3|ogg|m4a)$/i.test(f.name); });
+            if (mp3) {
+              out.push({
+                id: 'archive:' + id,
+                source: 'archive',
+                title: String(Array.isArray(d.title) ? d.title[0] : (d.title || id)),
+                artist: String(Array.isArray(d.creator) ? d.creator[0] : (d.creator || 'Internet Archive')),
+                genre: 'Public Audio',
+                duration: Number(mp3.length || 0),
+                cover: 'https://archive.org/services/img/' + encodeURIComponent(id),
+                streamUrl: 'https://archive.org/download/' + encodeURIComponent(id) + '/' + encodeURIComponent(mp3.name)
+              });
+            }
+          }
+          return out;
+        } catch (_e) {
+          return [];
+        }
+      }
+
+      async function loadAudiusGenreOrTrending(genre) {
+        musicTrendingLoaded = true;
+        activeMusicGenre = genre || 'Trending';
+        var st = document.getElementById('music-library-status');
+        var qLabel = activeMusicGenre === 'Trending' ? 'top chill beats' : activeMusicGenre;
+        if (activeMusicSource === 'piped') {
+          if (st) st.textContent = 'Loading ' + activeMusicGenre + ' from Piped...';
+          var pList = await fetchPipedAudioSearch(qLabel);
+          musicLibraryTracks = pList;
+          if (st) st.textContent = pList.length ? ('Loaded ' + pList.length + ' Piped tracks') : 'No Piped results — switch source to All';
+          renderMusicLibraryTracks();
+          return;
+        }
+        if (activeMusicSource === 'archive') {
+          if (st) st.textContent = 'Loading ' + activeMusicGenre + ' from Internet Archive...';
+          var aList = await fetchArchiveAudioFallback(qLabel);
+          musicLibraryTracks = aList;
+          if (st) st.textContent = aList.length ? ('Loaded ' + aList.length + ' Archive tracks') : 'No Archive results';
+          renderMusicLibraryTracks();
+          return;
+        }
+        if (st) st.textContent = 'Loading ' + activeMusicGenre + ' tracks from Audius...';
+        try {
+          var url = AUDIUS_DISCOVERY + '/tracks/trending?app_name=' + AUDIUS_APP_NAME + '&limit=28';
+          if (activeMusicGenre && activeMusicGenre !== 'Trending') {
+            if (activeMusicGenre === 'Phonk' || activeMusicGenre === 'Lo-Fi') {
+              url = AUDIUS_DISCOVERY + '/tracks/search?query=' + encodeURIComponent(activeMusicGenre) + '&app_name=' + AUDIUS_APP_NAME + '&limit=28';
+            } else {
+              url += '&genre=' + encodeURIComponent(activeMusicGenre);
+            }
+          }
+          var res = await fetch(url);
+          if (res.ok) {
+            var json = await res.json();
+            var list = Array.isArray(json && json.data) ? json.data.map(normalizeAudiusTrack).filter(Boolean) : [];
+            if (list.length > 0) {
+              musicLibraryTracks = list;
+              if (st) st.textContent = 'Loaded ' + list.length + ' ' + activeMusicGenre + ' tracks';
+              renderMusicLibraryTracks();
+              return;
+            }
+          }
+        } catch (_e) {}
+        var pipedFb = await fetchPipedAudioSearch(qLabel);
+        if (pipedFb.length > 0) {
+          musicLibraryTracks = pipedFb;
+          if (st) st.textContent = 'Loaded ' + pipedFb.length + ' Piped music tracks';
+          renderMusicLibraryTracks();
+          return;
+        }
+        var fb = await fetchArchiveAudioFallback(activeMusicGenre === 'Trending' ? 'lofi beats' : activeMusicGenre);
+        musicLibraryTracks = fb;
+        if (st) st.textContent = fb.length ? ('Loaded ' + fb.length + ' public tracks') : 'Offline — use StudyHub Stations or Custom URL below';
+        renderMusicLibraryTracks();
+      }
+
+      async function searchMusicLibrary(query) {
+        var q = String(query || '').trim();
+        if (!q) {
+          loadAudiusGenreOrTrending('Trending');
+          return;
+        }
+        musicTrendingLoaded = true;
+        var st = document.getElementById('music-library-status');
+        if (activeMusicSource === 'piped') {
+          if (st) st.textContent = 'Searching Piped for "' + q + '"...';
+          var pOnly = await fetchPipedAudioSearch(q);
+          musicLibraryTracks = pOnly;
+          if (st) st.textContent = pOnly.length ? ('Found ' + pOnly.length + ' Piped results for "' + q + '"') : ('No Piped results for "' + q + '"');
+          renderMusicLibraryTracks();
+          return;
+        }
+        if (activeMusicSource === 'archive') {
+          if (st) st.textContent = 'Searching Internet Archive for "' + q + '"...';
+          var aOnly = await fetchArchiveAudioFallback(q);
+          musicLibraryTracks = aOnly;
+          if (st) st.textContent = aOnly.length ? ('Found ' + aOnly.length + ' Archive results for "' + q + '"') : ('No Archive results for "' + q + '"');
+          renderMusicLibraryTracks();
+          return;
+        }
+        if (st) st.textContent = 'Searching Audius & Piped for "' + q + '"...';
+        var combined = [];
+        try {
+          var res = await fetch(AUDIUS_DISCOVERY + '/tracks/search?query=' + encodeURIComponent(q) + '&app_name=' + AUDIUS_APP_NAME + '&limit=22');
+          if (res.ok) {
+            var json = await res.json();
+            var audiusList = Array.isArray(json && json.data) ? json.data.map(normalizeAudiusTrack).filter(Boolean) : [];
+            combined = combined.concat(audiusList);
+          }
+        } catch (_e) {}
+        if (activeMusicSource === 'all' || combined.length === 0) {
+          var pipedList = await fetchPipedAudioSearch(q);
+          combined = combined.concat(pipedList);
+        }
+        if (combined.length > 0) {
+          musicLibraryTracks = combined;
+          if (st) st.textContent = 'Found ' + combined.length + ' tracks for "' + q + '"';
+          renderMusicLibraryTracks();
+          return;
+        }
+        var fb = await fetchArchiveAudioFallback(q);
+        musicLibraryTracks = fb;
+        if (st) st.textContent = fb.length ? ('Found ' + fb.length + ' Archive audio tracks') : ('No live results for "' + q + '"');
+        renderMusicLibraryTracks();
+      }
+
+      var musicSourceSelectEl = document.getElementById('music-source-select');
+      if (musicSourceSelectEl) {
+        musicSourceSelectEl.addEventListener('change', function () {
+          activeMusicSource = musicSourceSelectEl.value || 'all';
+          var qVal = (document.getElementById('music-library-search-input') && document.getElementById('music-library-search-input').value || '').trim();
+          if (qVal) searchMusicLibrary(qVal);
+          else loadAudiusGenreOrTrending(activeMusicGenre === '__liked__' ? 'Trending' : activeMusicGenre);
+        });
+      }
+
+      function loadMusicTrendingIfNeeded() {
+        if (!musicTrendingLoaded) loadAudiusGenreOrTrending('Trending');
+      }
+
+      document.querySelectorAll('#music-genre-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var g = btn.getAttribute('data-mgenre') || 'Trending';
+          document.querySelectorAll('#music-genre-pills .pill-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+          if (g === '__liked__') {
+            activeMusicGenre = '__liked__';
+            musicLibraryTracks = musicPlaylistsState.liked.slice();
+            var st = document.getElementById('music-library-status');
+            if (st) st.textContent = 'Liked Songs (' + musicLibraryTracks.length + ' saved)';
+            renderMusicPlaylistsBar();
+            renderMusicLibraryTracks();
+          } else {
+            loadAudiusGenreOrTrending(g);
+            renderMusicPlaylistsBar();
+          }
+        });
+      });
+
+      var musicSearchForm = document.getElementById('music-library-search-form');
+      var musicSearchIn = document.getElementById('music-library-search-input');
+      if (musicSearchForm && musicSearchIn) {
+        musicSearchForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          searchMusicLibrary(musicSearchIn.value);
+        });
+      }
+
+      var newPlForm = document.getElementById('music-new-playlist-form');
+      var newPlIn = document.getElementById('music-new-playlist-name');
+      if (newPlForm && newPlIn) {
+        newPlForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var nm = (newPlIn.value || '').trim().slice(0, 32);
+          if (!nm) return;
+          if (!Array.isArray(musicPlaylistsState.custom[nm])) musicPlaylistsState.custom[nm] = [];
+          musicPlaylistsState.activePlaylist = nm;
+          newPlIn.value = '';
+          saveMusicPlaylists();
+          renderMusicPlaylistsBar();
+          showToast('Created playlist "' + nm + '"');
+        });
+      }
+
+      renderMusicPlaylistsBar();
+      renderMusicLibraryTracks();
 
       function formatTrackTime(sec) {
         var s = Math.max(0, Math.floor(Number.isFinite(sec) ? sec : 0));
@@ -5400,8 +7234,9 @@ export function buildValBrowseBlobHtml(
 
       function broadcastAudioState() {
         var st = audioStations[activeStationIdx];
-        var title = audioMode === 'station' && st ? st.title : (audioTitleEl ? audioTitleEl.textContent : 'Vux Audio');
-        var artist = audioMode === 'station' && st ? (st.artist + ' · ' + st.genre) : 'Custom Audio Stream';
+        var lib = activeLibraryList[activeLibraryIdx];
+        var title = audioMode === 'station' && st ? st.title : (audioMode === 'library' && lib ? lib.title : (audioTitleEl ? audioTitleEl.textContent : 'Vux Audio'));
+        var artist = audioMode === 'station' && st ? (st.artist + ' · ' + st.genre) : (audioMode === 'library' && lib ? lib.artist : 'Custom Audio Stream');
         var frame = document.getElementById('valbrowse-proxy-frame');
         if (frame && frame.contentWindow) {
           try {
@@ -5473,7 +7308,7 @@ export function buildValBrowseBlobHtml(
         var w = audioVizCanvas.width;
         var h = audioVizCanvas.height;
         audioVizCtx.clearRect(0, 0, w, h);
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff5c7c';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffffff';
         var bars = 32;
         var barW = (w - 16) / bars;
         if (audioAnalyser && audioAnalyserData && audioPlaying) {
@@ -5537,7 +7372,11 @@ export function buildValBrowseBlobHtml(
         if (audioPlayBtn) audioPlayBtn.textContent = 'Play';
         if (audioBadgeEl) audioBadgeEl.textContent = 'Paused';
         broadcastAudioState();
+        renderMusicLibraryTracks();
         syncAudioVizLoop();
+        if (typeof refreshFallbackActivity === 'function' && currentUserActivity && currentUserActivity.kind === 'music') {
+          refreshFallbackActivity();
+        }
       }
 
       function startAudioPlayback() {
@@ -5569,7 +7408,7 @@ export function buildValBrowseBlobHtml(
           }, 1000);
         } else if (globalAudioEl) {
           stopStationTimers();
-          if (!mediaElConnected && audioCtx && audioMasterGain) {
+          if (audioMode === 'file' && !mediaElConnected && audioCtx && audioMasterGain) {
             try {
               var srcNode = audioCtx.createMediaElementSource(globalAudioEl);
               srcNode.connect(audioMasterGain);
@@ -5582,6 +7421,7 @@ export function buildValBrowseBlobHtml(
         if (audioPlayBtn) audioPlayBtn.textContent = 'Pause';
         if (audioBadgeEl) audioBadgeEl.textContent = 'Playing';
         broadcastAudioState();
+        renderMusicLibraryTracks();
         syncAudioVizLoop();
       }
 
@@ -5595,12 +7435,41 @@ export function buildValBrowseBlobHtml(
         if (audioTitleEl) audioTitleEl.textContent = st.title;
         if (audioDescEl) audioDescEl.textContent = st.artist + ' · ' + st.bpm + ' BPM';
         renderAudioStations();
+        renderMusicLibraryTracks();
         updateAudioTimeUi();
-        if (autoPlay || audioPlaying) startAudioPlayback();
-        else broadcastAudioState();
+        if (autoPlay || audioPlaying) {
+          startAudioPlayback();
+          if (typeof setCurrentUserActivity === 'function') {
+            setCurrentUserActivity('music', 'Listening to ' + st.title, st.artist || 'StudyHub Station', {
+              mode: 'station',
+              stationIdx: activeStationIdx,
+              title: st.title,
+              artist: st.artist || 'StudyHub'
+            });
+          }
+        } else broadcastAudioState();
       }
 
       function stepStation(delta) {
+        if (audioMode === 'library' && activeLibraryList.length > 0) {
+          if (audioShuffle && activeLibraryList.length > 1) {
+            var nextLib = activeLibraryIdx;
+            while (nextLib === activeLibraryIdx) nextLib = Math.floor(Math.random() * activeLibraryList.length);
+            activeLibraryIdx = nextLib;
+          } else {
+            activeLibraryIdx = ((activeLibraryIdx + delta) % activeLibraryList.length + activeLibraryList.length) % activeLibraryList.length;
+          }
+          var tr = activeLibraryList[activeLibraryIdx];
+          if (tr && globalAudioEl) {
+            globalAudioEl.src = tr.streamUrl;
+            if (audioCatEl) audioCatEl.textContent = String(tr.genre || 'MUSIC LIBRARY').toUpperCase();
+            if (audioTitleEl) audioTitleEl.textContent = tr.title;
+            if (audioDescEl) audioDescEl.textContent = tr.artist;
+            renderMusicLibraryTracks();
+            startAudioPlayback();
+          }
+          return;
+        }
         if (!audioStations.length) return;
         if (audioShuffle && audioStations.length > 1) {
           var nextIdx = activeStationIdx;
@@ -5674,6 +7543,12 @@ export function buildValBrowseBlobHtml(
             globalAudioEl.play().catch(function () {});
           } else {
             stepStation(1);
+          }
+        });
+        globalAudioEl.addEventListener('error', function () {
+          if (audioMode === 'library' || audioMode === 'url') {
+            if (audioBadgeEl) audioBadgeEl.textContent = 'Stream Unavailable';
+            showToast('Audio stream failed to load — try another track or station.');
           }
         });
       }
@@ -5907,13 +7782,13 @@ export function buildValBrowseBlobHtml(
       function getCurrentVuxThemeTokens() {
         var cs = getComputedStyle(document.documentElement);
         return {
-          bg: cs.getPropertyValue('--bg').trim() || '#0b0608',
-          bgSec: cs.getPropertyValue('--surface-2').trim() || '#080406',
-          surface: cs.getPropertyValue('--surface').trim() || '#140b0e',
-          text: cs.getPropertyValue('--text').trim() || '#fdf2f4',
-          muted: cs.getPropertyValue('--muted').trim() || '#9f878f',
-          border: cs.getPropertyValue('--border').trim() || 'rgba(255,255,255,0.08)',
-          primary: cs.getPropertyValue('--accent').trim() || '#ff5c7c',
+          bg: cs.getPropertyValue('--bg').trim() || '#000000',
+          bgSec: cs.getPropertyValue('--surface-2').trim() || '#121212',
+          surface: cs.getPropertyValue('--surface').trim() || '#0a0a0a',
+          text: cs.getPropertyValue('--text').trim() || '#ffffff',
+          muted: cs.getPropertyValue('--muted').trim() || '#9ca3af',
+          border: cs.getPropertyValue('--border').trim() || '#1f1f1f',
+          primary: cs.getPropertyValue('--accent').trim() || '#ffffff',
           font: cs.getPropertyValue('--font-ui').trim() || "'Plus Jakarta Sans', system-ui, sans-serif",
           light: document.documentElement.getAttribute('data-light') === '1' ? '1' : '0'
         };
@@ -6018,7 +7893,7 @@ export function buildValBrowseBlobHtml(
       var settingsModal = document.getElementById('settings-modal');
       var activePresetCat = 'All';
       var presetSearchQuery = '';
-      var activePresetId = safeLSGet('valbrowse_color_preset') || 'coral-default';
+      var activePresetId = safeLSGet('valbrowse_color_preset') || 'amoled-black';
 
       var activeAnimCat = 'All';
       var animSearchQuery = '';
@@ -6063,7 +7938,7 @@ export function buildValBrowseBlobHtml(
       }
 
       function applyColorPreset(presetId) {
-        activePresetId = presetId || 'coral-default';
+        activePresetId = presetId || 'amoled-black';
         safeLSSet('valbrowse_color_preset', activePresetId);
 
         var root = document.documentElement;
@@ -6075,14 +7950,14 @@ export function buildValBrowseBlobHtml(
         var tokens;
         if (!p) {
           tokens = {
-            bg: '#0b0608',
-            bgSec: '#080406',
-            surface: '#140b0e',
-            surface2: '#1b0f13',
-            text: '#fdf2f4',
-            muted: '#9f878f',
-            accent: '#ff5c7c',
-            border: 'rgba(255, 255, 255, 0.08)',
+            bg: '#000000',
+            bgSec: '#050505',
+            surface: '#0a0a0a',
+            surface2: '#121212',
+            text: '#ffffff',
+            muted: '#9ca3af',
+            accent: '#ffffff',
+            border: '#1f1f1f',
             isLight: false
           };
         } else {
@@ -6220,13 +8095,14 @@ export function buildValBrowseBlobHtml(
       }
 
       document.getElementById('btn-preset-reset-coral').addEventListener('click', function () {
-        applyColorPreset('coral-default');
+        applyColorPreset('amoled-black');
       });
 
       document.getElementById('valbrowse-proxy-frame').addEventListener('load', function () {
         applyColorPreset(activePresetId);
         applyCustomSettings(customSettings);
         if (typeof broadcastAudioState === 'function') broadcastAudioState();
+        if (typeof broadcastProxyExtensions === 'function') broadcastProxyExtensions();
       });
 
       /* ---------------- CUSTOM SETTINGS STATE (BG FX, COLOR SHIFTS, FONTS, LAYOUTS) ---------------- */
@@ -6239,6 +8115,7 @@ export function buildValBrowseBlobHtml(
         animatedBgId: 'abg-particle-nebula-1',
         animBgSpeed: 1,
         animBgOpacity: 0.72,
+        wallpaperOpacity: 0.55,
         dynamicBgId: 'off',
         dynBgSpeed: 1,
         dynBgOpacity: 0.72,
@@ -6252,6 +8129,8 @@ export function buildValBrowseBlobHtml(
         reducedMotion: false,
         cursorTrail: 'glow',
         customCss: '',
+        autoCloakOnSwitch: false,
+        autoCloakPreset: 'classroom',
         panicUrl: CFG.panicUrl
       };
 
@@ -6316,7 +8195,7 @@ export function buildValBrowseBlobHtml(
         var speed = (preset.speedMul || 1) * (customSettings.animBgSpeed || 1);
         animPhase += dt * speed;
 
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff5c7c';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffffff';
         bgCtx.clearRect(0, 0, w, h);
 
         var algo = preset.algo;
@@ -6550,12 +8429,46 @@ export function buildValBrowseBlobHtml(
         }
       }
 
+      var vuxFaviconEl = document.getElementById('vux-favicon');
+      var VUX_DEFAULT_FAVICON = vuxFaviconEl ? (vuxFaviconEl.getAttribute('href') || '') : '';
+      var AUTO_CLOAK_PRESETS = {
+        classroom: {
+          title: 'Home - Classroom',
+          icon: CFG.classroomFavicon || 'https://ssl.gstatic.com/classroom/favicon.png'
+        },
+        docs: {
+          title: 'Study Notes - Google Docs',
+          icon: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#2563eb"/><rect x="8" y="9" width="16" height="3" rx="1.5" fill="#fff"/><rect x="8" y="15" width="16" height="3" rx="1.5" fill="#fff"/><rect x="8" y="21" width="11" height="3" rx="1.5" fill="#fff"/></svg>')
+        },
+        canvas: {
+          title: 'Dashboard | Canvas',
+          icon: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#e11d48"/><circle cx="16" cy="16" r="8" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="4 3"/></svg>')
+        },
+        khan: {
+          title: 'Khan Academy | Free Online Courses',
+          icon: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#059669"/><path d="M16 6l8 5v9c0 4-3.5 6.8-8 8-4.5-1.2-8-4-8-8v-9l8-5z" fill="#fff"/></svg>')
+        }
+      };
+
+      function applyAutoCloakState(hiddenNow) {
+        var baseTitle = safeLSGet('valem_cloak_title') || 'Vux — Isolated Workspace';
+        if (hiddenNow && customSettings && customSettings.autoCloakOnSwitch) {
+          var preset = AUTO_CLOAK_PRESETS[customSettings.autoCloakPreset || 'classroom'] || AUTO_CLOAK_PRESETS.classroom;
+          document.title = preset.title;
+          if (vuxFaviconEl) vuxFaviconEl.setAttribute('href', preset.icon);
+        } else {
+          document.title = baseTitle;
+          if (vuxFaviconEl && VUX_DEFAULT_FAVICON) vuxFaviconEl.setAttribute('href', VUX_DEFAULT_FAVICON);
+        }
+      }
+
       document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
           if (animBgRafId) { cancelAnimationFrame(animBgRafId); animBgRafId = 0; }
         } else {
           syncAnimatedBgEngine();
         }
+        applyAutoCloakState(Boolean(document.hidden));
       });
 
       /* ---------------- STUDIO GRIDS RENDERERS ---------------- */
@@ -6830,12 +8743,28 @@ export function buildValBrowseBlobHtml(
         if (panicSel && customSettings.panicUrl) {
           panicSel.value = customSettings.panicUrl;
         }
+        var autoCloakBtn = document.getElementById('btn-toggle-auto-cloak');
+        if (autoCloakBtn) {
+          var acOn = Boolean(customSettings.autoCloakOnSwitch);
+          autoCloakBtn.classList.toggle('active', acOn);
+          autoCloakBtn.textContent = 'Auto-Cloak: ' + (acOn ? 'On' : 'Off');
+        }
+        var autoCloakPresetSel = document.getElementById('auto-cloak-preset');
+        if (autoCloakPresetSel && customSettings.autoCloakPreset) {
+          autoCloakPresetSel.value = customSettings.autoCloakPreset;
+        }
 
         var hasGlobalFx = Boolean(
-          (customSettings.animatedBgId !== 'off' || customSettings.dynamicBgId !== 'off') &&
-          !customSettings.reducedMotion
+          hasWallpaperActive ||
+          ((customSettings.animatedBgId !== 'off' || customSettings.dynamicBgId !== 'off') &&
+          !customSettings.reducedMotion)
         );
         document.body.setAttribute('data-has-fx', hasGlobalFx ? '1' : '0');
+        document.documentElement.style.setProperty('--wallpaper-opacity', String(Math.max(0.15, Math.min(1, Number(customSettings.wallpaperOpacity || 0.55)))));
+        var wpOpRangeEl = document.getElementById('wallpaper-opacity-range');
+        var wpOpValEl = document.getElementById('wallpaper-opacity-val');
+        if (wpOpRangeEl) wpOpRangeEl.value = String(Math.round((Number(customSettings.wallpaperOpacity) || 0.55) * 100));
+        if (wpOpValEl) wpOpValEl.textContent = Math.round((Number(customSettings.wallpaperOpacity) || 0.55) * 100) + '%';
 
         document.querySelectorAll('#cursor-trail-pills .pill-btn').forEach(function (b) {
           b.classList.toggle('active', b.getAttribute('data-cursortrail') === (customSettings.cursorTrail || 'glow'));
@@ -6878,6 +8807,10 @@ export function buildValBrowseBlobHtml(
         else if (target === 'dynbg') renderDynBgGrid();
         else if (target === 'fonts') renderFontsGrid();
         else if (target === 'layout') renderLayoutsGrid();
+        else if (target === 'scripts' && typeof renderUserscriptsList === 'function') {
+          renderUserscriptsList();
+          if (typeof refreshAdblockSwStats === 'function') refreshAdblockSwStats();
+        }
       }
 
       function openStudioModal(initialTab) {
@@ -6906,6 +8839,142 @@ export function buildValBrowseBlobHtml(
       if (animSpdRange) animSpdRange.addEventListener('input', function () { customSettings.animBgSpeed = Number(animSpdRange.value) / 100; applyCustomSettings(customSettings); });
       var animOpRange = document.getElementById('animbg-opacity-range');
       if (animOpRange) animOpRange.addEventListener('input', function () { customSettings.animBgOpacity = Number(animOpRange.value) / 100; applyCustomSettings(customSettings); });
+
+      /* ---------------- LIVE WALLPAPER UPLOADER (INDEXEDDB) ---------------- */
+      var WP_DB_NAME = 'vux_wallpaper_db_v1';
+      var WP_STORE = 'wallpaper';
+      var wallpaperVideoEl = document.getElementById('vb-wallpaper-video');
+      var wallpaperImgEl = document.getElementById('vb-wallpaper-img');
+      var wallpaperStatusEl = document.getElementById('vux-wallpaper-status');
+      var wallpaperInputEl = document.getElementById('vux-wallpaper-input');
+      var wallpaperUploadBtn = document.getElementById('btn-wallpaper-upload');
+      var wallpaperClearBtn = document.getElementById('btn-wallpaper-clear');
+      var wallpaperOpacityRange = document.getElementById('wallpaper-opacity-range');
+      var wallpaperObjectUrl = '';
+      var hasWallpaperActive = false;
+
+      function openWallpaperIDB() {
+        return new Promise(function (resolve, reject) {
+          if (!window.indexedDB) { reject(new Error('IndexedDB unavailable')); return; }
+          var req = indexedDB.open(WP_DB_NAME, 1);
+          req.onupgradeneeded = function () {
+            var db = req.result;
+            if (!db.objectStoreNames.contains(WP_STORE)) db.createObjectStore(WP_STORE);
+          };
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error || new Error('IDB open failed')); };
+        });
+      }
+
+      async function saveWallpaperIDB(record) {
+        var db = await openWallpaperIDB();
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(WP_STORE, 'readwrite');
+          tx.objectStore(WP_STORE).put(record, 'active');
+          tx.oncomplete = function () { db.close(); resolve(true); };
+          tx.onerror = function () { db.close(); reject(tx.error); };
+        });
+      }
+
+      async function loadWallpaperIDB() {
+        var db = await openWallpaperIDB();
+        return new Promise(function (resolve) {
+          var tx = db.transaction(WP_STORE, 'readonly');
+          var req = tx.objectStore(WP_STORE).get('active');
+          req.onsuccess = function () { db.close(); resolve(req.result || null); };
+          req.onerror = function () { db.close(); resolve(null); };
+        });
+      }
+
+      async function clearWallpaperIDB() {
+        var db = await openWallpaperIDB();
+        return new Promise(function (resolve) {
+          var tx = db.transaction(WP_STORE, 'readwrite');
+          tx.objectStore(WP_STORE).delete('active');
+          tx.oncomplete = function () { db.close(); resolve(true); };
+          tx.onerror = function () { db.close(); resolve(false); };
+        });
+      }
+
+      function applyWallpaperRecord(rec) {
+        if (wallpaperObjectUrl) {
+          try { URL.revokeObjectURL(wallpaperObjectUrl); } catch (_e) {}
+          wallpaperObjectUrl = '';
+        }
+        if (!rec || !rec.blob) {
+          hasWallpaperActive = false;
+          document.body.setAttribute('data-wallpaper-on', '0');
+          if (wallpaperVideoEl) { wallpaperVideoEl.style.display = 'none'; wallpaperVideoEl.removeAttribute('src'); }
+          if (wallpaperImgEl) { wallpaperImgEl.style.display = 'none'; wallpaperImgEl.removeAttribute('src'); }
+          if (wallpaperStatusEl) wallpaperStatusEl.textContent = 'Persists in IndexedDB across reloads behind Vux\\'s translucent glass UI';
+          if (typeof applyCustomSettings === 'function') applyCustomSettings(customSettings);
+          return;
+        }
+        wallpaperObjectUrl = URL.createObjectURL(rec.blob);
+        var isGif = /gif/i.test(rec.mime || '') || /\\.gif$/i.test(rec.name || '');
+        if (isGif) {
+          if (wallpaperVideoEl) { wallpaperVideoEl.style.display = 'none'; wallpaperVideoEl.removeAttribute('src'); }
+          if (wallpaperImgEl) { wallpaperImgEl.src = wallpaperObjectUrl; wallpaperImgEl.style.display = 'block'; }
+        } else {
+          if (wallpaperImgEl) { wallpaperImgEl.style.display = 'none'; wallpaperImgEl.removeAttribute('src'); }
+          if (wallpaperVideoEl) {
+            wallpaperVideoEl.src = wallpaperObjectUrl;
+            wallpaperVideoEl.style.display = 'block';
+            wallpaperVideoEl.play().catch(function () {});
+          }
+        }
+        hasWallpaperActive = true;
+        document.body.setAttribute('data-wallpaper-on', '1');
+        if (wallpaperStatusEl) wallpaperStatusEl.textContent = 'Active: ' + (rec.name || 'Live Wallpaper') + ' (' + Math.max(0.1, rec.blob.size / (1024 * 1024)).toFixed(1) + ' MB)';
+        if (typeof applyCustomSettings === 'function') applyCustomSettings(customSettings);
+      }
+
+      async function hydrateWallpaperFromIDB() {
+        try {
+          var rec = await loadWallpaperIDB();
+          if (rec && rec.blob) applyWallpaperRecord(rec);
+        } catch (_e) {}
+      }
+
+      if (wallpaperUploadBtn && wallpaperInputEl) {
+        wallpaperUploadBtn.addEventListener('click', function () { wallpaperInputEl.click(); });
+      }
+      if (wallpaperInputEl) {
+        wallpaperInputEl.addEventListener('change', async function () {
+          var file = wallpaperInputEl.files && wallpaperInputEl.files[0];
+          wallpaperInputEl.value = '';
+          if (!file) return;
+          if (!/\\.(mp4|webm|gif)$/i.test(file.name) && !/^video\\/(mp4|webm)$|^image\\/gif$/i.test(file.type)) {
+            showToast('Please choose a .mp4, .webm, or .gif file.');
+            return;
+          }
+          if (file.size > 120 * 1024 * 1024) {
+            showToast('Wallpaper file must be 120 MB or smaller.');
+            return;
+          }
+          var rec = { blob: file, name: file.name, mime: file.type, updatedAt: Date.now() };
+          try {
+            await saveWallpaperIDB(rec);
+            applyWallpaperRecord(rec);
+            showToast('Live wallpaper saved to IndexedDB!');
+          } catch (_err) {
+            showToast('Could not store wallpaper in IndexedDB.');
+          }
+        });
+      }
+      if (wallpaperClearBtn) {
+        wallpaperClearBtn.addEventListener('click', async function () {
+          await clearWallpaperIDB().catch(function () {});
+          applyWallpaperRecord(null);
+          showToast('Live wallpaper removed.');
+        });
+      }
+      if (wallpaperOpacityRange) {
+        wallpaperOpacityRange.addEventListener('input', function () {
+          customSettings.wallpaperOpacity = Number(wallpaperOpacityRange.value) / 100;
+          applyCustomSettings(customSettings);
+        });
+      }
 
       document.querySelectorAll('#dynbg-cat-pills .pill-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -7034,6 +9103,21 @@ export function buildValBrowseBlobHtml(
           applyCustomSettings(customSettings);
         });
       }
+      var autoCloakToggleBtn = document.getElementById('btn-toggle-auto-cloak');
+      if (autoCloakToggleBtn) {
+        autoCloakToggleBtn.addEventListener('click', function () {
+          customSettings.autoCloakOnSwitch = !customSettings.autoCloakOnSwitch;
+          applyCustomSettings(customSettings);
+          showToast(customSettings.autoCloakOnSwitch ? 'Auto-Cloak on tab switch enabled.' : 'Auto-Cloak on tab switch disabled.');
+        });
+      }
+      var autoCloakPresetEl = document.getElementById('auto-cloak-preset');
+      if (autoCloakPresetEl) {
+        autoCloakPresetEl.addEventListener('change', function () {
+          customSettings.autoCloakPreset = autoCloakPresetEl.value || 'classroom';
+          applyCustomSettings(customSettings);
+        });
+      }
 
       var tmdbKeyInput = document.getElementById('tmdb-api-key-input');
       var tmdbStatusEl = document.getElementById('tmdb-key-status');
@@ -7073,7 +9157,7 @@ export function buildValBrowseBlobHtml(
       var resetAllCustomBtn = document.getElementById('btn-reset-all-custom');
       if (resetAllCustomBtn) {
         resetAllCustomBtn.addEventListener('click', function () {
-          applyColorPreset('coral-default');
+          applyColorPreset('amoled-black');
           applyRailMode('expanded');
           applyCustomSettings(DEFAULT_CUSTOM_SETTINGS);
           document.title = 'Vux — Isolated Workspace';
@@ -7191,46 +9275,409 @@ export function buildValBrowseBlobHtml(
         });
       });
 
-      /* ---------------- LIVE ONLINE USERS COUNTER (MULTI-TAB PRESENCE) ---------------- */
+      /* ---------------- LIVE MULTI-DEVICE MQTT + MULTI-TAB PRESENCE, CHAT, DMs & WEBRTC CALLS ---------------- */
       var onlineCountEl = document.getElementById('vux-online-count');
+      var chatStatusBadgeEl = document.getElementById('chat-sync-status');
       var presenceTabId = 'vux_' + Math.random().toString(36).slice(2, 10);
       var presencePeers = Object.create(null);
+      var presenceMeta = Object.create(null);
       presencePeers[presenceTabId] = Date.now();
       var presenceChan = typeof BroadcastChannel === 'function' ? new BroadcastChannel('vux_presence_channel') : null;
+      var chatSyncChan = typeof BroadcastChannel === 'function' ? new BroadcastChannel('vux_chat_sync') : null;
+      var rtcSyncChan = typeof BroadcastChannel === 'function' ? new BroadcastChannel('vux_rtc_sync') : null;
+      var dmSyncChan = typeof BroadcastChannel === 'function' ? new BroadcastChannel('vux_dm_sync') : null;
+      var seenMqttMsgIds = Object.create(null);
+      var seenMqttReacts = Object.create(null);
+      var seenRtcOps = Object.create(null);
+      var seenDmIds = Object.create(null);
+      var lastChatSendAt = 0;
+
+      var CHAT_COLORS = ['#ffffff', '#38bdf8', '#34d399', '#a855f7', '#f59e0b', '#ec4899'];
+      var chatProfile = { name: 'Guest-' + Math.floor(100 + Math.random() * 899), color: CHAT_COLORS[1] };
+      try {
+        var savedProf = safeLSGet('vux_chat_profile');
+        if (savedProf) chatProfile = Object.assign(chatProfile, JSON.parse(savedProf));
+      } catch (_e) {}
+
+      var currentUserActivity = { kind: 'browsing', label: 'Browsing Vux', detail: '', payload: null };
+
+      function sanitizeActivityPayload(act) {
+        if (!act || typeof act !== 'object') return null;
+        var kind = String(act.kind || '').trim();
+        if (kind !== 'game' && kind !== 'movie' && kind !== 'music' && kind !== 'browsing') return null;
+        var label = String(act.label || '').trim().slice(0, 80);
+        if (!label) return null;
+        return {
+          kind: kind,
+          label: label,
+          detail: String(act.detail || '').trim().slice(0, 48),
+          payload: act.payload && typeof act.payload === 'object' ? act.payload : null
+        };
+      }
+
+      function upsertPresencePeer(id, name, color, activity) {
+        if (!id) return;
+        presencePeers[id] = Date.now();
+        var prev = presenceMeta[id];
+        var nextAct = activity ? sanitizeActivityPayload(activity) : (id === presenceTabId ? sanitizeActivityPayload(currentUserActivity) : (prev ? prev.activity : null));
+        presenceMeta[id] = {
+          id: id,
+          name: String(name || (id === presenceTabId ? chatProfile.name : 'Vux User')).slice(0, 24),
+          color: /^#[0-9a-f]{6}$/i.test(String(color || '')) ? color : '#38bdf8',
+          activity: nextAct,
+          lastSeen: Date.now()
+        };
+      }
+      upsertPresencePeer(presenceTabId, chatProfile.name, chatProfile.color, currentUserActivity);
+
+      function broadcastPresencePingNow() {
+        if (presenceChan) {
+          try {
+            presenceChan.postMessage({ type: 'ping', id: presenceTabId, name: chatProfile.name, color: chatProfile.color, activity: currentUserActivity });
+          } catch (_e) {}
+        }
+        if (typeof mqttPublishJson === 'function' && typeof mqttReady !== 'undefined' && mqttReady) {
+          mqttPublishJson('vux-global-chat-v1/presence', {
+            id: presenceTabId,
+            name: chatProfile.name,
+            color: chatProfile.color,
+            activity: currentUserActivity,
+            op: 'ping'
+          });
+        }
+      }
+
+      function setCurrentUserActivity(kind, label, detail, payload) {
+        currentUserActivity = {
+          kind: kind || 'browsing',
+          label: String(label || 'Browsing Vux').slice(0, 80),
+          detail: String(detail || '').slice(0, 48),
+          payload: payload || null
+        };
+        upsertPresencePeer(presenceTabId, chatProfile.name, chatProfile.color, currentUserActivity);
+        if (typeof renderChatOnlineUsers === 'function') renderChatOnlineUsers();
+        broadcastPresencePingNow();
+      }
+
+      function refreshFallbackActivity() {
+        if (activeModuleObj) return;
+        if (activeMovieObj) {
+          setCurrentUserActivity('movie', 'Watching ' + activeMovieObj.title, activeMovieObj.source || 'Cinema', {
+            id: activeMovieObj.id,
+            externalId: activeMovieObj.externalId,
+            source: activeMovieObj.source,
+            title: activeMovieObj.title,
+            watchPageUrl: activeMovieObj.watchPageUrl || ''
+          });
+          return;
+        }
+        if (audioPlaying && audioTitleEl && audioTitleEl.textContent) {
+          setCurrentUserActivity('music', 'Listening to ' + audioTitleEl.textContent, audioDescEl ? audioDescEl.textContent : 'Audio', null);
+          return;
+        }
+        setCurrentUserActivity('browsing', 'Browsing Vux', '', null);
+      }
 
       function updateOnlineBadgeCount() {
         var now = Date.now();
-        presencePeers[presenceTabId] = now;
+        upsertPresencePeer(presenceTabId, chatProfile.name, chatProfile.color, currentUserActivity);
         var count = 0;
         Object.keys(presencePeers).forEach(function (id) {
-          if (now - presencePeers[id] > 12000) delete presencePeers[id];
-          else count += 1;
+          if (now - presencePeers[id] > 42000) {
+            delete presencePeers[id];
+            delete presenceMeta[id];
+          } else {
+            count += 1;
+          }
         });
         if (onlineCountEl) {
           onlineCountEl.textContent = Math.max(1, count) + ' active';
         }
+        if (typeof renderChatOnlineUsers === 'function') {
+          renderChatOnlineUsers();
+        }
       }
+
       if (presenceChan) {
         presenceChan.onmessage = function (ev) {
           if (!ev || !ev.data) return;
           if (ev.data.type === 'ping' && ev.data.id) {
-            presencePeers[ev.data.id] = Date.now();
+            upsertPresencePeer(ev.data.id, ev.data.name, ev.data.color, ev.data.activity);
             updateOnlineBadgeCount();
           } else if (ev.data.type === 'bye' && ev.data.id) {
             delete presencePeers[ev.data.id];
+            delete presenceMeta[ev.data.id];
             updateOnlineBadgeCount();
           }
         };
-        setInterval(function () {
-          try { presenceChan.postMessage({ type: 'ping', id: presenceTabId }); } catch (_e) {}
-          updateOnlineBadgeCount();
-        }, 3500);
-        try { presenceChan.postMessage({ type: 'ping', id: presenceTabId }); } catch (_e) {}
-        window.addEventListener('beforeunload', function () {
-          try { presenceChan.postMessage({ type: 'bye', id: presenceTabId }); } catch (_e) {}
-        });
+        try {
+          presenceChan.postMessage({ type: 'ping', id: presenceTabId, name: chatProfile.name, color: chatProfile.color, activity: currentUserActivity });
+        } catch (_e) {}
       }
-      updateOnlineBadgeCount();
+
+      /* Pure-JS MQTT 3.1.1 over WebSockets (Cross-Device Real-Time Room, Presence, DMs & WebRTC Signaling) */
+      var MQTT_BROKERS = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
+      var mqttBrokerIdx = 0;
+      var mqttSocket = null;
+      var mqttReady = false;
+      var mqttRxBuf = new Uint8Array(0);
+      var mqttPingTimer = null;
+      var mqttReconnectTimer = null;
+      var mqttEncoder = typeof TextEncoder === 'function' ? new TextEncoder() : null;
+      var mqttDecoder = typeof TextDecoder === 'function' ? new TextDecoder() : null;
+
+      function setChatSyncStatusLabel(label) {
+        if (chatStatusBadgeEl) chatStatusBadgeEl.textContent = label;
+      }
+
+      function mqttEncUtf8(str) {
+        var bytes = mqttEncoder ? mqttEncoder.encode(String(str || '')) : [];
+        var out = new Uint8Array(2 + bytes.length);
+        out[0] = (bytes.length >> 8) & 0xff;
+        out[1] = bytes.length & 0xff;
+        out.set(bytes, 2);
+        return out;
+      }
+
+      function mqttEncRemLen(len) {
+        var arr = [];
+        do {
+          var d = len % 128;
+          len = Math.floor(len / 128);
+          if (len > 0) d |= 128;
+          arr.push(d);
+        } while (len > 0);
+        return arr;
+      }
+
+      function mqttConcatBytes(parts) {
+        var total = 0;
+        for (var i = 0; i < parts.length; i++) total += parts[i].length;
+        var res = new Uint8Array(total);
+        var off = 0;
+        for (var j = 0; j < parts.length; j++) {
+          res.set(parts[j], off);
+          off += parts[j].length;
+        }
+        return res;
+      }
+
+      function mqttSendConnect() {
+        if (!mqttSocket || mqttSocket.readyState !== 1) return;
+        var varHdr = new Uint8Array([0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0x02, 0x00, 0x3c]);
+        var cid = mqttEncUtf8('vux_' + presenceTabId);
+        var payloadLen = varHdr.length + cid.length;
+        var fix = new Uint8Array([0x10].concat(mqttEncRemLen(payloadLen)));
+        mqttSocket.send(mqttConcatBytes([fix, varHdr, cid]));
+      }
+
+      function mqttSendSubscribe(topics) {
+        if (!mqttSocket || mqttSocket.readyState !== 1) return;
+        var parts = [new Uint8Array([0x00, 0x01])];
+        for (var i = 0; i < topics.length; i++) {
+          parts.push(mqttEncUtf8(topics[i]));
+          parts.push(new Uint8Array([0x00]));
+        }
+        var body = mqttConcatBytes(parts);
+        var fix = new Uint8Array([0x82].concat(mqttEncRemLen(body.length)));
+        mqttSocket.send(mqttConcatBytes([fix, body]));
+      }
+
+      function mqttPublishJson(topic, obj) {
+        if (!mqttSocket || mqttSocket.readyState !== 1 || !mqttReady || !mqttEncoder) return;
+        try {
+          var tBytes = mqttEncUtf8(topic);
+          var pBytes = mqttEncoder.encode(JSON.stringify(obj));
+          var body = mqttConcatBytes([tBytes, pBytes]);
+          var fix = new Uint8Array([0x30].concat(mqttEncRemLen(body.length)));
+          mqttSocket.send(mqttConcatBytes([fix, body]));
+        } catch (_e) {}
+      }
+
+      function handleMqttIncomingPacket(byte0, pkt) {
+        var ptype = byte0 >> 4;
+        if (ptype === 2) {
+          if (pkt.length >= 2 && pkt[1] === 0) {
+            mqttReady = true;
+            setChatSyncStatusLabel('MQTT Live');
+            mqttSendSubscribe([
+              'vux-global-chat-v1/msg/+',
+              'vux-global-chat-v1/react/+',
+              'vux-global-chat-v1/presence',
+              'vux-global-chat-v1/rtc/' + presenceTabId,
+              'vux-global-chat-v1/dm/' + presenceTabId
+            ]);
+            mqttPublishJson('vux-global-chat-v1/presence', {
+              id: presenceTabId,
+              name: chatProfile.name,
+              color: chatProfile.color,
+              activity: currentUserActivity,
+              op: 'ping'
+            });
+          }
+          return;
+        }
+        if (ptype === 3 && pkt.length >= 2 && mqttDecoder) {
+          var qos = (byte0 >> 1) & 0x03;
+          var tLen = (pkt[0] << 8) | pkt[1];
+          if (2 + tLen > pkt.length) return;
+          var topic = mqttDecoder.decode(pkt.subarray(2, 2 + tLen));
+          var offset = 2 + tLen + (qos > 0 ? 2 : 0);
+          if (qos === 1 && 2 + tLen + 2 <= pkt.length && mqttSocket && mqttSocket.readyState === 1) {
+            mqttSocket.send(new Uint8Array([0x40, 0x02, pkt[2 + tLen], pkt[3 + tLen]]));
+          }
+          var payloadStr = mqttDecoder.decode(pkt.subarray(offset));
+          try {
+            var data = JSON.parse(payloadStr);
+            if (!data || typeof data !== 'object') return;
+            if (topic === 'vux-global-chat-v1/presence') {
+              if (data.op === 'bye' && data.id && data.id !== presenceTabId) {
+                delete presencePeers[data.id];
+                delete presenceMeta[data.id];
+                updateOnlineBadgeCount();
+              } else if (data.id) {
+                upsertPresencePeer(data.id, data.name, data.color, data.activity);
+                updateOnlineBadgeCount();
+              }
+            } else if (topic.indexOf('vux-global-chat-v1/rtc/') === 0) {
+              if (typeof handleRtcSignal === 'function') handleRtcSignal(data);
+            } else if (topic.indexOf('vux-global-chat-v1/dm/') === 0) {
+              if (typeof handleIncomingDmPayload === 'function') handleIncomingDmPayload(data);
+            } else if (topic.indexOf('vux-global-chat-v1/msg/') === 0) {
+              if (!data.id || !data.text || seenMqttMsgIds[data.id]) return;
+              seenMqttMsgIds[data.id] = true;
+              if (chatMessages.some(function (m) { return m && m.id === data.id; })) return;
+              if (data.peerId && data.author) upsertPresencePeer(data.peerId, data.author, data.avatarColor);
+              chatMessages.push({
+                id: String(data.id).slice(0, 64),
+                channelId: String(data.channelId || 'general').slice(0, 24),
+                peerId: data.peerId ? String(data.peerId).slice(0, 32) : undefined,
+                author: String(data.author || 'Guest').slice(0, 24),
+                avatarColor: /^#[0-9a-f]{6}$/i.test(String(data.avatarColor || '')) ? data.avatarColor : '#ffffff',
+                text: String(data.text).slice(0, 420),
+                activityCard: sanitizeActivityPayload(data.activityCard),
+                timestamp: Number(data.timestamp) || Date.now(),
+                replyToAuthor: data.replyToAuthor ? String(data.replyToAuthor).slice(0, 24) : undefined,
+                replyToSnippet: data.replyToSnippet ? String(data.replyToSnippet).slice(0, 80) : undefined,
+                reactions: data.reactions && typeof data.reactions === 'object' ? data.reactions : {}
+              });
+              persistAndBroadcastChat();
+              renderChatView();
+            } else if (topic.indexOf('vux-global-chat-v1/react/') === 0) {
+              if (!data.msgId || !data.emoji) return;
+              var rk = String(data.msgId) + '|' + String(data.emoji) + '|' + String(data.peerId || '') + '|' + String(data.seq || '');
+              if (seenMqttReacts[rk]) return;
+              seenMqttReacts[rk] = true;
+              if (data.peerId === presenceTabId) return;
+              var target = chatMessages.find(function (m) { return m && m.id === data.msgId; });
+              if (target) {
+                target.reactions = target.reactions || {};
+                target.reactions[data.emoji] = Number(target.reactions[data.emoji] || 0) + 1;
+                persistAndBroadcastChat();
+                renderChatView();
+              }
+            }
+          } catch (_e) {}
+        }
+      }
+
+      function processMqttRxBytes(chunk) {
+        mqttRxBuf = mqttConcatBytes([mqttRxBuf, new Uint8Array(chunk)]);
+        while (mqttRxBuf.length >= 2) {
+          var mul = 1;
+          var remLen = 0;
+          var idx = 1;
+          var complete = true;
+          while (true) {
+            if (idx >= mqttRxBuf.length) { complete = false; break; }
+            var b = mqttRxBuf[idx];
+            remLen += (b & 127) * mul;
+            mul *= 128;
+            idx += 1;
+            if ((b & 128) === 0 || idx >= 5) break;
+          }
+          if (!complete || mqttRxBuf.length < idx + remLen) break;
+          var byte0 = mqttRxBuf[0];
+          var pkt = mqttRxBuf.subarray(idx, idx + remLen);
+          mqttRxBuf = mqttRxBuf.subarray(idx + remLen);
+          handleMqttIncomingPacket(byte0, pkt);
+        }
+      }
+
+      function connectLiveMqtt() {
+        if (mqttReconnectTimer) { clearTimeout(mqttReconnectTimer); mqttReconnectTimer = null; }
+        if (mqttPingTimer) { clearInterval(mqttPingTimer); mqttPingTimer = null; }
+        mqttReady = false;
+        mqttRxBuf = new Uint8Array(0);
+        setChatSyncStatusLabel('Connecting...');
+        try {
+          var url = MQTT_BROKERS[mqttBrokerIdx % MQTT_BROKERS.length];
+          var ws = new WebSocket(url, 'mqtt');
+          ws.binaryType = 'arraybuffer';
+          mqttSocket = ws;
+          ws.onopen = function () {
+            if (mqttSocket !== ws) return;
+            mqttSendConnect();
+            mqttPingTimer = setInterval(function () {
+              if (ws.readyState === 1) {
+                try { ws.send(new Uint8Array([0xc0, 0x00])); } catch (_e) {}
+                if (mqttReady) {
+                  mqttPublishJson('vux-global-chat-v1/presence', {
+                    id: presenceTabId,
+                    name: chatProfile.name,
+                    color: chatProfile.color,
+                    activity: currentUserActivity,
+                    op: 'ping'
+                  });
+                }
+              }
+            }, 15000);
+          };
+          ws.onmessage = function (ev) {
+            if (mqttSocket !== ws || !ev || !ev.data) return;
+            if (ev.data instanceof ArrayBuffer) processMqttRxBytes(ev.data);
+          };
+          ws.onerror = function () {};
+          ws.onclose = function () {
+            if (mqttSocket !== ws) return;
+            mqttReady = false;
+            if (mqttPingTimer) { clearInterval(mqttPingTimer); mqttPingTimer = null; }
+            setChatSyncStatusLabel('Local Sync');
+            mqttBrokerIdx += 1;
+            mqttReconnectTimer = setTimeout(connectLiveMqtt, 4500);
+          };
+        } catch (_e) {
+          setChatSyncStatusLabel('Local Sync');
+        }
+      }
+
+      setInterval(function () {
+        if (presenceChan) {
+          try {
+            presenceChan.postMessage({ type: 'ping', id: presenceTabId, name: chatProfile.name, color: chatProfile.color, activity: currentUserActivity });
+          } catch (_e) {}
+        }
+        if (mqttReady) {
+          mqttPublishJson('vux-global-chat-v1/presence', {
+            id: presenceTabId,
+            name: chatProfile.name,
+            color: chatProfile.color,
+            activity: currentUserActivity,
+            op: 'ping'
+          });
+        }
+        updateOnlineBadgeCount();
+      }, 15000);
+
+      window.addEventListener('beforeunload', function () {
+        if (typeof teardownActiveCall === 'function') teardownActiveCall(true);
+        if (presenceChan) {
+          try { presenceChan.postMessage({ type: 'bye', id: presenceTabId }); } catch (_e) {}
+        }
+        if (mqttReady) {
+          mqttPublishJson('vux-global-chat-v1/presence', { id: presenceTabId, op: 'bye' });
+        }
+      });
 
       /* ---------------- LIVE FPS, PING & WAKE WISP STATUS PILL ---------------- */
       var fpsTextEl = document.getElementById('vux-fps-text');
@@ -7259,9 +9706,8 @@ export function buildValBrowseBlobHtml(
       });
 
       function probeWispLatency(manualWake) {
-        var activeWisp = (safeLSGet('valbrowse_wisp_url') || CFG.defaultWisp || 'wss://wisp.mercurywork.shop/').trim();
-        var targets = [activeWisp];
-        if (manualWake && targets.indexOf('https://my-wisp-server-ocnq.onrender.com/') === -1) {
+        var activeWisp = (safeLSGet('valbrowse_wisp_url') || CFG.defaultWisp || 'wss://my-wisp-server-ocnq.onrender.com/wisp/').trim();
+        if (manualWake) {
           fetch('https://my-wisp-server-ocnq.onrender.com/', { mode: 'no-cors' }).catch(function () {});
         }
         var t0 = performance.now();
@@ -7300,15 +9746,532 @@ export function buildValBrowseBlobHtml(
       }
       setTimeout(function () { probeWispLatency(false); }, 1800);
 
-      /* ---------------- BUILT-IN DISCORD-STYLED COMMUNITY CHAT (VUX CHAT) ---------------- */
+      /* ---------------- 1-ON-1 WEBRTC VOICE CALLING & RIGHT-CLICK USER CONTEXT MENU ---------------- */
+      var ctxMenuEl = document.getElementById('vux-user-ctx-menu');
+      var ctxTargetLabel = document.getElementById('vux-ctx-target-label');
+      var ctxCallBtn = document.getElementById('ctx-call-user');
+      var ctxDmBtn = document.getElementById('ctx-dm-user');
+      var ctxCopyBtn = document.getElementById('ctx-copy-user');
+      var ctxTargetUser = null;
+
+      var incCallModal = document.getElementById('vux-incoming-call-modal');
+      var incAvatarEl = document.getElementById('vux-inc-avatar');
+      var incNameEl = document.getElementById('vux-inc-name');
+      var incAcceptBtn = document.getElementById('vux-inc-accept');
+      var incDeclineBtn = document.getElementById('vux-inc-decline');
+
+      var callDockEl = document.getElementById('vux-call-dock');
+      var callLocalRingEl = document.getElementById('vux-call-local-ring');
+      var callRemoteRingEl = document.getElementById('vux-call-remote-ring');
+      var callPeerNameEl = document.getElementById('vux-call-peer-name');
+      var callTimerEl = document.getElementById('vux-call-timer');
+      var callMuteBtn = document.getElementById('vux-call-mute');
+      var callDeafenBtn = document.getElementById('vux-call-deafen');
+      var callHangupBtn = document.getElementById('vux-call-hangup');
+      var rtcRemoteAudioEl = document.getElementById('vux-rtc-remote-audio');
+
+      var rtcState = {
+        callId: '',
+        peerId: '',
+        peerName: '',
+        peerColor: '#38bdf8',
+        pc: null,
+        localStream: null,
+        remoteStream: null,
+        muted: false,
+        deafened: false,
+        connectedAt: 0,
+        timerInterval: null,
+        ringTimer: null,
+        pendingIce: [],
+        incomingOffer: null,
+        audioCtx: null,
+        vadRaf: 0
+      };
+
+      function resolvePeerIdByName(name) {
+        if (!name) return '';
+        var lower = String(name).toLowerCase();
+        var ids = Object.keys(presenceMeta);
+        for (var i = 0; i < ids.length; i++) {
+          var pm = presenceMeta[ids[i]];
+          if (pm && pm.id !== presenceTabId && String(pm.name || '').toLowerCase() === lower) {
+            return pm.id;
+          }
+        }
+        return '';
+      }
+
+      function sendRtcSignal(targetPeerId, payload) {
+        if (!targetPeerId) return;
+        var msg = Object.assign({
+          seq: Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          from: presenceTabId,
+          fromName: chatProfile.name || 'Guest',
+          fromColor: chatProfile.color || '#38bdf8',
+          to: targetPeerId
+        }, payload);
+        if (rtcSyncChan) {
+          try { rtcSyncChan.postMessage(msg); } catch (_e) {}
+        }
+        if (mqttReady) {
+          mqttPublishJson('vux-global-chat-v1/rtc/' + targetPeerId, msg);
+        }
+      }
+
+      function playCallRingtoneBurst() {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          var ctx = rtcState.audioCtx || new AC();
+          rtcState.audioCtx = ctx;
+          if (ctx.state === 'suspended') ctx.resume().catch(function () {});
+          [587.33, 783.99].forEach(function (freq, idx) {
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            var t0 = ctx.currentTime + idx * 0.14;
+            gain.gain.setValueAtTime(0.001, t0);
+            gain.gain.exponentialRampToValueAtTime(0.06, t0 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t0);
+            osc.stop(t0 + 0.3);
+          });
+        } catch (_e) {}
+      }
+
+      function stopIncomingRingtone() {
+        if (rtcState.ringTimer) {
+          clearInterval(rtcState.ringTimer);
+          rtcState.ringTimer = null;
+        }
+        if (incCallModal) incCallModal.classList.remove('open');
+      }
+
+      function startVoiceActivityRings() {
+        if (rtcState.vadRaf) cancelAnimationFrame(rtcState.vadRaf);
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return;
+          var ctx = rtcState.audioCtx || new AC();
+          rtcState.audioCtx = ctx;
+          if (ctx.state === 'suspended') ctx.resume().catch(function () {});
+
+          var localAn = null;
+          var remoteAn = null;
+          if (rtcState.localStream && rtcState.localStream.getAudioTracks().length) {
+            var lSrc = ctx.createMediaStreamSource(rtcState.localStream);
+            localAn = ctx.createAnalyser();
+            localAn.fftSize = 256;
+            lSrc.connect(localAn);
+          }
+          if (rtcState.remoteStream && rtcState.remoteStream.getAudioTracks().length) {
+            var rSrc = ctx.createMediaStreamSource(rtcState.remoteStream);
+            remoteAn = ctx.createAnalyser();
+            remoteAn.fftSize = 256;
+            rSrc.connect(remoteAn);
+          }
+          var buf = new Uint8Array(128);
+          function measure(an) {
+            if (!an) return 0;
+            an.getByteTimeDomainData(buf);
+            var peak = 0;
+            for (var i = 0; i < buf.length; i++) {
+              var d = Math.abs(buf[i] - 128);
+              if (d > peak) peak = d;
+            }
+            return peak;
+          }
+          function loop() {
+            if (!rtcState.pc) return;
+            if (callLocalRingEl) {
+              callLocalRingEl.classList.toggle('speaking', !rtcState.muted && measure(localAn) > 7);
+            }
+            if (callRemoteRingEl) {
+              callRemoteRingEl.classList.toggle('speaking', !rtcState.deafened && measure(remoteAn) > 7);
+            }
+            rtcState.vadRaf = requestAnimationFrame(loop);
+          }
+          rtcState.vadRaf = requestAnimationFrame(loop);
+        } catch (_e) {}
+      }
+
+      function updateCallDockUi(statusText) {
+        if (!callDockEl) return;
+        var active = Boolean(rtcState.callId && rtcState.peerId);
+        callDockEl.classList.toggle('active', active);
+        if (!active) return;
+        if (callPeerNameEl) callPeerNameEl.textContent = rtcState.peerName || 'Voice Call';
+        if (callLocalRingEl) {
+          callLocalRingEl.style.background = chatProfile.color || '#ffffff';
+          callLocalRingEl.style.color = getContrastInk(chatProfile.color || '#ffffff');
+          callLocalRingEl.textContent = String(chatProfile.name || 'Y').charAt(0).toUpperCase();
+        }
+        if (callRemoteRingEl) {
+          callRemoteRingEl.style.background = rtcState.peerColor || '#38bdf8';
+          callRemoteRingEl.style.color = getContrastInk(rtcState.peerColor || '#38bdf8');
+          callRemoteRingEl.textContent = String(rtcState.peerName || 'P').charAt(0).toUpperCase();
+        }
+        if (callMuteBtn) callMuteBtn.textContent = rtcState.muted ? 'Unmute' : 'Mute';
+        if (callDeafenBtn) callDeafenBtn.textContent = rtcState.deafened ? 'Undeafen' : 'Deafen';
+        if (callTimerEl && statusText) callTimerEl.textContent = statusText;
+      }
+
+      function formatCallElapsed(sec) {
+        var m = Math.floor(sec / 60);
+        var s = sec % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      function startCallDurationClock() {
+        if (rtcState.timerInterval) clearInterval(rtcState.timerInterval);
+        rtcState.connectedAt = Date.now();
+        if (callTimerEl) callTimerEl.textContent = '00:00';
+        rtcState.timerInterval = setInterval(function () {
+          if (!rtcState.connectedAt || !callTimerEl) return;
+          var sec = Math.max(0, Math.floor((Date.now() - rtcState.connectedAt) / 1000));
+          callTimerEl.textContent = formatCallElapsed(sec);
+        }, 1000);
+      }
+
+      function teardownActiveCall(notifyRemote) {
+        if (notifyRemote && rtcState.peerId && rtcState.callId) {
+          sendRtcSignal(rtcState.peerId, { op: 'call-hangup', callId: rtcState.callId });
+        }
+        stopIncomingRingtone();
+        if (rtcState.vadRaf) { cancelAnimationFrame(rtcState.vadRaf); rtcState.vadRaf = 0; }
+        if (rtcState.timerInterval) { clearInterval(rtcState.timerInterval); rtcState.timerInterval = null; }
+        if (rtcState.pc) {
+          try { rtcState.pc.close(); } catch (_e) {}
+          rtcState.pc = null;
+        }
+        if (rtcState.localStream) {
+          try {
+            rtcState.localStream.getTracks().forEach(function (t) { t.stop(); });
+          } catch (_e) {}
+          rtcState.localStream = null;
+        }
+        rtcState.remoteStream = null;
+        if (rtcRemoteAudioEl) {
+          try { rtcRemoteAudioEl.srcObject = null; } catch (_e) {}
+        }
+        rtcState.callId = '';
+        rtcState.peerId = '';
+        rtcState.peerName = '';
+        rtcState.muted = false;
+        rtcState.deafened = false;
+        rtcState.connectedAt = 0;
+        rtcState.pendingIce = [];
+        rtcState.incomingOffer = null;
+        if (callLocalRingEl) callLocalRingEl.classList.remove('speaking');
+        if (callRemoteRingEl) callRemoteRingEl.classList.remove('speaking');
+        updateCallDockUi();
+      }
+
+      async function createCallPeerConnection(targetPeerId, callId) {
+        if (typeof RTCPeerConnection !== 'function') {
+          throw new Error('WebRTC is not supported in this browser.');
+        }
+        var pc = new RTCPeerConnection({
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+        rtcState.pc = pc;
+        rtcState.pendingIce = [];
+
+        if (!rtcState.localStream) {
+          rtcState.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        }
+        rtcState.localStream.getAudioTracks().forEach(function (track) {
+          track.enabled = !rtcState.muted && !rtcState.deafened;
+          pc.addTrack(track, rtcState.localStream);
+        });
+
+        pc.onicecandidate = function (ev) {
+          if (ev && ev.candidate) {
+            sendRtcSignal(targetPeerId, { op: 'rtc-ice', callId: callId, candidate: ev.candidate });
+          }
+        };
+
+        pc.ontrack = function (ev) {
+          if (!ev || !ev.streams || !ev.streams[0]) return;
+          rtcState.remoteStream = ev.streams[0];
+          if (rtcRemoteAudioEl) {
+            rtcRemoteAudioEl.srcObject = rtcState.remoteStream;
+            rtcRemoteAudioEl.muted = Boolean(rtcState.deafened);
+            rtcRemoteAudioEl.play().catch(function () {});
+          }
+          startCallDurationClock();
+          startVoiceActivityRings();
+        };
+
+        pc.onconnectionstatechange = function () {
+          if (pc.connectionState === 'connected') {
+            startCallDurationClock();
+            startVoiceActivityRings();
+          } else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+            if (rtcState.callId === callId) {
+              showToast('Voice call disconnected.');
+              teardownActiveCall(false);
+            }
+          }
+        };
+        return pc;
+      }
+
+      async function initiateVoiceCall(target) {
+        if (!target || !target.peerId || target.peerId === presenceTabId) {
+          showToast('That user is currently offline or is your own session.');
+          return;
+        }
+        if (rtcState.callId) {
+          showToast('Already in a voice call. End current call first.');
+          return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showToast('Microphone access requires HTTPS or localhost.');
+          return;
+        }
+        try {
+          var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          var cid = 'call_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+          rtcState.callId = cid;
+          rtcState.peerId = target.peerId;
+          rtcState.peerName = target.name || 'Vux User';
+          rtcState.peerColor = target.color || '#38bdf8';
+          rtcState.localStream = stream;
+          updateCallDockUi('Calling...');
+          sendRtcSignal(target.peerId, { op: 'call-invite', callId: cid });
+          showToast('Calling ' + rtcState.peerName + '...');
+        } catch (err) {
+          teardownActiveCall(false);
+          showToast('Microphone permission required for voice calls.');
+        }
+      }
+
+      async function acceptIncomingCall() {
+        var offerPayload = rtcState.incomingOffer;
+        if (!offerPayload) return;
+        stopIncomingRingtone();
+        try {
+          rtcState.callId = offerPayload.callId;
+          rtcState.peerId = offerPayload.from;
+          rtcState.peerName = offerPayload.fromName || 'Vux User';
+          rtcState.peerColor = offerPayload.fromColor || '#38bdf8';
+          rtcState.incomingOffer = null;
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Microphone unavailable');
+          }
+          rtcState.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          updateCallDockUi('Connecting...');
+          sendRtcSignal(rtcState.peerId, { op: 'call-accept', callId: rtcState.callId });
+        } catch (_e) {
+          sendRtcSignal(offerPayload.from, { op: 'call-decline', callId: offerPayload.callId });
+          teardownActiveCall(false);
+          showToast('Could not access microphone to answer call.');
+        }
+      }
+
+      function declineIncomingCall() {
+        var offerPayload = rtcState.incomingOffer;
+        stopIncomingRingtone();
+        rtcState.incomingOffer = null;
+        if (offerPayload && offerPayload.from) {
+          sendRtcSignal(offerPayload.from, { op: 'call-decline', callId: offerPayload.callId });
+        }
+      }
+
+      async function handleRtcSignal(data) {
+        if (!data || data.to !== presenceTabId || data.from === presenceTabId) return;
+        var sigKey = String(data.op) + '|' + String(data.callId || '') + '|' + String(data.seq || '');
+        if (data.op !== 'rtc-ice' && seenRtcOps[sigKey]) return;
+        seenRtcOps[sigKey] = true;
+
+        if (data.fromName) upsertPresencePeer(data.from, data.fromName, data.fromColor);
+
+        if (data.op === 'call-invite') {
+          if (rtcState.callId || rtcState.incomingOffer) {
+            sendRtcSignal(data.from, { op: 'call-decline', callId: data.callId, busy: true });
+            return;
+          }
+          rtcState.incomingOffer = data;
+          if (incAvatarEl) {
+            incAvatarEl.style.background = data.fromColor || '#38bdf8';
+            incAvatarEl.style.color = getContrastInk(data.fromColor || '#38bdf8');
+            incAvatarEl.textContent = String(data.fromName || 'V').charAt(0).toUpperCase();
+          }
+          if (incNameEl) incNameEl.textContent = data.fromName || 'Vux User';
+          if (incCallModal) incCallModal.classList.add('open');
+          playCallRingtoneBurst();
+          if (rtcState.ringTimer) clearInterval(rtcState.ringTimer);
+          rtcState.ringTimer = setInterval(playCallRingtoneBurst, 2200);
+        } else if (data.op === 'call-accept') {
+          if (!rtcState.callId || rtcState.callId !== data.callId || rtcState.peerId !== data.from) return;
+          updateCallDockUi('Connecting...');
+          try {
+            var pc = await createCallPeerConnection(data.from, data.callId);
+            var offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            sendRtcSignal(data.from, { op: 'rtc-offer', callId: data.callId, sdp: offer });
+          } catch (_e) {
+            teardownActiveCall(true);
+          }
+        } else if (data.op === 'call-decline') {
+          if (rtcState.callId === data.callId) {
+            showToast((data.fromName || 'User') + (data.busy ? ' is on another call.' : ' declined the call.'));
+            teardownActiveCall(false);
+          }
+        } else if (data.op === 'call-hangup') {
+          if (rtcState.incomingOffer && rtcState.incomingOffer.callId === data.callId) {
+            stopIncomingRingtone();
+            rtcState.incomingOffer = null;
+          }
+          if (rtcState.callId === data.callId) {
+            showToast((rtcState.peerName || 'Peer') + ' ended the call.');
+            teardownActiveCall(false);
+          }
+        } else if (data.op === 'rtc-offer') {
+          if (!rtcState.callId || rtcState.callId !== data.callId) return;
+          try {
+            var pcAns = await createCallPeerConnection(data.from, data.callId);
+            await pcAns.setRemoteDescription(new RTCSessionDescription(data.sdp));
+            for (var i = 0; i < rtcState.pendingIce.length; i++) {
+              await pcAns.addIceCandidate(new RTCIceCandidate(rtcState.pendingIce[i]));
+            }
+            rtcState.pendingIce = [];
+            var answer = await pcAns.createAnswer();
+            await pcAns.setLocalDescription(answer);
+            sendRtcSignal(data.from, { op: 'rtc-answer', callId: data.callId, sdp: answer });
+          } catch (_e) {
+            teardownActiveCall(true);
+          }
+        } else if (data.op === 'rtc-answer') {
+          if (rtcState.pc && rtcState.callId === data.callId) {
+            try {
+              await rtcState.pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+              for (var j = 0; j < rtcState.pendingIce.length; j++) {
+                await rtcState.pc.addIceCandidate(new RTCIceCandidate(rtcState.pendingIce[j]));
+              }
+              rtcState.pendingIce = [];
+            } catch (_e) {}
+          }
+        } else if (data.op === 'rtc-ice') {
+          if (rtcState.callId !== data.callId || !data.candidate) return;
+          if (rtcState.pc && rtcState.pc.remoteDescription) {
+            try { await rtcState.pc.addIceCandidate(new RTCIceCandidate(data.candidate)); } catch (_e) {}
+          } else {
+            rtcState.pendingIce.push(data.candidate);
+          }
+        }
+      }
+
+      if (rtcSyncChan) {
+        rtcSyncChan.onmessage = function (ev) {
+          if (ev && ev.data) handleRtcSignal(ev.data);
+        };
+      }
+      if (incAcceptBtn) incAcceptBtn.addEventListener('click', acceptIncomingCall);
+      if (incDeclineBtn) incDeclineBtn.addEventListener('click', declineIncomingCall);
+      if (callMuteBtn) {
+        callMuteBtn.addEventListener('click', function () {
+          rtcState.muted = !rtcState.muted;
+          if (rtcState.localStream) {
+            rtcState.localStream.getAudioTracks().forEach(function (t) { t.enabled = !rtcState.muted && !rtcState.deafened; });
+          }
+          updateCallDockUi();
+        });
+      }
+      if (callDeafenBtn) {
+        callDeafenBtn.addEventListener('click', function () {
+          rtcState.deafened = !rtcState.deafened;
+          if (rtcRemoteAudioEl) rtcRemoteAudioEl.muted = rtcState.deafened;
+          if (rtcState.localStream) {
+            rtcState.localStream.getAudioTracks().forEach(function (t) { t.enabled = !rtcState.muted && !rtcState.deafened; });
+          }
+          updateCallDockUi();
+        });
+      }
+      if (callHangupBtn) {
+        callHangupBtn.addEventListener('click', function () { teardownActiveCall(true); });
+      }
+
+      function closeUserContextMenu() {
+        if (ctxMenuEl) ctxMenuEl.classList.remove('open');
+      }
+
+      function openUserContextMenu(clientX, clientY, userObj) {
+        if (!ctxMenuEl || !userObj) return;
+        var resolvedPeer = userObj.peerId || resolvePeerIdByName(userObj.name);
+        ctxTargetUser = {
+          peerId: resolvedPeer,
+          name: String(userObj.name || 'Guest').slice(0, 24),
+          color: userObj.color || '#38bdf8'
+        };
+        if (ctxTargetLabel) {
+          ctxTargetLabel.textContent = ctxTargetUser.name + (resolvedPeer === presenceTabId ? ' (You)' : (resolvedPeer ? ' · Online' : ' · Offline'));
+        }
+        if (ctxCallBtn) {
+          var canCall = Boolean(resolvedPeer && resolvedPeer !== presenceTabId);
+          ctxCallBtn.disabled = !canCall;
+          ctxCallBtn.title = canCall ? 'Start 1-on-1 WebRTC voice call' : 'User must be online in another Vux session to call';
+        }
+        if (ctxDmBtn) {
+          ctxDmBtn.disabled = resolvedPeer === presenceTabId;
+        }
+        var maxX = Math.max(8, window.innerWidth - 210);
+        var maxY = Math.max(8, window.innerHeight - 150);
+        ctxMenuEl.style.left = Math.min(maxX, Math.max(8, clientX)) + 'px';
+        ctxMenuEl.style.top = Math.min(maxY, Math.max(8, clientY)) + 'px';
+        ctxMenuEl.classList.add('open');
+      }
+
+      document.addEventListener('click', function (ev) {
+        if (ctxMenuEl && ctxMenuEl.classList.contains('open') && !ctxMenuEl.contains(ev.target)) {
+          closeUserContextMenu();
+        }
+      });
+      window.addEventListener('blur', closeUserContextMenu);
+
+      if (ctxCallBtn) {
+        ctxCallBtn.addEventListener('click', function () {
+          var t = ctxTargetUser;
+          closeUserContextMenu();
+          initiateVoiceCall(t);
+        });
+      }
+      if (ctxDmBtn) {
+        ctxDmBtn.addEventListener('click', function () {
+          var t = ctxTargetUser;
+          closeUserContextMenu();
+          if (t && typeof openDirectMessageThread === 'function') {
+            openDirectMessageThread(t);
+          }
+        });
+      }
+      if (ctxCopyBtn) {
+        ctxCopyBtn.addEventListener('click', function () {
+          var t = ctxTargetUser;
+          closeUserContextMenu();
+          if (t && t.name) {
+            try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t.name); } catch (_e) {}
+            showToast('Copied username: ' + t.name);
+          }
+        });
+      }
+
+      /* ---------------- BUILT-IN DISCORD-STYLED COMMUNITY CHAT & DIRECT MESSAGES (VUX CHAT) ---------------- */
       var chatChannels = Array.isArray(CFG.chatChannels) ? CFG.chatChannels : [{ id: 'general', name: 'general', topic: 'Vux chat' }];
+      var activeChatMode = 'channel';
       var activeChatChannel = 'general';
+      var activeDmKey = '';
       var chatReplyState = null;
-      var CHAT_COLORS = ['#ff5c7c', '#38bdf8', '#34d399', '#a855f7', '#f59e0b', '#ec4899'];
-      var chatProfile = { name: 'Guest-' + Math.floor(100 + Math.random() * 899), color: CHAT_COLORS[0] };
+
+      var dmThreads = Object.create(null);
       try {
-        var savedProf = safeLSGet('vux_chat_profile');
-        if (savedProf) chatProfile = Object.assign(chatProfile, JSON.parse(savedProf));
+        var savedDms = safeLSGet('vux_dm_threads_v1');
+        if (savedDms) dmThreads = JSON.parse(savedDms) || Object.create(null);
       } catch (_e) {}
 
       var chatMessages = [];
@@ -7321,7 +10284,6 @@ export function buildValBrowseBlobHtml(
         safeLSSet('vux_chat_messages_v1', JSON.stringify(chatMessages));
       }
 
-      var chatSyncChan = typeof BroadcastChannel === 'function' ? new BroadcastChannel('vux_chat_sync') : null;
       if (chatSyncChan) {
         chatSyncChan.onmessage = function (ev) {
           if (!ev || !ev.data || ev.data.type !== 'sync' || !Array.isArray(ev.data.messages)) return;
@@ -7338,6 +10300,154 @@ export function buildValBrowseBlobHtml(
         }
       }
 
+      function persistDms() {
+        try { safeLSSet('vux_dm_threads_v1', JSON.stringify(dmThreads)); } catch (_e) {}
+      }
+
+      function handleIncomingDmPayload(data) {
+        if (!data || !data.id || !data.text || seenDmIds[data.id]) return;
+        if (data.to !== presenceTabId && data.from !== presenceTabId) return;
+        seenDmIds[data.id] = true;
+        var peerId = data.from === presenceTabId ? data.to : data.from;
+        var peerName = data.from === presenceTabId ? (data.toName || 'Vux User') : (data.fromName || 'Vux User');
+        var peerColor = data.from === presenceTabId ? (data.toColor || '#38bdf8') : (data.fromColor || '#38bdf8');
+        if (peerId) upsertPresencePeer(peerId, peerName, peerColor);
+        var key = 'dm_' + peerId;
+        if (!dmThreads[key]) {
+          dmThreads[key] = { peerId: peerId, peerName: peerName, peerColor: peerColor, messages: [] };
+        }
+        dmThreads[key].peerName = peerName;
+        dmThreads[key].peerColor = peerColor;
+        dmThreads[key].messages.push({
+          id: String(data.id).slice(0, 64),
+          author: String(data.fromName || 'Guest').slice(0, 24),
+          avatarColor: data.fromColor || '#38bdf8',
+          peerId: String(data.from || '').slice(0, 32),
+          text: String(data.text).slice(0, 420),
+          timestamp: Number(data.timestamp) || Date.now()
+        });
+        dmThreads[key].messages = dmThreads[key].messages.slice(-120);
+        persistDms();
+        renderChatView();
+        if (data.from !== presenceTabId && (!isViewVisible('chat') || activeChatMode !== 'dm' || activeDmKey !== key)) {
+          showToast('DM from ' + peerName + ': ' + String(data.text).slice(0, 50));
+        }
+      }
+      if (dmSyncChan) {
+        dmSyncChan.onmessage = function (ev) {
+          if (ev && ev.data) handleIncomingDmPayload(ev.data);
+        };
+      }
+
+      function openDirectMessageThread(userObj) {
+        if (!userObj) return;
+        var peerId = userObj.peerId || resolvePeerIdByName(userObj.name) || ('name_' + String(userObj.name || 'guest').toLowerCase().replace(/[^a-z0-9]/g, ''));
+        var key = 'dm_' + peerId;
+        if (!dmThreads[key]) {
+          dmThreads[key] = {
+            peerId: peerId,
+            peerName: userObj.name || 'Vux User',
+            peerColor: userObj.color || '#38bdf8',
+            messages: []
+          };
+          persistDms();
+        }
+        activeChatMode = 'dm';
+        activeDmKey = key;
+        switchView('chat');
+        renderChatView();
+        var msgInEl = document.getElementById('chat-message-input');
+        if (msgInEl) setTimeout(function () { msgInEl.focus(); }, 30);
+      }
+
+      function renderChatOnlineUsers() {
+        var listEl = document.getElementById('chat-online-users');
+        var headEl = document.getElementById('chat-online-heading');
+        if (!listEl) return;
+        var ids = Object.keys(presencePeers).filter(function (id) { return presenceMeta[id]; });
+        if (headEl) headEl.textContent = 'Online Users (' + Math.max(1, ids.length) + ')';
+        listEl.innerHTML = '';
+        ids.sort(function (a, b) {
+          if (a === presenceTabId) return -1;
+          if (b === presenceTabId) return 1;
+          return String(presenceMeta[a].name || '').localeCompare(String(presenceMeta[b].name || ''));
+        });
+        ids.forEach(function (id) {
+          var meta = presenceMeta[id];
+          var row = document.createElement('div');
+          row.className = 'chat-peer-row';
+          var left = document.createElement('div');
+          left.style.cssText = 'display:flex;align-items:center;gap:7px;min-width:0;flex:1;';
+          var dot = document.createElement('span');
+          dot.className = 'chat-peer-dot';
+          var nameStack = document.createElement('div');
+          nameStack.style.cssText = 'display:flex;flex-direction:column;min-width:0;flex:1;';
+          var nm = document.createElement('span');
+          nm.style.cssText = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;color:' + (meta.color || 'var(--text)') + ';';
+          nm.textContent = meta.name + (id === presenceTabId ? ' (You)' : '');
+          nameStack.appendChild(nm);
+          if (meta.activity && meta.activity.label && meta.activity.kind !== 'browsing') {
+            var actEl = document.createElement('span');
+            actEl.className = 'chat-peer-activity';
+            actEl.textContent = meta.activity.label;
+            nameStack.appendChild(actEl);
+          }
+          left.appendChild(dot);
+          left.appendChild(nameStack);
+
+          var moreBtn = document.createElement('button');
+          moreBtn.type = 'button';
+          moreBtn.className = 'chat-peer-more-btn';
+          moreBtn.textContent = '⋯';
+          moreBtn.title = 'User actions (Call, DM, Copy)';
+          moreBtn.onclick = function (ev) {
+            ev.stopPropagation();
+            var r = moreBtn.getBoundingClientRect();
+            openUserContextMenu(r.left, r.bottom + 4, { peerId: id, name: meta.name, color: meta.color });
+          };
+          row.addEventListener('contextmenu', function (ev) {
+            ev.preventDefault();
+            openUserContextMenu(ev.clientX, ev.clientY, { peerId: id, name: meta.name, color: meta.color });
+          });
+          row.onclick = function (ev) {
+            var r = row.getBoundingClientRect();
+            openUserContextMenu(ev.clientX || r.left, (ev.clientY || r.bottom) + 4, { peerId: id, name: meta.name, color: meta.color });
+          };
+          row.appendChild(left);
+          row.appendChild(moreBtn);
+          listEl.appendChild(row);
+        });
+      }
+
+      function renderChatDmSidebar() {
+        var dmListEl = document.getElementById('chat-dm-list');
+        if (!dmListEl) return;
+        dmListEl.innerHTML = '';
+        var keys = Object.keys(dmThreads);
+        if (!keys.length) {
+          var empty = document.createElement('div');
+          empty.className = 'sub';
+          empty.style.cssText = 'padding:2px 6px;font-size:11px;';
+          empty.textContent = 'Right-click a user to DM or call';
+          dmListEl.appendChild(empty);
+          return;
+        }
+        keys.forEach(function (k) {
+          var thr = dmThreads[k];
+          if (!thr) return;
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'chat-ch-btn' + (activeChatMode === 'dm' && activeDmKey === k ? ' active' : '');
+          btn.textContent = '@ ' + thr.peerName;
+          btn.onclick = function () {
+            activeChatMode = 'dm';
+            activeDmKey = k;
+            renderChatView();
+          };
+          dmListEl.appendChild(btn);
+        });
+      }
+
       function renderChatProfileControls() {
         var nameIn = document.getElementById('chat-profile-name');
         var swWrap = document.getElementById('chat-color-swatches');
@@ -7347,16 +10457,31 @@ export function buildValBrowseBlobHtml(
           CHAT_COLORS.forEach(function (hex) {
             var b = document.createElement('button');
             b.type = 'button';
-            b.style.cssText = 'width:16px;height:16px;border-radius:50%;border:2px solid ' + (chatProfile.color === hex ? '#fff' : 'transparent') + ';background:' + hex + ';cursor:pointer;';
+            b.style.cssText = 'width:16px;height:16px;border-radius:50%;border:2px solid ' + (chatProfile.color === hex ? '#fff' : 'rgba(255,255,255,0.22)') + ';background:' + hex + ';cursor:pointer;';
             b.title = 'Avatar color ' + hex;
             b.onclick = function () {
               chatProfile.color = hex;
               safeLSSet('vux_chat_profile', JSON.stringify(chatProfile));
               renderChatProfileControls();
+              updateOnlineBadgeCount();
             };
             swWrap.appendChild(b);
           });
         }
+      }
+
+      function reactToChatMsg(msg, emoji) {
+        if (!msg || !emoji) return;
+        msg.reactions = msg.reactions || {};
+        msg.reactions[emoji] = Number(msg.reactions[emoji] || 0) + 1;
+        persistAndBroadcastChat();
+        renderChatView();
+        mqttPublishJson('vux-global-chat-v1/react/' + (msg.channelId || activeChatChannel), {
+          msgId: msg.id,
+          emoji: emoji,
+          peerId: presenceTabId,
+          seq: Date.now()
+        });
       }
 
       function renderChatView() {
@@ -7365,6 +10490,7 @@ export function buildValBrowseBlobHtml(
         var titleEl = document.getElementById('chat-active-channel-title');
         var topicEl = document.getElementById('chat-active-channel-topic');
         var msgInEl = document.getElementById('chat-message-input');
+        var callDmBtn = document.getElementById('chat-call-dm-peer-btn');
         if (!chListEl || !msgListEl) return;
 
         chListEl.innerHTML = '';
@@ -7373,30 +10499,62 @@ export function buildValBrowseBlobHtml(
           if (ch.id === activeChatChannel) activeSpec = ch;
           var btn = document.createElement('button');
           btn.type = 'button';
-          btn.className = 'chat-ch-btn' + (ch.id === activeChatChannel ? ' active' : '');
+          btn.className = 'chat-ch-btn' + (activeChatMode === 'channel' && ch.id === activeChatChannel ? ' active' : '');
           btn.setAttribute('data-chat-channel', ch.id);
           btn.textContent = '# ' + ch.name;
           btn.onclick = function () {
+            activeChatMode = 'channel';
             activeChatChannel = ch.id;
             renderChatView();
           };
           chListEl.appendChild(btn);
         });
 
-        if (titleEl && activeSpec) titleEl.textContent = '#' + activeSpec.name;
-        if (topicEl && activeSpec) topicEl.textContent = activeSpec.topic;
-        if (msgInEl && activeSpec) msgInEl.placeholder = 'Message #' + activeSpec.name + '...';
+        renderChatOnlineUsers();
+        renderChatDmSidebar();
 
-        var roomMsgs = chatMessages.filter(function (m) { return m && m.channelId === activeChatChannel; });
+        var activeDmThread = activeChatMode === 'dm' ? dmThreads[activeDmKey] : null;
+        if (activeDmThread) {
+          if (titleEl) titleEl.textContent = '@ ' + activeDmThread.peerName;
+          if (topicEl) topicEl.textContent = 'Private direct message thread · right-click or use Call User for 1-on-1 WebRTC voice';
+          if (msgInEl) msgInEl.placeholder = 'Direct message @' + activeDmThread.peerName + '...';
+          if (callDmBtn) {
+            callDmBtn.style.display = 'inline-flex';
+            callDmBtn.onclick = function () {
+              initiateVoiceCall({
+                peerId: activeDmThread.peerId,
+                name: activeDmThread.peerName,
+                color: activeDmThread.peerColor
+              });
+            };
+          }
+        } else {
+          activeChatMode = 'channel';
+          if (titleEl && activeSpec) titleEl.textContent = '#' + activeSpec.name;
+          if (topicEl && activeSpec) topicEl.textContent = activeSpec.topic;
+          if (msgInEl && activeSpec) msgInEl.placeholder = 'Message #' + activeSpec.name + '...';
+          if (callDmBtn) callDmBtn.style.display = 'none';
+        }
+
+        var roomMsgs = activeDmThread
+          ? (activeDmThread.messages || [])
+          : chatMessages.filter(function (m) { return m && m.channelId === activeChatChannel; });
         msgListEl.innerHTML = '';
         roomMsgs.forEach(function (m) {
           var row = document.createElement('div');
           row.className = 'chat-msg';
+          var userCtxPayload = { peerId: m.peerId || '', name: m.author, color: m.avatarColor || '#38bdf8' };
 
           var av = document.createElement('div');
           av.className = 'chat-avatar';
-          av.style.background = m.avatarColor || '#ff5c7c';
+          av.style.background = m.avatarColor || '#38bdf8';
+          av.style.color = getContrastInk(m.avatarColor || '#38bdf8');
+          av.style.cursor = 'pointer';
           av.textContent = String(m.author || 'V').charAt(0).toUpperCase();
+          av.addEventListener('contextmenu', function (ev) {
+            ev.preventDefault();
+            openUserContextMenu(ev.clientX, ev.clientY, userCtxPayload);
+          });
 
           var body = document.createElement('div');
           body.className = 'chat-msg-body';
@@ -7411,8 +10569,13 @@ export function buildValBrowseBlobHtml(
           var meta = document.createElement('div');
           meta.style.cssText = 'display:flex;align-items:baseline;gap:8px;';
           var auth = document.createElement('span');
-          auth.style.cssText = 'font-size:13px;font-weight:700;color:' + (m.avatarColor || 'var(--accent)') + ';';
+          auth.style.cssText = 'font-size:13px;font-weight:700;cursor:pointer;color:' + (m.avatarColor || 'var(--accent)') + ';';
           auth.textContent = m.author;
+          auth.title = 'Right-click for Call / DM / Copy';
+          auth.addEventListener('contextmenu', function (ev) {
+            ev.preventDefault();
+            openUserContextMenu(ev.clientX, ev.clientY, userCtxPayload);
+          });
           var ts = document.createElement('span');
           ts.className = 'sub';
           ts.style.fontSize = '10px';
@@ -7433,48 +10596,82 @@ export function buildValBrowseBlobHtml(
             pill.type = 'button';
             pill.className = 'chat-react-pill';
             pill.textContent = emoji + ' ' + rxObj[emoji];
-            pill.onclick = function () {
-              m.reactions = m.reactions || {};
-              m.reactions[emoji] = Number(m.reactions[emoji] || 0) + 1;
-              persistAndBroadcastChat();
-              renderChatView();
-            };
+            pill.onclick = function () { reactToChatMsg(m, emoji); };
             reacts.appendChild(pill);
           });
 
           var tools = document.createElement('div');
           tools.className = 'chat-hover-tools';
-          ['🔥', '👍', '❤️', '🎮'].forEach(function (em) {
-            var eb = document.createElement('button');
-            eb.type = 'button';
-            eb.className = 'chat-tool-btn';
-            eb.textContent = em;
-            eb.onclick = function () {
-              m.reactions = m.reactions || {};
-              m.reactions[em] = Number(m.reactions[em] || 0) + 1;
-              persistAndBroadcastChat();
-              renderChatView();
+          if (activeChatMode === 'channel') {
+            ['🔥', '👍', '❤️', '🎮'].forEach(function (em) {
+              var eb = document.createElement('button');
+              eb.type = 'button';
+              eb.className = 'chat-tool-btn';
+              eb.textContent = em;
+              eb.onclick = function () { reactToChatMsg(m, em); };
+              tools.appendChild(eb);
+            });
+            var repBtn = document.createElement('button');
+            repBtn.type = 'button';
+            repBtn.className = 'chat-tool-btn';
+            repBtn.textContent = 'Reply';
+            repBtn.onclick = function () {
+              chatReplyState = { author: m.author, snippet: String(m.text || '').slice(0, 60) };
+              var ban = document.getElementById('chat-reply-banner');
+              var pre = document.getElementById('chat-reply-preview');
+              if (ban && pre) {
+                pre.textContent = 'Replying to ' + m.author + ': "' + chatReplyState.snippet + '"';
+                ban.style.display = 'flex';
+              }
+              if (msgInEl) msgInEl.focus();
             };
-            tools.appendChild(eb);
-          });
-          var repBtn = document.createElement('button');
-          repBtn.type = 'button';
-          repBtn.className = 'chat-tool-btn';
-          repBtn.textContent = 'Reply';
-          repBtn.onclick = function () {
-            chatReplyState = { author: m.author, snippet: String(m.text || '').slice(0, 60) };
-            var ban = document.getElementById('chat-reply-banner');
-            var pre = document.getElementById('chat-reply-preview');
-            if (ban && pre) {
-              pre.textContent = 'Replying to ' + m.author + ': "' + chatReplyState.snippet + '"';
-              ban.style.display = 'flex';
-            }
-            if (msgInEl) msgInEl.focus();
+            tools.appendChild(repBtn);
+          }
+          var moreUserBtn = document.createElement('button');
+          moreUserBtn.type = 'button';
+          moreUserBtn.className = 'chat-tool-btn';
+          moreUserBtn.textContent = '⋯';
+          moreUserBtn.title = 'Call / DM / Copy Username';
+          moreUserBtn.onclick = function () {
+            var r = moreUserBtn.getBoundingClientRect();
+            openUserContextMenu(r.left, r.bottom + 4, userCtxPayload);
           };
-          tools.appendChild(repBtn);
+          tools.appendChild(moreUserBtn);
 
           body.appendChild(meta);
           body.appendChild(txt);
+          if (m.activityCard && m.activityCard.label && m.activityCard.kind) {
+            var acWrap = document.createElement('div');
+            acWrap.className = 'chat-activity-card';
+            var acLeft = document.createElement('div');
+            acLeft.style.cssText = 'min-width:0;flex:1;display:flex;flex-direction:column;gap:2px;';
+            var acEye = document.createElement('span');
+            acEye.className = 'eyebrow';
+            acEye.style.fontSize = '9px';
+            acEye.textContent = m.activityCard.kind === 'game' ? 'SHARED GAME' : (m.activityCard.kind === 'movie' ? 'SHARED MOVIE / SHOW' : (m.activityCard.kind === 'music' ? 'SHARED TRACK' : 'ACTIVITY'));
+            var acTitle = document.createElement('strong');
+            acTitle.style.cssText = 'font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+            acTitle.textContent = m.activityCard.label;
+            acLeft.appendChild(acEye);
+            acLeft.appendChild(acTitle);
+            if (m.activityCard.detail) {
+              var acSub = document.createElement('span');
+              acSub.className = 'sub';
+              acSub.textContent = m.activityCard.detail;
+              acLeft.appendChild(acSub);
+            }
+            var acBtn = document.createElement('button');
+            acBtn.type = 'button';
+            acBtn.className = 'btn btn-primary';
+            acBtn.style.cssText = 'height:28px;padding:0 10px;font-size:11px;flex-shrink:0;';
+            acBtn.textContent = m.activityCard.kind === 'game' ? 'Play Game' : (m.activityCard.kind === 'movie' ? 'Watch Now' : (m.activityCard.kind === 'music' ? 'Play Track' : 'Open'));
+            acBtn.onclick = function () {
+              if (typeof launchSharedActivity === 'function') launchSharedActivity(m.activityCard);
+            };
+            acWrap.appendChild(acLeft);
+            acWrap.appendChild(acBtn);
+            body.appendChild(acWrap);
+          }
           if (reacts.children.length) body.appendChild(reacts);
           row.appendChild(av);
           row.appendChild(body);
@@ -7489,6 +10686,7 @@ export function buildValBrowseBlobHtml(
         chatNameIn.addEventListener('input', function () {
           chatProfile.name = (chatNameIn.value || '').trim().slice(0, 20) || 'Guest';
           safeLSSet('vux_chat_profile', JSON.stringify(chatProfile));
+          updateOnlineBadgeCount();
         });
       }
       var chatReplyCancel = document.getElementById('chat-reply-cancel');
@@ -7502,6 +10700,13 @@ export function buildValBrowseBlobHtml(
       var chatClearBtn = document.getElementById('chat-clear-channel-btn');
       if (chatClearBtn) {
         chatClearBtn.addEventListener('click', function () {
+          if (activeChatMode === 'dm' && dmThreads[activeDmKey]) {
+            dmThreads[activeDmKey].messages = [];
+            persistDms();
+            renderChatView();
+            showToast('Cleared DM thread.');
+            return;
+          }
           var seeds = (CFG.initialChatMessages || []).filter(function (m) { return m.channelId === activeChatChannel; });
           chatMessages = chatMessages.filter(function (m) { return m.channelId !== activeChatChannel; }).concat(seeds);
           persistAndBroadcastChat();
@@ -7516,28 +10721,211 @@ export function buildValBrowseBlobHtml(
           e.preventDefault();
           var text = (chatInput.value || '').trim().slice(0, 420);
           if (!text) return;
-          chatMessages.push({
-            id: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+          var now = Date.now();
+          if (now - lastChatSendAt < 800) return;
+          lastChatSendAt = now;
+
+          if (activeChatMode === 'dm' && dmThreads[activeDmKey]) {
+            var thr = dmThreads[activeDmKey];
+            var dmPayload = {
+              id: 'dm_' + now + '_' + Math.random().toString(36).slice(2, 7),
+              from: presenceTabId,
+              fromName: chatProfile.name || 'Guest',
+              fromColor: chatProfile.color || '#38bdf8',
+              to: thr.peerId,
+              toName: thr.peerName,
+              toColor: thr.peerColor,
+              text: text,
+              timestamp: now
+            };
+            chatInput.value = '';
+            handleIncomingDmPayload(dmPayload);
+            if (dmSyncChan) { try { dmSyncChan.postMessage(dmPayload); } catch (_e) {} }
+            if (mqttReady) mqttPublishJson('vux-global-chat-v1/dm/' + thr.peerId, dmPayload);
+            return;
+          }
+
+          var nextMsg = {
+            id: 'msg_' + now + '_' + Math.random().toString(36).slice(2, 7),
             channelId: activeChatChannel,
+            peerId: presenceTabId,
             author: chatProfile.name || 'Guest',
-            avatarColor: chatProfile.color || '#ff5c7c',
+            avatarColor: chatProfile.color || '#38bdf8',
             text: text,
-            timestamp: Date.now(),
+            timestamp: now,
             replyToAuthor: chatReplyState ? chatReplyState.author : undefined,
             replyToSnippet: chatReplyState ? chatReplyState.snippet : undefined,
             reactions: {}
-          });
+          };
+          seenMqttMsgIds[nextMsg.id] = true;
+          chatMessages.push(nextMsg);
           chatInput.value = '';
           chatReplyState = null;
           var ban = document.getElementById('chat-reply-banner');
           if (ban) ban.style.display = 'none';
           persistAndBroadcastChat();
           renderChatView();
+          mqttPublishJson('vux-global-chat-v1/msg/' + activeChatChannel, nextMsg);
           if (typeof recordVuxStat === 'function') recordVuxStat('messagesSent', 1);
         });
       }
+
+      async function launchSharedActivity(card) {
+        if (!card || !card.kind) return;
+        var p = card.payload && typeof card.payload === 'object' ? card.payload : {};
+        if (card.kind === 'game') {
+          var foundGame = null;
+          if (p.id && Array.isArray(mergedModules)) {
+            foundGame = mergedModules.find(function (g) { return g && g.id === p.id; });
+          }
+          if (!foundGame && p.url && /^https?:/i.test(String(p.url))) {
+            foundGame = {
+              id: String(p.id || ('shared-' + Date.now())),
+              name: String(p.name || card.label || 'Shared Game').replace(/^Playing\\s+/i, ''),
+              provider: String(p.provider || 'shared'),
+              url: String(p.url),
+              baseUrl: /^https?:/i.test(String(p.baseUrl || '')) ? String(p.baseUrl) : ''
+            };
+          }
+          if (foundGame) {
+            launchStudyModule(foundGame);
+          } else {
+            switchView('modules');
+            showToast('Could not match shared game URL — opened Games Hub.');
+          }
+        } else if (card.kind === 'movie') {
+          if (p.source === 'cineruv' || p.id === 'cineruv:home') {
+            launchCineruvTheater();
+            return;
+          }
+          var pool = typeof getActiveCinemaPool === 'function' ? getActiveCinemaPool() : [];
+          var foundMovie = p.id ? pool.find(function (m) { return m && m.id === p.id; }) : null;
+          if (!foundMovie && p.title) {
+            foundMovie = {
+              id: String(p.id || ('shared:' + Date.now())),
+              externalId: String(p.externalId || ''),
+              source: String(p.source || 'tvmaze'),
+              title: String(p.title),
+              year: String(p.year || ''),
+              genres: [],
+              summary: 'Shared via Vux Chat',
+              watchPageUrl: /^https?:/i.test(String(p.watchPageUrl || '')) ? String(p.watchPageUrl) : ''
+            };
+          }
+          if (foundMovie) openMovie(foundMovie);
+          else switchView('movies');
+        } else if (card.kind === 'music') {
+          if (p.mode === 'station' && typeof p.stationIdx === 'number') {
+            switchView('music');
+            selectStation(p.stationIdx, true);
+            return;
+          }
+          if (p.id && Array.isArray(musicLibraryTracks)) {
+            var libIdx = musicLibraryTracks.findIndex(function (t) { return t && t.id === p.id; });
+            if (libIdx !== -1) {
+              switchView('music');
+              playLibraryTrack(libIdx);
+              return;
+            }
+          }
+          if (p.streamUrl && /^https?:/i.test(String(p.streamUrl)) && globalAudioEl) {
+            switchView('music');
+            audioMode = 'library';
+            stopStationTimers();
+            globalAudioEl.src = String(p.streamUrl);
+            if (audioCatEl) audioCatEl.textContent = String(p.genre || 'SHARED TRACK').toUpperCase();
+            if (audioTitleEl) audioTitleEl.textContent = String(p.title || card.label);
+            if (audioDescEl) audioDescEl.textContent = String(p.artist || 'Shared via Vux Chat');
+            startAudioPlayback();
+            setCurrentUserActivity('music', 'Listening to ' + String(p.title || card.label), String(p.artist || 'Shared'), p);
+          } else {
+            switchView('music');
+            showToast('Opened MP3 Studio.');
+          }
+        } else {
+          switchView('browser');
+        }
+      }
+
+      var shareActivityBtn = document.getElementById('chat-share-activity-btn');
+      if (shareActivityBtn) {
+        shareActivityBtn.addEventListener('click', function () {
+          var act = sanitizeActivityPayload(currentUserActivity);
+          if (!act || act.kind === 'browsing') {
+            if (activeModuleObj) {
+              act = {
+                kind: 'game',
+                label: 'Playing ' + activeModuleObj.name,
+                detail: String(activeModuleObj.provider || 'arcade').toUpperCase(),
+                payload: { id: activeModuleObj.id, name: activeModuleObj.name, provider: activeModuleObj.provider, url: activeModuleObj.url, baseUrl: activeModuleObj.baseUrl || '' }
+              };
+            } else if (activeMovieObj) {
+              act = {
+                kind: 'movie',
+                label: 'Watching ' + activeMovieObj.title,
+                detail: String(activeMovieObj.source || 'Cinema'),
+                payload: { id: activeMovieObj.id, externalId: activeMovieObj.externalId, source: activeMovieObj.source, title: activeMovieObj.title, watchPageUrl: activeMovieObj.watchPageUrl || '' }
+              };
+            } else if (audioTitleEl && audioTitleEl.textContent) {
+              var trPayload = (audioMode === 'library' && activeLibraryList[activeLibraryIdx])
+                ? { mode: 'library', id: activeLibraryList[activeLibraryIdx].id, title: activeLibraryList[activeLibraryIdx].title, artist: activeLibraryList[activeLibraryIdx].artist, streamUrl: activeLibraryList[activeLibraryIdx].streamUrl, genre: activeLibraryList[activeLibraryIdx].genre }
+                : { mode: 'station', stationIdx: activeStationIdx, title: audioTitleEl.textContent, artist: audioDescEl ? audioDescEl.textContent : 'StudyHub' };
+              act = {
+                kind: 'music',
+                label: 'Listening to ' + audioTitleEl.textContent,
+                detail: audioDescEl ? audioDescEl.textContent : 'StudyHub Audio',
+                payload: trPayload
+              };
+            }
+          }
+          if (!act || act.kind === 'browsing') {
+            showToast('Launch a game, movie, or MP3 track first to share it!');
+            return;
+          }
+          var now = Date.now();
+          if (activeChatMode === 'dm' && dmThreads[activeDmKey]) {
+            var thr = dmThreads[activeDmKey];
+            var dmPayload = {
+              id: 'dm_' + now + '_' + Math.random().toString(36).slice(2, 7),
+              from: presenceTabId,
+              fromName: chatProfile.name || 'Guest',
+              fromColor: chatProfile.color || '#38bdf8',
+              to: thr.peerId,
+              toName: thr.peerName,
+              toColor: thr.peerColor,
+              text: act.label,
+              activityCard: act,
+              timestamp: now
+            };
+            handleIncomingDmPayload(dmPayload);
+            if (dmSyncChan) { try { dmSyncChan.postMessage(dmPayload); } catch (_e) {} }
+            if (mqttReady) mqttPublishJson('vux-global-chat-v1/dm/' + thr.peerId, dmPayload);
+            return;
+          }
+          var actMsg = {
+            id: 'msg_' + now + '_' + Math.random().toString(36).slice(2, 7),
+            channelId: activeChatChannel,
+            peerId: presenceTabId,
+            author: chatProfile.name || 'Guest',
+            avatarColor: chatProfile.color || '#38bdf8',
+            text: 'Shared live activity:',
+            activityCard: act,
+            timestamp: now,
+            reactions: {}
+          };
+          seenMqttMsgIds[actMsg.id] = true;
+          chatMessages.push(actMsg);
+          persistAndBroadcastChat();
+          renderChatView();
+          mqttPublishJson('vux-global-chat-v1/msg/' + activeChatChannel, actMsg);
+          showToast('Shared "' + act.label + '" to #' + activeChatChannel);
+        });
+      }
+
+      updateOnlineBadgeCount();
       renderChatProfileControls();
       renderChatView();
+      setTimeout(connectLiveMqtt, 400);
 
       /* ---------------- PICTURE-IN-PICTURE FLOATING BROWSER WIDGET ---------------- */
       var pipEl = document.getElementById('vux-pip-widget');
@@ -7629,9 +11017,16 @@ export function buildValBrowseBlobHtml(
         add('GMShelf Games Provider', 'Arcade', function () { switchView('gmshelf'); });
         add('CKV Games Provider', 'Arcade', function () { switchView('ckv'); });
         add('gn-math Script & Zones', 'Arcade', function () { switchView('gnmath'); });
+        add('Retro Consoles Emulator (EmulatorJS)', 'Arcade', function () { switchView('retro'); });
         add('Movies & TV Theater', 'Cinema', function () { switchView('movies'); });
         add('StudyHub MP3 & Ambient Studio', 'Audio', function () { switchView('music'); });
         add('Quick Scratchpad Notes', 'Utility', function () { toggleNotesDrawer(true); });
+        add('Utility Tools Drawer (Calc, Whiteboard, Timer)', 'Utility', function () { if (typeof toggleToolsDrawer === 'function') toggleToolsDrawer(true); });
+        add('Scientific Calculator', 'Utility', function () { if (typeof toggleToolsDrawer === 'function') { toggleToolsDrawer(true); if (typeof activateToolTab === 'function') activateToolTab('calc'); } });
+        add('Drawing Whiteboard Canvas', 'Utility', function () { if (typeof toggleToolsDrawer === 'function') { toggleToolsDrawer(true); if (typeof activateToolTab === 'function') activateToolTab('whiteboard'); } });
+        add('Pomodoro Study Timer', 'Utility', function () { if (typeof toggleToolsDrawer === 'function') { toggleToolsDrawer(true); if (typeof activateToolTab === 'function') activateToolTab('timer'); } });
+        add('Adblocker & Custom Userscripts', 'Proxy', function () { openStudioModal('scripts'); });
+        add('Toggle Boss Screen (Fake Google Doc)', 'Stealth', function () { if (typeof toggleBossScreen === 'function') toggleBossScreen(); });
         add('Customization Studio Settings', 'Studio', function () { openStudioModal('appearance'); });
         add('Cursive & Calligraphy Fonts', 'Studio', function () { activeFontCat = 'Cursive & Calligraphy'; openStudioModal('fonts'); });
         add('Streak & Achievement Badges', 'Profile', function () { openBadgesModal(); });
@@ -7783,7 +11178,7 @@ export function buildValBrowseBlobHtml(
         var w = cursorCanvas.width;
         var h = cursorCanvas.height;
         cursorCtx.clearRect(0, 0, w, h);
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff5c7c';
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffffff';
         for (var i = cursorPuffs.length - 1; i >= 0; i--) {
           var p = cursorPuffs[i];
           p.x += p.vx;
@@ -8055,7 +11450,7 @@ export function buildValBrowseBlobHtml(
             var w = loaderCanvasEl.width = window.innerWidth;
             var h = loaderCanvasEl.height = window.innerHeight;
             var t = now * 0.0012;
-            var acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ff5c7c';
+            var acc = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffffff';
             lCtx.clearRect(0, 0, w, h);
             for (var wave = 0; wave < 5; wave++) {
               lCtx.beginPath();
@@ -8122,20 +11517,761 @@ export function buildValBrowseBlobHtml(
         });
       }
 
+      /* ---------------- RETRO CONSOLE EMULATOR (EMULATORJS) ---------------- */
+      var retroCore = 'auto';
+      var retroRomBlobUrl = '';
+      var retroRunnerBlobUrl = '';
+      var retroDropzoneEl = document.getElementById('retro-rom-dropzone');
+      var retroInputEl = document.getElementById('retro-rom-input');
+      var retroPickBtn = document.getElementById('btn-retro-pick-rom');
+      var retroFsBtn = document.getElementById('btn-retro-fullscreen');
+      var retroEjectBtn = document.getElementById('btn-retro-eject');
+      var retroFrameEl = document.getElementById('retro-player-frame');
+      var retroEmptyEl = document.getElementById('retro-empty-state');
+      var retroStatusEl = document.getElementById('retro-status');
+
+      function detectRetroCoreFromFilename(name) {
+        if (retroCore && retroCore !== 'auto') return retroCore;
+        var lower = String(name || '').toLowerCase();
+        if (lower.endsWith('.nds')) return 'nds';
+        if (lower.endsWith('.n64') || lower.endsWith('.z64') || lower.endsWith('.v64')) return 'n64';
+        if (lower.endsWith('.smc') || lower.endsWith('.sfc')) return 'snes';
+        if (lower.endsWith('.nes')) return 'nes';
+        if (lower.endsWith('.gb') || lower.endsWith('.gbc')) return 'gb';
+        if (lower.endsWith('.bin') || lower.endsWith('.iso') || lower.endsWith('.chd') || lower.endsWith('.cue')) return 'psx';
+        return 'gba';
+      }
+
+      function ejectRetroRom() {
+        if (retroFrameEl) {
+          retroFrameEl.style.display = 'none';
+          retroFrameEl.removeAttribute('src');
+        }
+        if (retroEmptyEl) retroEmptyEl.style.display = 'flex';
+        if (retroRomBlobUrl) { try { URL.revokeObjectURL(retroRomBlobUrl); } catch (_e) {} retroRomBlobUrl = ''; }
+        if (retroRunnerBlobUrl) { try { URL.revokeObjectURL(retroRunnerBlobUrl); } catch (_e) {} retroRunnerBlobUrl = ''; }
+        if (retroStatusEl) retroStatusEl.textContent = 'Ready — drop or upload any ROM file';
+      }
+
+      function launchRetroRom(file) {
+        if (!file || !retroFrameEl) return;
+        ejectRetroRom();
+        var core = detectRetroCoreFromFilename(file.name);
+        retroRomBlobUrl = URL.createObjectURL(file);
+        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffffff';
+        var emuHtml = '<!DOCTYPE html><html><head><meta charset="utf-8" />' +
+          '<style>html,body,#game{margin:0;padding:0;width:100%;height:100%;background:#000;overflow:hidden;}</style>' +
+          '</head><body><div id="game"></div><script>' +
+          'window.EJS_player = "#game";' +
+          'window.EJS_core = ' + JSON.stringify(core) + ';' +
+          'window.EJS_gameName = ' + JSON.stringify(file.name) + ';' +
+          'window.EJS_gameUrl = ' + JSON.stringify(retroRomBlobUrl) + ';' +
+          'window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";' +
+          'window.EJS_startOnLoaded = true;' +
+          'window.EJS_color = ' + JSON.stringify(accent) + ';' +
+          '<\\/script><script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\\/script></body></html>';
+        retroRunnerBlobUrl = URL.createObjectURL(new Blob([emuHtml], { type: 'text/html' }));
+        if (retroEmptyEl) retroEmptyEl.style.display = 'none';
+        retroFrameEl.style.display = 'block';
+        retroFrameEl.src = retroRunnerBlobUrl;
+        var mb = (file.size / (1024 * 1024)).toFixed(2);
+        if (retroStatusEl) retroStatusEl.textContent = 'Running ' + file.name + ' (' + core.toUpperCase() + ' · ' + mb + ' MB)';
+        if (typeof recordVuxStat === 'function') recordVuxStat('gamesLaunched', 1);
+      }
+
+      document.querySelectorAll('#retro-system-pills .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          retroCore = btn.getAttribute('data-rcore') || 'auto';
+          document.querySelectorAll('#retro-system-pills .pill-btn').forEach(function (b) {
+            b.classList.toggle('active', b === btn);
+          });
+        });
+      });
+      if (retroPickBtn && retroInputEl) {
+        retroPickBtn.addEventListener('click', function () { retroInputEl.click(); });
+      }
+      if (retroInputEl) {
+        retroInputEl.addEventListener('change', function () {
+          if (retroInputEl.files && retroInputEl.files[0]) {
+            launchRetroRom(retroInputEl.files[0]);
+            retroInputEl.value = '';
+          }
+        });
+      }
+      if (retroDropzoneEl) {
+        retroDropzoneEl.addEventListener('dragover', function (ev) {
+          ev.preventDefault();
+          retroDropzoneEl.classList.add('drag-over');
+        });
+        retroDropzoneEl.addEventListener('dragleave', function () {
+          retroDropzoneEl.classList.remove('drag-over');
+        });
+        retroDropzoneEl.addEventListener('drop', function (ev) {
+          ev.preventDefault();
+          retroDropzoneEl.classList.remove('drag-over');
+          if (ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files[0]) {
+            launchRetroRom(ev.dataTransfer.files[0]);
+          }
+        });
+      }
+      if (retroEjectBtn) retroEjectBtn.addEventListener('click', ejectRetroRom);
+      if (retroFsBtn && retroFrameEl) {
+        retroFsBtn.addEventListener('click', function () {
+          if (retroFrameEl.requestFullscreen) retroFrameEl.requestFullscreen().catch(function () {});
+        });
+      }
+
+      /* ---------------- BUILT-IN UTILITY TOOLS DRAWER (CALC, WHITEBOARD, POMODORO) ---------------- */
+      var toolsDrawerEl = document.getElementById('vux-tools-drawer');
+      var toolsRailBtn = document.getElementById('btn-rail-tools');
+      var toolsWsBtn = document.getElementById('btn-ws-tools');
+      var toolsCloseBtn = document.getElementById('vux-tools-close');
+
+      function activateToolTab(tabId) {
+        document.querySelectorAll('#vux-tools-tabs .pill-btn').forEach(function (b) {
+          b.classList.toggle('active', b.getAttribute('data-tooltab') === tabId);
+        });
+        document.querySelectorAll('.vux-tools-pane').forEach(function (p) {
+          p.classList.toggle('active', p.id === 'toolpane-' + tabId);
+        });
+      }
+      function toggleToolsDrawer(forceOpen) {
+        if (!toolsDrawerEl) return;
+        var open = typeof forceOpen === 'boolean' ? forceOpen : !toolsDrawerEl.classList.contains('open');
+        if (open && notesDrawerEl && notesDrawerEl.classList.contains('open')) {
+          toggleNotesDrawer(false);
+        }
+        toolsDrawerEl.classList.toggle('open', open);
+        if (toolsRailBtn) toolsRailBtn.classList.toggle('active', open);
+        if (toolsWsBtn) toolsWsBtn.classList.toggle('active', open);
+      }
+      document.querySelectorAll('#vux-tools-tabs .pill-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          activateToolTab(btn.getAttribute('data-tooltab') || 'calc');
+        });
+      });
+      if (toolsRailBtn) toolsRailBtn.addEventListener('click', function () { toggleToolsDrawer(); });
+      if (toolsWsBtn) toolsWsBtn.addEventListener('click', function () { toggleToolsDrawer(); });
+      if (toolsCloseBtn) toolsCloseBtn.addEventListener('click', function () { toggleToolsDrawer(false); });
+
+      /* Scientific Calculator */
+      var calcExprEl = document.getElementById('vux-calc-expr');
+      var calcResultEl = document.getElementById('vux-calc-result');
+      var calcExpr = '';
+      var calcLastAns = '0';
+
+      function evaluateScientificExpr(raw) {
+        var cleaned = String(raw || '').trim();
+        if (!cleaned) return '0';
+        var jsExpr = cleaned
+          .replace(/ANS/g, '(' + calcLastAns + ')')
+          .replace(/\\bpi\\b/g, 'Math.PI')
+          .replace(/\\be\\b/g, 'Math.E')
+          .replace(/\\bsin\\(/g, 'Math.sin(')
+          .replace(/\\bcos\\(/g, 'Math.cos(')
+          .replace(/\\btan\\(/g, 'Math.tan(')
+          .replace(/\\blog\\(/g, 'Math.log10(')
+          .replace(/\\bln\\(/g, 'Math.log(')
+          .replace(/\\bsqrt\\(/g, 'Math.sqrt(')
+          .replace(/\\^/g, '**');
+        if (/[^0-9+\\-*/().,%\\sA-Za-z_]/.test(jsExpr)) return 'Error';
+        var stripped = jsExpr.replace(/Math\\.(?:PI|E|sin|cos|tan|log10|log|sqrt)/g, '');
+        if (/[A-Za-z_]/.test(stripped)) return 'Error';
+        try {
+          var val = Function('"use strict"; return (' + jsExpr + ');')();
+          if (typeof val !== 'number' || !Number.isFinite(val)) return 'Error';
+          return String(Math.round(val * 1e10) / 1e10);
+        } catch (_e) {
+          return 'Error';
+        }
+      }
+
+      function handleCalcToken(tok) {
+        if (tok === 'C') {
+          calcExpr = '';
+          if (calcExprEl) calcExprEl.textContent = '0';
+          if (calcResultEl) calcResultEl.textContent = '0';
+          return;
+        }
+        if (tok === 'DEL') {
+          calcExpr = calcExpr.slice(0, -1);
+          if (calcExprEl) calcExprEl.textContent = calcExpr || '0';
+          return;
+        }
+        if (tok === '=') {
+          var res = evaluateScientificExpr(calcExpr || calcLastAns);
+          if (calcResultEl) calcResultEl.textContent = res;
+          if (res !== 'Error') {
+            calcLastAns = res;
+            calcExpr = res;
+          }
+          return;
+        }
+        calcExpr += tok;
+        if (calcExprEl) calcExprEl.textContent = calcExpr;
+      }
+
+      document.querySelectorAll('#vux-calc-grid [data-calc]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          handleCalcToken(btn.getAttribute('data-calc'));
+        });
+      });
+
+      /* Drawing Whiteboard */
+      var wbCanvas = document.getElementById('vux-wb-canvas');
+      var wbCtx = wbCanvas ? wbCanvas.getContext('2d') : null;
+      var wbColor = '#ffffff';
+      var wbSize = 4;
+      var wbEraser = false;
+      var wbDrawing = false;
+      var wbHistory = [];
+
+      function pushWbUndoSnapshot() {
+        if (!wbCanvas) return;
+        try {
+          wbHistory.push(wbCanvas.toDataURL('image/png'));
+          if (wbHistory.length > 20) wbHistory.shift();
+        } catch (_e) {}
+      }
+      function saveWbToStorage() {
+        if (!wbCanvas) return;
+        try { safeLSSet('vux_whiteboard_png_v1', wbCanvas.toDataURL('image/png')); } catch (_e) {}
+      }
+      if (wbCanvas && wbCtx) {
+        wbCtx.fillStyle = '#09090b';
+        wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+        var savedWb = safeLSGet('vux_whiteboard_png_v1');
+        if (savedWb && savedWb.indexOf('data:image/') === 0) {
+          var wbImg = new Image();
+          wbImg.onload = function () { wbCtx.drawImage(wbImg, 0, 0, wbCanvas.width, wbCanvas.height); };
+          wbImg.src = savedWb;
+        }
+        function getWbPt(ev) {
+          var r = wbCanvas.getBoundingClientRect();
+          return {
+            x: ((ev.clientX - r.left) / (r.width || 1)) * wbCanvas.width,
+            y: ((ev.clientY - r.top) / (r.height || 1)) * wbCanvas.height
+          };
+        }
+        wbCanvas.addEventListener('pointerdown', function (ev) {
+          pushWbUndoSnapshot();
+          wbDrawing = true;
+          try { wbCanvas.setPointerCapture(ev.pointerId); } catch (_e) {}
+          var pt = getWbPt(ev);
+          wbCtx.beginPath();
+          wbCtx.moveTo(pt.x, pt.y);
+          wbCtx.strokeStyle = wbEraser ? '#09090b' : wbColor;
+          wbCtx.lineWidth = wbSize;
+          wbCtx.lineCap = 'round';
+          wbCtx.lineJoin = 'round';
+          wbCtx.lineTo(pt.x + 0.01, pt.y + 0.01);
+          wbCtx.stroke();
+        });
+        wbCanvas.addEventListener('pointermove', function (ev) {
+          if (!wbDrawing) return;
+          var pt = getWbPt(ev);
+          wbCtx.lineTo(pt.x, pt.y);
+          wbCtx.stroke();
+        });
+        var stopWbDraw = function () {
+          if (!wbDrawing) return;
+          wbDrawing = false;
+          wbCtx.closePath();
+          saveWbToStorage();
+        };
+        wbCanvas.addEventListener('pointerup', stopWbDraw);
+        wbCanvas.addEventListener('pointercancel', stopWbDraw);
+      }
+      document.querySelectorAll('#vux-wb-colors [data-wbcolor]').forEach(function (sw) {
+        sw.addEventListener('click', function () {
+          wbColor = sw.getAttribute('data-wbcolor') || '#ffffff';
+          wbEraser = false;
+          var erBtn = document.getElementById('vux-wb-eraser');
+          if (erBtn) { erBtn.classList.remove('active'); erBtn.textContent = 'Eraser: Off'; }
+          document.querySelectorAll('#vux-wb-colors .vux-wb-swatch').forEach(function (b) { b.classList.toggle('active', b === sw); });
+        });
+      });
+      var wbSizeIn = document.getElementById('vux-wb-size');
+      var wbSizeVal = document.getElementById('vux-wb-size-val');
+      if (wbSizeIn) {
+        wbSizeIn.addEventListener('input', function () {
+          wbSize = Number(wbSizeIn.value) || 4;
+          if (wbSizeVal) wbSizeVal.textContent = wbSize + 'px';
+        });
+      }
+      var wbEraserBtn = document.getElementById('vux-wb-eraser');
+      if (wbEraserBtn) {
+        wbEraserBtn.addEventListener('click', function () {
+          wbEraser = !wbEraser;
+          wbEraserBtn.classList.toggle('active', wbEraser);
+          wbEraserBtn.textContent = 'Eraser: ' + (wbEraser ? 'On' : 'Off');
+        });
+      }
+      var wbUndoBtn = document.getElementById('vux-wb-undo');
+      if (wbUndoBtn && wbCanvas && wbCtx) {
+        wbUndoBtn.addEventListener('click', function () {
+          var prev = wbHistory.pop();
+          if (!prev) return;
+          var uImg = new Image();
+          uImg.onload = function () {
+            wbCtx.fillStyle = '#09090b';
+            wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+            wbCtx.drawImage(uImg, 0, 0, wbCanvas.width, wbCanvas.height);
+            saveWbToStorage();
+          };
+          uImg.src = prev;
+        });
+      }
+      var wbClearBtn = document.getElementById('vux-wb-clear');
+      if (wbClearBtn && wbCanvas && wbCtx) {
+        wbClearBtn.addEventListener('click', function () {
+          pushWbUndoSnapshot();
+          wbCtx.fillStyle = '#09090b';
+          wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+          saveWbToStorage();
+        });
+      }
+      var wbSaveBtn = document.getElementById('vux-wb-save');
+      if (wbSaveBtn && wbCanvas) {
+        wbSaveBtn.addEventListener('click', function () {
+          var a = document.createElement('a');
+          a.href = wbCanvas.toDataURL('image/png');
+          a.download = 'vux-whiteboard.png';
+          a.click();
+        });
+      }
+
+      /* Pomodoro Study Timer */
+      var pomoTotalSec = 25 * 60;
+      var pomoRemainingSec = 25 * 60;
+      var pomoRunning = false;
+      var pomoIntervalId = 0;
+      var pomoSessionsCount = Number(safeLSGet('vux_pomo_sessions') || '0') || 0;
+      var pomoDisplayEl = document.getElementById('vux-pomo-display');
+      var pomoModeEl = document.getElementById('vux-pomo-mode-label');
+      var pomoSessionsEl = document.getElementById('vux-pomo-sessions');
+      var pomoStartBtn = document.getElementById('btn-pomo-start');
+      var pomoResetBtn = document.getElementById('btn-pomo-reset');
+      var pomoCustomIn = document.getElementById('vux-pomo-custom-mins');
+      var pomoCustomBtn = document.getElementById('btn-pomo-set-custom');
+
+      function formatPomoTime(sec) {
+        var s = Math.max(0, Math.floor(sec));
+        var m = Math.floor(s / 60);
+        var r = s % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+      }
+      function syncPomoUi() {
+        if (pomoDisplayEl) pomoDisplayEl.textContent = formatPomoTime(pomoRemainingSec);
+        if (pomoStartBtn) pomoStartBtn.textContent = pomoRunning ? 'Pause' : 'Start';
+        if (pomoSessionsEl) pomoSessionsEl.textContent = pomoSessionsCount + ' focus sessions completed';
+      }
+      function playPomoChime() {
+        try {
+          var Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return;
+          var ac = new Ctx();
+          [523.25, 659.25, 783.99].forEach(function (freq, idx) {
+            var osc = ac.createOscillator();
+            var gain = ac.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.001, ac.currentTime + idx * 0.14);
+            gain.gain.exponentialRampToValueAtTime(0.12, ac.currentTime + idx * 0.14 + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + idx * 0.14 + 0.45);
+            osc.connect(gain);
+            gain.connect(ac.destination);
+            osc.start(ac.currentTime + idx * 0.14);
+            osc.stop(ac.currentTime + idx * 0.14 + 0.46);
+          });
+        } catch (_e) {}
+      }
+      function stopPomoTimer() {
+        pomoRunning = false;
+        if (pomoIntervalId) { clearInterval(pomoIntervalId); pomoIntervalId = 0; }
+        syncPomoUi();
+      }
+      if (pomoStartBtn) {
+        pomoStartBtn.addEventListener('click', function () {
+          if (pomoRunning) {
+            stopPomoTimer();
+            return;
+          }
+          if (pomoRemainingSec <= 0) pomoRemainingSec = pomoTotalSec;
+          pomoRunning = true;
+          syncPomoUi();
+          pomoIntervalId = setInterval(function () {
+            pomoRemainingSec -= 1;
+            if (pomoRemainingSec <= 0) {
+              pomoRemainingSec = 0;
+              stopPomoTimer();
+              pomoSessionsCount += 1;
+              safeLSSet('vux_pomo_sessions', String(pomoSessionsCount));
+              syncPomoUi();
+              playPomoChime();
+              showToast('Study Timer finished!');
+              return;
+            }
+            syncPomoUi();
+          }, 1000);
+        });
+      }
+      if (pomoResetBtn) {
+        pomoResetBtn.addEventListener('click', function () {
+          stopPomoTimer();
+          pomoRemainingSec = pomoTotalSec;
+          syncPomoUi();
+        });
+      }
+      document.querySelectorAll('#vux-pomo-presets [data-pomomins]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          stopPomoTimer();
+          var mins = Number(btn.getAttribute('data-pomomins')) || 25;
+          pomoTotalSec = mins * 60;
+          pomoRemainingSec = pomoTotalSec;
+          if (pomoModeEl) pomoModeEl.textContent = btn.getAttribute('data-pomolabel') || 'Focus Session';
+          document.querySelectorAll('#vux-pomo-presets .pill-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+          syncPomoUi();
+        });
+      });
+      if (pomoCustomBtn && pomoCustomIn) {
+        pomoCustomBtn.addEventListener('click', function () {
+          stopPomoTimer();
+          var mins = Math.max(1, Math.min(180, Number(pomoCustomIn.value) || 25));
+          pomoTotalSec = mins * 60;
+          pomoRemainingSec = pomoTotalSec;
+          if (pomoModeEl) pomoModeEl.textContent = 'Custom (' + mins + 'm)';
+          syncPomoUi();
+        });
+      }
+      syncPomoUi();
+
+      /* ---------------- ADBLOCKER & CUSTOM USERSCRIPT MANAGER ---------------- */
+      var adblockEnabledState = safeLSGet('vux_adblock_enabled') !== '0';
+      var adblockToggleBtnEl = document.getElementById('btn-toggle-adblock');
+      var adblockDescEl = document.getElementById('vux-adblock-desc');
+      var adblockRefreshBtn = document.getElementById('btn-refresh-adblock-stats');
+      var usNameIn = document.getElementById('vux-us-name');
+      var usMatchIn = document.getElementById('vux-us-match');
+      var usCodeIn = document.getElementById('vux-us-code');
+      var usSaveBtn = document.getElementById('btn-vux-us-save');
+      var usResetBtn = document.getElementById('btn-vux-us-reset');
+      var usListEl = document.getElementById('vux-us-list');
+      var editingUsId = '';
+
+      function loadUserscripts() {
+        try {
+          var raw = safeLSGet('vux_userscripts_v1');
+          var arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch (_e) {
+          return [];
+        }
+      }
+      var savedUserscripts = loadUserscripts();
+
+      function syncAdblockToggleUi() {
+        if (adblockToggleBtnEl) {
+          adblockToggleBtnEl.classList.toggle('active', adblockEnabledState);
+          adblockToggleBtnEl.textContent = 'Adblocker: ' + (adblockEnabledState ? 'On' : 'Off');
+        }
+      }
+
+      async function refreshAdblockSwStats() {
+        try {
+          if (!('serviceWorker' in navigator)) return;
+          var reg = await navigator.serviceWorker.getRegistration('/scram/');
+          var sw = navigator.serviceWorker.controller || (reg && (reg.active || reg.waiting || reg.installing));
+          if (!sw) return;
+          var stats = await new Promise(function (resolve) {
+            var ch = new MessageChannel();
+            var timer = setTimeout(function () { resolve(null); }, 1000);
+            ch.port1.onmessage = function (ev) { clearTimeout(timer); resolve(ev.data || null); };
+            sw.postMessage({ scramjet$type: 'getAdblockStats' }, [ch.port2]);
+          });
+          if (stats && adblockDescEl) {
+            adblockDescEl.textContent = (adblockEnabledState ? 'Active' : 'Paused') + ' · ' + Number(stats.blockedCount || 0) + ' ad/tracker requests blocked this session';
+          }
+        } catch (_e) {}
+      }
+
+      function broadcastProxyExtensions() {
+        safeLSSet('vux_adblock_enabled', adblockEnabledState ? '1' : '0');
+        safeLSSet('vux_userscripts_v1', JSON.stringify(savedUserscripts));
+        var frame = document.getElementById('valbrowse-proxy-frame');
+        if (frame && frame.contentWindow) {
+          try {
+            frame.contentWindow.postMessage({
+              type: 'vux-proxy-extensions',
+              adblockEnabled: adblockEnabledState,
+              userscripts: savedUserscripts
+            }, '*');
+          } catch (_e) {}
+        }
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistration('/scram/').then(function (reg) {
+              var sw = navigator.serviceWorker.controller || (reg && reg.active);
+              if (sw) {
+                var ch = new MessageChannel();
+                sw.postMessage({ scramjet$type: 'setAdblockEnabled', enabled: adblockEnabledState }, [ch.port2]);
+              }
+            }).catch(function () {});
+          }
+        } catch (_e) {}
+      }
+
+      function syncAdblockStateFromBrowser(enabled) {
+        adblockEnabledState = Boolean(enabled);
+        safeLSSet('vux_adblock_enabled', adblockEnabledState ? '1' : '0');
+        syncAdblockToggleUi();
+        refreshAdblockSwStats();
+      }
+
+      function renderUserscriptsList() {
+        if (!usListEl) return;
+        usListEl.innerHTML = '';
+        if (!savedUserscripts.length) {
+          var emp = document.createElement('div');
+          emp.className = 'sub';
+          emp.textContent = 'No custom userscripts saved yet. Create one above to run JS inside matching proxied pages.';
+          usListEl.appendChild(emp);
+          return;
+        }
+        savedUserscripts.forEach(function (us) {
+          var row = document.createElement('div');
+          row.className = 'setting-row';
+          row.style.padding = '8px 10px';
+          var meta = document.createElement('div');
+          meta.className = 'setting-row-meta';
+          var ttl = document.createElement('span');
+          ttl.className = 'setting-row-title';
+          ttl.textContent = us.name || 'Untitled Script';
+          var sub = document.createElement('span');
+          sub.className = 'setting-row-desc';
+          sub.style.fontFamily = 'var(--font-mono)';
+          sub.textContent = 'Match: ' + (us.match || '*') + ' · ' + String(us.code || '').length + ' chars';
+          meta.appendChild(ttl);
+          meta.appendChild(sub);
+
+          var acts = document.createElement('div');
+          acts.className = 'pill-row';
+          var tog = document.createElement('button');
+          tog.type = 'button';
+          tog.className = 'pill-btn' + (us.enabled !== false ? ' active' : '');
+          tog.style.cssText = 'height:26px;font-size:11px;';
+          tog.textContent = us.enabled !== false ? 'Enabled' : 'Paused';
+          tog.onclick = function () {
+            us.enabled = us.enabled === false;
+            broadcastProxyExtensions();
+            renderUserscriptsList();
+          };
+          var edt = document.createElement('button');
+          edt.type = 'button';
+          edt.className = 'btn';
+          edt.style.cssText = 'height:26px;font-size:11px;';
+          edt.textContent = 'Edit';
+          edt.onclick = function () {
+            editingUsId = us.id;
+            if (usNameIn) usNameIn.value = us.name || '';
+            if (usMatchIn) usMatchIn.value = us.match || '*';
+            if (usCodeIn) usCodeIn.value = us.code || '';
+          };
+          var del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'btn';
+          del.style.cssText = 'height:26px;font-size:11px;';
+          del.textContent = 'Delete';
+          del.onclick = function () {
+            savedUserscripts = savedUserscripts.filter(function (x) { return x.id !== us.id; });
+            if (editingUsId === us.id) editingUsId = '';
+            broadcastProxyExtensions();
+            renderUserscriptsList();
+          };
+          acts.appendChild(tog);
+          acts.appendChild(edt);
+          acts.appendChild(del);
+          row.appendChild(meta);
+          row.appendChild(acts);
+          usListEl.appendChild(row);
+        });
+      }
+
+      if (adblockToggleBtnEl) {
+        adblockToggleBtnEl.addEventListener('click', function () {
+          adblockEnabledState = !adblockEnabledState;
+          syncAdblockToggleUi();
+          broadcastProxyExtensions();
+          setTimeout(refreshAdblockSwStats, 180);
+        });
+      }
+      if (adblockRefreshBtn) adblockRefreshBtn.addEventListener('click', refreshAdblockSwStats);
+      if (usSaveBtn) {
+        usSaveBtn.addEventListener('click', function () {
+          var nm = (usNameIn && usNameIn.value ? usNameIn.value : '').trim().slice(0, 48) || 'Custom Script';
+          var mt = (usMatchIn && usMatchIn.value ? usMatchIn.value : '').trim().slice(0, 120) || '*';
+          var cd = (usCodeIn && usCodeIn.value ? usCodeIn.value : '').trim();
+          if (!cd) {
+            showToast('Enter JavaScript code for your userscript first.');
+            return;
+          }
+          if (editingUsId) {
+            var existing = savedUserscripts.find(function (x) { return x.id === editingUsId; });
+            if (existing) {
+              existing.name = nm;
+              existing.match = mt;
+              existing.code = cd;
+            }
+            editingUsId = '';
+          } else {
+            savedUserscripts.push({
+              id: 'us_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              name: nm,
+              match: mt,
+              code: cd,
+              enabled: true
+            });
+          }
+          if (usNameIn) usNameIn.value = '';
+          if (usMatchIn) usMatchIn.value = '*';
+          if (usCodeIn) usCodeIn.value = '';
+          broadcastProxyExtensions();
+          renderUserscriptsList();
+          showToast('Userscript "' + nm + '" saved & synced.');
+        });
+      }
+      if (usResetBtn) {
+        usResetBtn.addEventListener('click', function () {
+          editingUsId = '';
+          if (usNameIn) usNameIn.value = '';
+          if (usMatchIn) usMatchIn.value = '*';
+          if (usCodeIn) usCodeIn.value = '';
+        });
+      }
+      syncAdblockToggleUi();
+      renderUserscriptsList();
+
+      /* ---------------- INSTANT BOSS SCREEN (DOUBLE-TAP SHIFT -> FAKE GOOGLE DOC) ---------------- */
+      var bossScreenEl = document.getElementById('vux-boss-screen');
+      var bossWsBtn = document.getElementById('btn-ws-boss');
+      var bossExitBtn = document.getElementById('btn-boss-exit');
+      var bossActive = false;
+      var bossPrevTitle = '';
+      var bossCleanShiftDown = false;
+      var bossLastShiftTapAt = 0;
+
+      function toggleBossScreen(forceState) {
+        if (!bossScreenEl) return;
+        var next = typeof forceState === 'boolean' ? forceState : !bossActive;
+        if (next === bossActive) return;
+        bossActive = next;
+        bossScreenEl.classList.toggle('open', next);
+        if (next) {
+          bossPrevTitle = document.title;
+          document.title = 'AP Biology Unit 4 Study Guide - Google Docs';
+        } else {
+          document.title = bossPrevTitle || safeLSGet('valem_cloak_title') || 'Vux';
+        }
+      }
+
+      if (bossWsBtn) bossWsBtn.addEventListener('click', function () { toggleBossScreen(); });
+      if (bossExitBtn) bossExitBtn.addEventListener('click', function () { toggleBossScreen(false); });
+
+      window.addEventListener('keydown', function (e) {
+        if (e && e.key === 'Shift') {
+          if (!e.repeat && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            bossCleanShiftDown = true;
+          } else {
+            bossCleanShiftDown = false;
+          }
+        } else {
+          bossCleanShiftDown = false;
+        }
+      }, true);
+
+      window.addEventListener('keyup', function (e) {
+        if (e && e.key === 'Shift' && bossCleanShiftDown) {
+          bossCleanShiftDown = false;
+          var nowTap = Date.now();
+          if (nowTap - bossLastShiftTapAt <= 420) {
+            bossLastShiftTapAt = 0;
+            toggleBossScreen();
+          } else {
+            bossLastShiftTapAt = nowTap;
+          }
+        }
+      }, true);
+
       /* ---------------- BOOT ---------------- */
       var savedCloak = safeLSGet('valem_cloak_title');
       if (savedCloak) document.title = savedCloak;
       applyRailMode(railMode);
       applyColorPreset(activePresetId);
       applyCustomSettings(customSettings);
+      hydrateWallpaperFromIDB();
+      syncWorkspaceStageLayout();
+      hydrateCachedCatalogsFromStorage();
       rebuildMergedModules();
-      fetchGnZones();
-      fetchSeraphCatalog();
-      fetchGmshelfCatalog();
-      fetchCkvCatalog();
       runLoaderAnimation();
     })();
   </script>
+
+  <!-- Instant Fake Google Doc Boss Screen (Shift + Shift) -->
+  <div class="vux-boss-screen" id="vux-boss-screen" role="dialog" aria-label="Study Notes Document">
+    <div class="vux-boss-topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path fill="#A1C2FA" d="M14 2v6h6z"/>
+          <path fill="#FFFFFF" d="M8 12h8v1.4H8zm0 3h8v1.4H8zm0 3h5v1.4H8z"/>
+        </svg>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <strong style="font-size:16px;font-weight:500;color:#1f1f1f;">AP Biology Unit 4 Study Guide</strong>
+            <span style="font-size:11px;color:#5f6368;">Saved to Drive</span>
+          </div>
+          <div style="display:flex;gap:12px;font-size:12px;color:#444746;margin-top:2px;">
+            <span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span><span>Extensions</span><span>Help</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button type="button" id="btn-boss-exit" style="border:1px solid #dadce0;background:#fff;color:#444746;border-radius:18px;padding:6px 12px;font-size:12px;cursor:pointer;" title="Or double-tap Shift again">Resume Session (Shift×2)</button>
+        <span style="background:#c2e7ff;color:#001d35;border-radius:18px;padding:7px 16px;font-size:13px;font-weight:600;">Share</span>
+      </div>
+    </div>
+    <div class="vux-boss-toolbar" aria-hidden="true">
+      <span>Undo</span><span>Redo</span><span>Print</span><span>|</span><span>100%</span><span>|</span><span>Normal text</span><span>|</span><span>Arial</span><span>11</span><span>|</span><strong>B</strong><em>I</em><u>U</u><span>|</span><span>Align</span><span>Line spacing</span><span>Checklist</span>
+    </div>
+    <div class="vux-boss-workspace">
+      <div class="vux-boss-outline">
+        <strong style="color:#1f1f1f;margin-bottom:4px;">Outline</strong>
+        <span style="color:#1a73e8;font-weight:600;">1. Cell Communication</span>
+        <span>2. Signal Transduction Pathways</span>
+        <span>3. Feedback &amp; Homeostasis</span>
+        <span>4. Mitosis &amp; Cell Cycle Checkpoints</span>
+        <span>5. Key Review Questions</span>
+      </div>
+      <div class="vux-boss-page" contenteditable="true" spellcheck="false">
+        <h1 style="font-size:22px;margin:0 0 10px;font-weight:700;color:#202124;">Unit 4: Cell Communication and Cell Cycle</h1>
+        <p style="margin:0 0 14px;color:#5f6368;font-size:13px;">Course Notes · Updated Today · Double-tap Shift to toggle overlay</p>
+        <h2 style="font-size:16px;margin:18px 0 8px;color:#1a73e8;">1. Overview of Cellular Signaling</h2>
+        <p style="margin:0 0 12px;">Cells communicate over short and long distances using chemical messengers called ligands. Local signaling includes paracrine signaling (growth factors diffusing to nearby cells) and synaptic signaling across neurotransmitter junctions. Long-distance signaling relies primarily on endocrine hormones transported through the bloodstream to target tissues.</p>
+        <h2 style="font-size:16px;margin:18px 0 8px;color:#1a73e8;">2. Signal Transduction Pathways</h2>
+        <ul style="margin:0 0 14px 20px;padding:0;">
+          <li><strong>Reception:</strong> A ligand binds specifically to a membrane-bound receptor (such as a G-protein coupled receptor or receptor tyrosine kinase) or an intracellular cytoplasmic receptor for hydrophobic steroid hormones.</li>
+          <li><strong>Transduction:</strong> Conformational changes trigger a phosphorylation cascade using protein kinases and second messengers such as cyclic AMP (cAMP) and calcium ions (Ca²⁺), amplifying the initial signal.</li>
+          <li><strong>Response:</strong> Activated transcription factors enter the nucleus to regulate gene expression or alter enzymatic activity in the cytoplasm.</li>
+        </ul>
+        <h2 style="font-size:16px;margin:18px 0 8px;color:#1a73e8;">3. Feedback Mechanisms &amp; Homeostasis</h2>
+        <p style="margin:0 0 12px;">Negative feedback loops stabilize internal variables by counteracting deviations from a set point (e.g., insulin and glucagon regulating blood glucose concentration). Positive feedback amplifies a physiological response toward completion, such as oxytocin release during uterine contractions or ethylene gas accelerating fruit ripening.</p>
+        <h2 style="font-size:16px;margin:18px 0 8px;color:#1a73e8;">4. Cell Cycle Regulation &amp; Checkpoints</h2>
+        <p style="margin:0 0 12px;">Progression through G1, S, G2, and M phases is governed by cyclin-dependent kinases (CDKs) paired with oscillating cyclin concentrations. The G1 restriction checkpoint verifies cell size, nutrient availability, and DNA integrity; failure to pass directs the cell into a quiescent G0 state or triggers apoptosis via p53 activation.</p>
+        <h2 style="font-size:16px;margin:18px 0 8px;color:#1a73e8;">5. Key Practice Summary</h2>
+        <p style="margin:0;">Remember that mutations converting proto-oncogenes into hyperactive oncogenes or disabling tumor-suppressor genes disrupt checkpoint control, allowing unregulated mitotic division.</p>
+      </div>
+    </div>
+  </div>
 </body>
 </html>`;
 }

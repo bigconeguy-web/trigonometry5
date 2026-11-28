@@ -32,7 +32,7 @@ export default function App() {
 
   const handleOpenStandaloneBlob = useCallback(() => {
     setPopupBlockedToast(false);
-    const targetUrl = buildValBrowseOriginUrl(window.location.origin);
+    const targetUrl = buildValBrowseOriginUrl(window.location.href);
     const html = buildStandaloneBlobWrapperHtml(targetUrl);
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
@@ -81,7 +81,7 @@ export default function App() {
   if (isInsideBlob && valbrowseDocHtml) {
     return (
       <div
-        className="fixed inset-0 z-50 bg-[#080406] flex flex-col"
+        className="fixed inset-0 z-50 bg-[#000000] flex flex-col"
         role="dialog"
         aria-modal="true"
         aria-label="Vux Workspace"
@@ -90,8 +90,8 @@ export default function App() {
           data-testid="valbrowse-blob-iframe"
           srcDoc={valbrowseDocHtml}
           title="Vux Workspace"
-          allow="autoplay; gamepad; fullscreen"
-          className="w-full h-full border-0 bg-[#0b0608]"
+          allow="autoplay; gamepad; fullscreen; clipboard-read; clipboard-write"
+          className="w-full h-full border-0 bg-[#000000]"
         />
       </div>
     );

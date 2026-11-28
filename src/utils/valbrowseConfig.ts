@@ -1,11 +1,11 @@
 import type { StudyModuleItem } from '../data/studyCatalog.js';
 import { normalizeTitleKey } from './ugsCatalog.js';
 
-export const DEFAULT_WISP_URL = 'wss://wisp.mercurywork.shop/';
 export const RENDER_WISP_URL = 'wss://my-wisp-server-ocnq.onrender.com/wisp/';
+export const MERCURY_WISP_URL = 'wss://wisp.mercurywork.shop/';
+export const DEFAULT_WISP_URL = RENDER_WISP_URL;
 export const VUX_AI_TARGET_URL = 'https://duck.ai';
 export const LEGACY_DEFAULT_WISP_URLS = [
-  'wss://my-wisp-server-ocnq.onrender.com/wisp/',
   'wss://my-wisp-server-ocnq.onrender.com/',
 ];
 export const PANIC_REDIRECT_URL = 'https://classroom.google.com';
@@ -44,15 +44,16 @@ export const VALBROWSE_WISP_STORAGE_KEY = 'valbrowse_wisp_url';
 export const LEGACY_WISP_STORAGE_KEY = 'gn_scramjet_wisp';
 export const EULER_FAVS_KEY = 'euler_favs';
 
-export type BareMuxTransportMode = 'libcurl';
+export type BareMuxTransportMode = 'libcurl' | 'epoxy';
 export const DEFAULT_BAREMUX_TRANSPORT: BareMuxTransportMode = 'libcurl';
 export const BAREMUX_TRANSPORT_STORAGE_KEY = 'valem_baremux_transport';
 export const BAREMUX_TRANSPORT_PATHS: Record<BareMuxTransportMode, string> = {
   libcurl: '/libcurl/index.mjs',
+  epoxy: '/epoxy/index.mjs',
 };
 
-export function normalizeTransportMode(_raw: string | null | undefined): BareMuxTransportMode {
-  return 'libcurl';
+export function normalizeTransportMode(raw: string | null | undefined): BareMuxTransportMode {
+  return String(raw || '').trim().toLowerCase() === 'epoxy' ? 'epoxy' : 'libcurl';
 }
 
 export type ValemHomeLayout = 'split' | 'normal' | 'side' | 'minimal';
@@ -198,13 +199,13 @@ export function isScramjetScope(scope: string | null | undefined, origin: string
 
 export function buildScramjetThemeParams(): string {
   const params = new URLSearchParams({
-    bg: '#0b0608',
-    bgSec: '#080406',
-    surface: '#140a0e',
-    text: '#fdf2f4',
-    muted: '#9f878f',
-    border: 'rgba(255,255,255,0.08)',
-    primary: '#ff5c7c',
+    bg: '#000000',
+    bgSec: '#050505',
+    surface: '#0a0a0a',
+    text: '#ffffff',
+    muted: '#9ca3af',
+    border: '#1f1f1f',
+    primary: '#ffffff',
     light: '0',
   });
   return params.toString();
@@ -366,7 +367,7 @@ export function buildStandaloneBlobWrapperHtml(
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #0b0608;
+      background: #000000;
     }
     iframe {
       width: 100vw;
@@ -382,7 +383,6 @@ export function buildStandaloneBlobWrapperHtml(
     src="${safeSrc}"
     title="Home - Classroom"
     allow="autoplay; gamepad; fullscreen; clipboard-read; clipboard-write"
-    allowfullscreen
   ></iframe>
   <script>
     (function () {

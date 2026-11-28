@@ -74,8 +74,21 @@ export function getContrastInk(bgHex: string): '#09090b' | '#ffffff' {
 
 export const THEMES_CATALOG: ThemeSpec[] = [
   // ============================================================================
-  // Dark & Neon (42 total: 8 original + 34 new)
+  // Dark & Neon (42 total: Default AMOLED + Dark/Neon themes)
   // ============================================================================
+  {
+    id: 'amoled-black',
+    name: 'All-Black AMOLED',
+    category: 'Dark & Neon',
+    studioCategory: 'Monochrome',
+    bgPrimary: '#000000',
+    bgSecondary: '#050505',
+    bgCard: '#0a0a0a',
+    textPrimary: '#ffffff',
+    textMuted: '#9ca3af',
+    accent: '#ffffff',
+    border: '#1f1f1f',
+  },
   {
     id: 'midnight-oled',
     name: 'Midnight OLED',
@@ -1663,7 +1676,6 @@ export const THEMES_CATALOG: ThemeSpec[] = [
     ['platinum-day', 'Platinum Day', 'High-Contrast & Light', 'Monochrome', '#f8fafc', '#eef1f5', '#ffffff', '#0f172a', '#475569', '#334155', '#cbd5e1', true],
     ['carbon-wire', 'Carbon Wire', 'High-Contrast & Light', 'Monochrome', '#050505', '#0d0d0d', '#171717', '#ffffff', '#a1a1aa', '#f4f4f5', '#2b2b2b', false],
     ['chalk-minimal', 'Chalk Minimal', 'High-Contrast & Light', 'Monochrome', '#ffffff', '#f3f4f6', '#fafafa', '#111827', '#4b5563', '#1f2937', '#e5e7eb', true],
-    ['iron-charcoal', 'Iron Charcoal', 'Dark & Neon', 'Monochrome', '#161618', '#202024', '#2b2b30', '#f5f5f7', '#a0a0ab', '#e4e4eb', '#3f3f47', false],
     ['retro-atari', 'Retro Atari', 'Dark & Neon', 'Retro', '#170f0a', '#24170f', '#332116', '#fff7ed', '#c49d80', '#f97316', '#523422', false],
     ['crt-phosphor', 'CRT Phosphor', 'Dark & Neon', 'Retro', '#051208', '#091f0e', '#0e2e16', '#dcfce7', '#74b887', '#4ade80', '#184a25', false],
     ['commodore-64', 'Commodore Slate', 'Dark & Neon', 'Retro', '#10142e', '#171d42', '#202859', '#eef2ff', '#929cd4', '#60a5fa', '#33408a', false],
@@ -1752,7 +1764,7 @@ const LEGACY_THEME_MAP: Record<string, string> = {
 };
 
 export function resolveThemeById(id: string | null | undefined): ThemeSpec {
-  const key = (id && LEGACY_THEME_MAP[id]) || id || 'midnight-oled';
+  const key = (id && LEGACY_THEME_MAP[id]) || id || 'amoled-black';
   return THEMES_CATALOG.find((t) => t.id === key) || THEMES_CATALOG[0];
 }
 
